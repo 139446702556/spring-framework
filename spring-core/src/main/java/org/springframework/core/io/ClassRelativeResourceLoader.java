@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
  * @since 3.0
  * @see Class#getResource(String)
  * @see ClassPathResource#ClassPathResource(String, Class)
+ * 此资源加载器可以在clazz所在的包或者此包下的子包下加载资源
  */
 public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 
@@ -36,6 +37,7 @@ public class ClassRelativeResourceLoader extends DefaultResourceLoader {
 	/**
 	 * Create a new ClassRelativeResourceLoader for the given class.
 	 * @param clazz the class to load resources through
+	 *  创建一个ClassRelativeResourceLoader类的对象，设置资源加载器的classLoader为clazz类对象的加载器
 	 */
 	public ClassRelativeResourceLoader(Class<?> clazz) {
 		Assert.notNull(clazz, "Class must not be null");

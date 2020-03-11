@@ -75,6 +75,7 @@ public class UrlResource extends AbstractFileResolvingResource {
 	/**
 	 * Create a new {@code UrlResource} based on the given URL object.
 	 * @param url a URL
+	 * 创建一个UrlResource对象的构造函数
 	 */
 	public UrlResource(URL url) {
 		Assert.notNull(url, "URL must not be null");

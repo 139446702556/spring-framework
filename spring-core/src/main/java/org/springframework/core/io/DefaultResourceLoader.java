@@ -159,7 +159,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 			}
 		}
 
-		//资源路径以 / 开头的，返回一个ClassPathContextResource类型的资源
+		//资源路径以 / 开头的，返回一个ClassPathContextResource类型的资源（DefaultResourceLoader），具体的针对不同资源加载器的实现
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}

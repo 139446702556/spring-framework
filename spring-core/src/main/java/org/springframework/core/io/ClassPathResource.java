@@ -120,6 +120,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 
 	/**
 	 * Return the path for this resource (as resource path within the class path).
+	 * 返回当前资源所对应的路径地址
 	 */
 	public final String getPath() {
 		return this.path;
@@ -147,6 +148,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	/**
 	 * Resolves a URL for the underlying class path resource.
 	 * @return the resolved URL, or {@code null} if not resolvable
+	 * 通过当前类对象、类加载器以及系统类加载器来加载当前path地址下的资源生成URL对象
 	 */
 	@Nullable
 	protected URL resolveURL() {

@@ -63,6 +63,11 @@ public class PathMatchingResourcePatternResolverTests {
 	}
 
 	@Test
+	public void invalidEmptyPattern() throws IOException{
+		resolver.getResources("classpath*:/");
+	}
+
+	@Test
 	public void singleResourceOnFileSystem() throws IOException {
 		Resource[] resources =
 				resolver.getResources("org/springframework/core/io/support/PathMatchingResourcePatternResolverTests.class");
