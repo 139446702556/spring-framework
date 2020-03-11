@@ -60,6 +60,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	 * <p>ClassLoader access will happen using the thread context class loader
 	 * at the time of this ResourceLoader's initialization.
 	 * @see java.lang.Thread#getContextClassLoader()
+	 * 创建一个默认的资源加载器，使用的classLoader是默认的类加载器，一般为Thread.currentThread().getContextClassLoader()创建的
 	 */
 	public DefaultResourceLoader() {
 		this.classLoader = ClassUtils.getDefaultClassLoader();
@@ -90,6 +91,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	 * <p>Will get passed to ClassPathResource's constructor for all
 	 * ClassPathResource objects created by this resource loader.
 	 * @see ClassPathResource
+	 * 获取类加载器，如果不存在，则使用默认的类加载器，一般为当前线程的类加载器
 	 */
 	@Override
 	@Nullable
@@ -104,6 +106,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	 * resolution rules. It may therefore also override any default rules.
 	 * @since 4.3
 	 * @see #getProtocolResolvers()
+	 * 此方法用于给资源加载器添加自定义ProtocolResolver
 	 */
 	public void addProtocolResolver(ProtocolResolver resolver) {
 		Assert.notNull(resolver, "ProtocolResolver must not be null");
@@ -140,10 +143,15 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 
+	/**
+	 *	 通过指定路径location来加载Resource（因此此类的两个子类均没有重写这个方法，所以其资源加载策略就封装在这里）
+	 *	 只有具有指定协议的地址location才能够转化为URL(通过sun.net.www.protocol.加上：前面的协议名字这个全路径的包下可以找到指定的handler则可以转化为URL)
+	*/
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
 
+		//先通过protocolResolver来加载location路径的资源
 		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
@@ -151,20 +159,25 @@ public class DefaultResourceLoader implements ResourceLoader {
 			}
 		}
 
+		//资源路径以 / 开头的，返回一个ClassPathContextResource类型的资源
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		//资源路径以classpath：开头的，返回一个ClassPathResource类型的资源
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
 			try {
 				// Try to parse the location as a URL...
+				//通过资源地址location解析创建一个URL
 				URL url = new URL(location);
+				//判断是否为文件URL，是的话则返回一个FileUrlResource类型的资源，否则返回一个UrlResource类型的资源
 				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
 			}
 			catch (MalformedURLException ex) {
 				// No URL -> resolve as resource path.
+				//如果创建URL失败，则按照ClassPathContextResource类型的资源来处理加载
 				return getResourceByPath(location);
 			}
 		}
@@ -180,6 +193,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	 * @see ClassPathResource
 	 * @see org.springframework.context.support.FileSystemXmlApplicationContext#getResourceByPath
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext#getResourceByPath
+	 * 通过资源路径来创建ClassPathContextResource类型的资源（路径根据指定要求处理过）
 	 */
 	protected Resource getResourceByPath(String path) {
 		return new ClassPathContextResource(path, getClassLoader());

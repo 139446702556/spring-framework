@@ -266,6 +266,7 @@ public abstract class ResourceUtils {
 	 * i.e. has protocol "file", "vfsfile" or "vfs".
 	 * @param url the URL to check
 	 * @return whether the URL has been identified as a file system URL
+	 * 通过指定url的协议头来判断是否为File URL
 	 */
 	public static boolean isFileURL(URL url) {
 		String protocol = url.getProtocol();
@@ -365,6 +366,7 @@ public abstract class ResourceUtils {
 	 * @return the URI instance
 	 * @throws URISyntaxException if the URL wasn't a valid URI
 	 * @see java.net.URL#toURI()
+	 * 通过URL来拼接请求链接串，并转换为URI
 	 */
 	public static URI toURI(URL url) throws URISyntaxException {
 		return toURI(url.toString());

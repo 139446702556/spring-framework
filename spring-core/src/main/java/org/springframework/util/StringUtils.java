@@ -397,6 +397,8 @@ public abstract class StringUtils {
 	 * @param oldPattern {@code String} to replace
 	 * @param newPattern {@code String} to insert
 	 * @return a {@code String} with the replacements
+	 * 将inString字符串中的oldPattern符号替换为newPattern符号，此操作为重新创建新的字符串空间操作，
+	 * 如果newPattern符号比oldPattern符号长，则操作的时候需要针对原先字符串内容长度来进行扩容16个字节
 	 */
 	public static String replace(String inString, String oldPattern, @Nullable String newPattern) {
 		if (!hasLength(inString) || !hasLength(oldPattern) || newPattern == null) {
@@ -641,6 +643,7 @@ public abstract class StringUtils {
 	 * notice that Windows separators ("\") are replaced by simple slashes.
 	 * @param path the original path
 	 * @return the normalized path
+	 * 规划路径格式
 	 */
 	public static String cleanPath(String path) {
 		if (!hasLength(path)) {

@@ -28,6 +28,8 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 4.3
  * @see DefaultResourceLoader#addProtocolResolver
+ * 此接口无实现类，用于给用户自定义协议解析器；如果用户需要自定义资源加载器时，可以不实现ResourceLoader接口
+ * 和继承DefaultResourceLoader类，而是通过实现自定义协议解析器并注入ResourceLoader中，来控制解析创建出的资源类型
  */
 @FunctionalInterface
 public interface ProtocolResolver {
@@ -39,6 +41,7 @@ public interface ProtocolResolver {
 	 * @param resourceLoader the associated resource loader
 	 * @return a corresponding {@code Resource} handle if the given location
 	 * matches this resolver's protocol, or {@code null} otherwise
+	 * 通过给定的资源加载器来加载地址location处的资源
 	 */
 	@Nullable
 	Resource resolve(String location, ResourceLoader resourceLoader);

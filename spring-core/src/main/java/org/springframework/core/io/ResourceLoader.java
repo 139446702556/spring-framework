@@ -38,10 +38,14 @@ import org.springframework.util.ResourceUtils;
  * @see org.springframework.core.io.support.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ * 资源加载器，主要是根据主要的资源文件地址来加载资源返回Resource
+ * 它的主要实现在其子类DefaultResourceLoader中
  */
 public interface ResourceLoader {
 
-	/** Pseudo URL prefix for loading from the class path: "classpath:". */
+	/** Pseudo URL prefix for loading from the class path: "classpath:".
+	 *	从类路径加载资源的URL前缀
+	 */
 	String CLASSPATH_URL_PREFIX = ResourceUtils.CLASSPATH_URL_PREFIX;
 
 
@@ -63,6 +67,8 @@ public interface ResourceLoader {
 	 * @see #CLASSPATH_URL_PREFIX
 	 * @see Resource#exists()
 	 * @see Resource#getInputStream()
+	 * 根绝所提供资源的路径location来获取Resource实例，但是不保证Resource一定存在，需要调用exists方法来进行判断
+	 * 资源加载的几种模式：URL位置资源、classpath位置资源、相对路径资源
 	 */
 	Resource getResource(String location);
 
@@ -75,6 +81,7 @@ public interface ResourceLoader {
 	 * (only {@code null} if even the system ClassLoader isn't accessible)
 	 * @see org.springframework.util.ClassUtils#getDefaultClassLoader()
 	 * @see org.springframework.util.ClassUtils#forName(String, ClassLoader)
+	 * 获取ResourceLoader使用的classLoader
 	 */
 	@Nullable
 	ClassLoader getClassLoader();
