@@ -127,6 +127,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	private final XmlValidationModeDetector validationModeDetector = new XmlValidationModeDetector();
 
+	/**
+	 * 当前线程，正在加载的EncodedResource集合
+	 */
 	private final ThreadLocal<Set<EncodedResource>> resourcesCurrentlyBeingLoaded =
 			new NamedThreadLocal<>("XML bean definition resources currently being loaded");
 
@@ -299,9 +302,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @param resource the resource descriptor for the XML file
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
+	 * 从指定的xml文件中加载bean定义
 	 */
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
+		//将Resource转化为EncodedResource主要是为了对资源进行编码，以保证内容读取的正确性
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -311,32 +316,42 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * allowing to specify an encoding to use for parsing the file
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
+	 * 此方法才是真正的从xml文件记载bean对象的方法
 	 */
 	public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
+		//资源对象不能为空
 		Assert.notNull(encodedResource, "EncodedResource must not be null");
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
-
+		//获取当前线程已经加载过的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
+		//如果还未开始加载任何资源，则对此容器进行初始化
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
+		//将当前要加载的资源加入到容器记录中，如果已存在，则抛出异常
+		//此操作是为了避免一个EncodedResource在加载的过程时，还没有加载完，就又重新加载自身，从而导致死循环
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
 		try {
+			//获取EncodedResource编码资源中封装的Resource，并获取资源中的inputStream
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+				//通过当前的字节流创建一个新的输入源
 				InputSource inputSource = new InputSource(inputStream);
+				//获取原先资源的编码，并设置给新的输入源
 				if (encodedResource.getEncoding() != null) {
 					inputSource.setEncoding(encodedResource.getEncoding());
 				}
+				//主要逻辑，执行BeanDefinition的加载
 				return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 			}
 			finally {
+				//关闭资源流
 				inputStream.close();
 			}
 		}
@@ -345,7 +360,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"IOException parsing XML document from " + encodedResource.getResource(), ex);
 		}
 		finally {
+			//从当前加载中的资源容器中剔除已经加载完成的EncodedResource
 			currentResources.remove(encodedResource);
+			//释放资源
 			if (currentResources.isEmpty()) {
 				this.resourcesCurrentlyBeingLoaded.remove();
 			}
@@ -379,9 +396,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
 	 * Actually load bean definitions from the specified XML file.
-	 * @param inputSource the SAX InputSource to read from
-	 * @param resource the resource descriptor for the XML file
-	 * @return the number of bean definitions found
+	 * 从指定的xml文件实际加载bean definition
+	 * @param inputSource the SAX InputSource to read from 要从中读取的sax输入源
+	 * @param resource the resource descriptor for the XML file xml文件的资源描述符
+	 * @return the number of bean definitions found  找到的bean定义的数量
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 * @see #doLoadDocument
 	 * @see #registerBeanDefinitions
@@ -390,7 +408,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			throws BeanDefinitionStoreException {
 
 		try {
+			//获取xml document实例
 			Document doc = doLoadDocument(inputSource, resource);
+			//根据document实例，注册bean的信息
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -423,10 +443,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	}
 
 	/**
+	 * 获取xml document实例
 	 * Actually load the specified document using the configured DocumentLoader.
-	 * @param inputSource the SAX InputSource to read from
-	 * @param resource the resource descriptor for the XML file
-	 * @return the DOM Document
+	 * 使用配置的documentLoader实际加载指定的文档
+	 * @param inputSource the SAX InputSource to read from  要从中读取的sax inputsource
+	 * @param resource the resource descriptor for the XML file xml文件的资源描述符
+	 * @return the DOM Document  dom 文档
 	 * @throws Exception when thrown from the DocumentLoader
 	 * @see #setDocumentLoader
 	 * @see DocumentLoader#loadDocument

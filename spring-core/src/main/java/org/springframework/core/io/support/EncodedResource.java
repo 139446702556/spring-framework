@@ -93,6 +93,7 @@ public class EncodedResource implements InputStreamSource {
 
 	/**
 	 * Return the {@code Resource} held by this {@code EncodedResource}.
+	 * 返回此编码结构中包含的资源对象
 	 */
 	public final Resource getResource() {
 		return this.resource;
@@ -101,6 +102,7 @@ public class EncodedResource implements InputStreamSource {
 	/**
 	 * Return the encoding to use for reading from the {@linkplain #getResource() resource},
 	 * or {@code null} if none specified.
+	 * 返回当前编码资源中使用的编码
 	 */
 	@Nullable
 	public final String getEncoding() {
