@@ -81,6 +81,7 @@ public class InputStreamResource extends AbstractResource {
 
 	/**
 	 * This implementation always returns {@code true}.
+	 * 这里实现只返回true及资源已经被打开
 	 */
 	@Override
 	public boolean isOpen() {

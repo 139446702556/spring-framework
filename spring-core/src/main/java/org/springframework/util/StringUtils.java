@@ -161,11 +161,14 @@ public abstract class StringUtils {
 	 * @see #hasText(CharSequence)
 	 * @see #hasLength(String)
 	 * @see Character#isWhitespace
+	 * 当前字符串中是否有文本内容
 	 */
 	public static boolean hasText(@Nullable String str) {
 		return (str != null && !str.isEmpty() && containsText(str));
 	}
-
+    /**
+	 * 检测当前字符串中是否有有效内容（内容中不全是空格符号）
+	 */
 	private static boolean containsText(CharSequence str) {
 		int strLen = str.length();
 		for (int i = 0; i < strLen; i++) {
