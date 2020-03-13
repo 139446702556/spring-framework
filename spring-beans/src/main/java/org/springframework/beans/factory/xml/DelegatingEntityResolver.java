@@ -38,15 +38,15 @@ import org.springframework.util.Assert;
  */
 public class DelegatingEntityResolver implements EntityResolver {
 
-	/** Suffix for DTD files. */
+	/** Suffix for DTD files.  DTD文件的后缀 */
 	public static final String DTD_SUFFIX = ".dtd";
 
-	/** Suffix for schema definition files. */
+	/** Suffix for schema definition files. schema 定义文件的后缀 */
 	public static final String XSD_SUFFIX = ".xsd";
 
-
+	/**dtd解析器*/
 	private final EntityResolver dtdResolver;
-
+	/**schema（模式）解析器*/
 	private final EntityResolver schemaResolver;
 
 
@@ -57,6 +57,8 @@ public class DelegatingEntityResolver implements EntityResolver {
 	 * {@link ClassLoader}.
 	 * @param classLoader the ClassLoader to use for loading
 	 * (can be {@code null}) to use the default ClassLoader)
+	 *  创建一个委托实体解析器，并将resolver委托给BeansDtdResolver和PluggableSchemaResolver
+	 *  默认
 	 */
 	public DelegatingEntityResolver(@Nullable ClassLoader classLoader) {
 		this.dtdResolver = new BeansDtdResolver();
@@ -64,6 +66,7 @@ public class DelegatingEntityResolver implements EntityResolver {
 	}
 
 	/**
+	 * 自定义resolver委托给的解析器
 	 * Create a new DelegatingEntityResolver that delegates to
 	 * the given {@link EntityResolver EntityResolvers}.
 	 * @param dtdResolver the EntityResolver to resolve DTDs with
@@ -81,12 +84,16 @@ public class DelegatingEntityResolver implements EntityResolver {
 	@Nullable
 	public InputSource resolveEntity(@Nullable String publicId, @Nullable String systemId)
 			throws SAXException, IOException {
-
+		//系统标识符不为空
 		if (systemId != null) {
+			//DTD模式 以.dtd结尾
 			if (systemId.endsWith(DTD_SUFFIX)) {
+				//使用BeansDtdResolver解析器来解析实体
 				return this.dtdResolver.resolveEntity(publicId, systemId);
 			}
+			//XSD模式 以.xsd结尾
 			else if (systemId.endsWith(XSD_SUFFIX)) {
+				//使用PluggableSchemaResolver解析器来解析实体
 				return this.schemaResolver.resolveEntity(publicId, systemId);
 			}
 		}

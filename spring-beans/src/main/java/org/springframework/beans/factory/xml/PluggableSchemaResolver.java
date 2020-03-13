@@ -37,7 +37,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * {@link EntityResolver} implementation that attempts to resolve schema URLs into
  * local {@link ClassPathResource classpath resources} using a set of mappings files.
- *
+ * 读取类路径下的所有META-INF/spring.schemas文件内容，加载到map中成为一个namespaceURI和Schema文件地址的映射
  * <p>By default, this class will look for mapping files in the classpath using the
  * pattern: {@code META-INF/spring.schemas} allowing for multiple files to exist on
  * the classpath at any one time.
@@ -60,6 +60,7 @@ public class PluggableSchemaResolver implements EntityResolver {
 	/**
 	 * The location of the file that defines schema mappings.
 	 * Can be present in multiple JAR files.
+	 * 定义模式映射的文件位置
 	 */
 	public static final String DEFAULT_SCHEMA_MAPPINGS_LOCATION = "META-INF/spring.schemas";
 
@@ -68,10 +69,11 @@ public class PluggableSchemaResolver implements EntityResolver {
 
 	@Nullable
 	private final ClassLoader classLoader;
-
+    /** schema文件地址 */
 	private final String schemaMappingsLocation;
 
 	/** Stores the mapping of schema URL -> local schema path. */
+	/**存储namespaceURI和schema文件本地路径的映射*/
 	@Nullable
 	private volatile Map<String, String> schemaMappings;
 
@@ -111,16 +113,21 @@ public class PluggableSchemaResolver implements EntityResolver {
 			logger.trace("Trying to resolve XML entity with public id [" + publicId +
 					"] and system id [" + systemId + "]");
 		}
-
+		//systemId不为空
 		if (systemId != null) {
+			//通过systemId在Schema映射表中获取相应的本地资源路径resourceLocation
 			String resourceLocation = getSchemaMappings().get(systemId);
+			//如果resourceLocation没有获取到，并且是以https：字符串开头
 			if (resourceLocation == null && systemId.startsWith("https:")) {
 				// Retrieve canonical http schema mapping even for https declaration
+				//将systemId的https：替换为http：，然后重新获取本地资源路径
 				resourceLocation = getSchemaMappings().get("http:" + systemId.substring(6));
 			}
 			if (resourceLocation != null) {
+				//通过resourceLocation来创建ClassPathResource对象
 				Resource resource = new ClassPathResource(resourceLocation, this.classLoader);
 				try {
+					//通过本地路径加载的资源对象获取相应的inputStream来创建InputSource对象，并设置publicId和systemId属性
 					InputSource source = new InputSource(resource.getInputStream());
 					source.setPublicId(publicId);
 					source.setSystemId(systemId);
@@ -138,28 +145,38 @@ public class PluggableSchemaResolver implements EntityResolver {
 		}
 
 		// Fall back to the parser's default behavior.
+		//使用默认行为，从网络上下载资源
 		return null;
 	}
 
 	/**
 	 * Load the specified schema mappings lazily.
+	 * 延迟加载指定的模式映射关系    systemid与其在本地的对照关系（spring.schemas文件中的关系）
 	 */
 	private Map<String, String> getSchemaMappings() {
+		//获取此解析器中的模式映射表
 		Map<String, String> schemaMappings = this.schemaMappings;
+		//检查为空（此处使用了双重检查锁，实现了schemaMappings单例）
 		if (schemaMappings == null) {
+			//对当前解析器对象加锁
 			synchronized (this) {
+				//重新获取映射表
 				schemaMappings = this.schemaMappings;
+				//检查为空
 				if (schemaMappings == null) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Loading schema mappings from [" + this.schemaMappingsLocation + "]");
 					}
 					try {
+						//使用类加载器来加载schema文件地址的资源
 						Properties mappings =
 								PropertiesLoaderUtils.loadAllProperties(this.schemaMappingsLocation, this.classLoader);
 						if (logger.isTraceEnabled()) {
 							logger.trace("Loaded schema mappings: " + mappings);
 						}
+						//实例化map
 						schemaMappings = new ConcurrentHashMap<>(mappings.size());
+						//将mappings属性中的值合并到map模式映射表中
 						CollectionUtils.mergePropertiesIntoMap(mappings, schemaMappings);
 						this.schemaMappings = schemaMappings;
 					}

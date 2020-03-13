@@ -388,6 +388,7 @@ public abstract class ResourceUtils {
 	 * given connection, preferring {@code false} but leaving the
 	 * flag at {@code true} for JNLP based resources.
 	 * @param con the URLConnection to set the flag on
+	 * 如果URL连接是JNLP的基础资源，则将打开连接缓存
 	 */
 	public static void useCachesIfNecessary(URLConnection con) {
 		con.setUseCaches(con.getClass().getSimpleName().startsWith("JNLP"));

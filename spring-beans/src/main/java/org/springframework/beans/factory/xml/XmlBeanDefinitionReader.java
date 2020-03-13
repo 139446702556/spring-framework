@@ -126,7 +126,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	private NamespaceHandlerResolver namespaceHandlerResolver;
 
 	private DocumentLoader documentLoader = new DefaultDocumentLoader();
-
+    /**entityResolver 解析器，作用是通过实现此接口可以自定义如何寻找验证文件的逻辑*/
 	@Nullable
 	private EntityResolver entityResolver;
 
@@ -269,13 +269,18 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * if none specified.
 	 */
 	protected EntityResolver getEntityResolver() {
+		//解析器为null
 		if (this.entityResolver == null) {
 			// Determine default EntityResolver to use.
+			//获取读取器中的资源加载器
 			ResourceLoader resourceLoader = getResourceLoader();
+			//当前读取器中resourceLoader不为空
 			if (resourceLoader != null) {
+				//根据指定的resourceLoader创建一个ResourceEntityResolver解析器对象
 				this.entityResolver = new ResourceEntityResolver(resourceLoader);
 			}
 			else {
+				//当前resourceLoader为空，则创建一个DelegatingEntityResolver解析器对象，将解析器委托给其它解析器
 				this.entityResolver = new DelegatingEntityResolver(getBeanClassLoader());
 			}
 		}

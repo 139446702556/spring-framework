@@ -168,6 +168,7 @@ public abstract class PropertiesLoaderUtils {
 	 * (or {@code null} to use the default class loader)
 	 * @return the populated Properties instance
 	 * @throws IOException if loading failed
+	 * 通过classLoader或者系统类加载器来加载resourceName资源文件，并转化为属性对象
 	 */
 	public static Properties loadAllProperties(String resourceName, @Nullable ClassLoader classLoader) throws IOException {
 		Assert.notNull(resourceName, "Resource name must not be null");
@@ -175,23 +176,31 @@ public abstract class PropertiesLoaderUtils {
 		if (classLoaderToUse == null) {
 			classLoaderToUse = ClassUtils.getDefaultClassLoader();
 		}
+		//如果当前classLoader不为空，则使用其加载resourceName资源，如果为空，则使用系统类加载器去加载资源
 		Enumeration<URL> urls = (classLoaderToUse != null ? classLoaderToUse.getResources(resourceName) :
 				ClassLoader.getSystemResources(resourceName));
 		Properties props = new Properties();
+		//循环枚举中获取到的URL
 		while (urls.hasMoreElements()) {
 			URL url = urls.nextElement();
+			//打开URL连接
 			URLConnection con = url.openConnection();
+			//根据连接判断是否要打开缓存的使用
 			ResourceUtils.useCachesIfNecessary(con);
+			//获取inputStream流
 			InputStream is = con.getInputStream();
 			try {
+				//是xml文件
 				if (resourceName.endsWith(XML_FILE_EXTENSION)) {
 					props.loadFromXML(is);
 				}
+				//非xml文件
 				else {
 					props.load(is);
 				}
 			}
 			finally {
+				//关闭资源流
 				is.close();
 			}
 		}
