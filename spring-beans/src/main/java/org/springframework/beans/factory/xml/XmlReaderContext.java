@@ -71,6 +71,7 @@ public class XmlReaderContext extends ReaderContext {
 
 	/**
 	 * Return the XML bean definition reader in use.
+	 * 返回当前使用的xml bean definition reader
 	 */
 	public final XmlBeanDefinitionReader getReader() {
 		return this.reader;

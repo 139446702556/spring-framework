@@ -58,6 +58,7 @@ public class ImportDefinition implements BeanMetadataElement {
 
 	/**
 	 * Create a new ImportDefinition.
+	 * 创建一个importDefinition对象
 	 * @param importedResource the location of the imported resource
 	 * @param source the source object (may be {@code null})
 	 */

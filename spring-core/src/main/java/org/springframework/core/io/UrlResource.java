@@ -232,6 +232,7 @@ public class UrlResource extends AbstractFileResolvingResource {
 	/**
 	 * This implementation creates a {@code UrlResource}, applying the given path
 	 * relative to the path of the underlying URL of this resource descriptor.
+	 * 根据当前存在的url资源路径和需要加载的相对路径来创建新的Resource对象
 	 * @see java.net.URL#URL(java.net.URL, String)
 	 */
 	@Override
