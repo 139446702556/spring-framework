@@ -56,14 +56,17 @@ public abstract class BeanDefinitionReaderUtils {
 	 */
 	public static AbstractBeanDefinition createBeanDefinition(
 			@Nullable String parentName, @Nullable String className, @Nullable ClassLoader classLoader) throws ClassNotFoundException {
-
+		//创建GenericBeanDefinition对象
 		GenericBeanDefinition bd = new GenericBeanDefinition();
+		//设置bd的父类名称属性
 		bd.setParentName(parentName);
 		if (className != null) {
 			if (classLoader != null) {
+				//通过classLoader来加载className对应的类对象信息，并将其设置给bd对象的beanClass属性
 				bd.setBeanClass(ClassUtils.forName(className, classLoader));
 			}
 			else {
+				//设置当前bd对象的bean类名称
 				bd.setBeanClassName(className);
 			}
 		}
@@ -90,12 +93,13 @@ public abstract class BeanDefinitionReaderUtils {
 	/**
 	 * Generate a bean name for the given bean definition, unique within the
 	 * given bean factory.
-	 * @param definition the bean definition to generate a bean name for
-	 * @param registry the bean factory that the definition is going to be
+	 * 通过给定的bean definition生成一个bean的名称，这个名称在给定的bean factory中是唯一的
+	 * @param definition the bean definition to generate a bean name for bean定义
+	 * @param registry the bean factory that the definition is going to be  bean工厂
 	 * registered with (to check for existing bean names)
 	 * @param isInnerBean whether the given bean definition will be registered
 	 * as inner bean or as top-level bean (allowing for special name generation
-	 * for inner beans versus top-level beans)
+	 * for inner beans versus top-level beans)  给定的bean定义是注册为内部bean还是顶级bean
 	 * @return the generated bean name
 	 * @throws BeanDefinitionStoreException if no unique name can be generated
 	 * for the given bean definition

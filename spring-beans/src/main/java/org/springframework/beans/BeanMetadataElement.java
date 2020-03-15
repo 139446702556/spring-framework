@@ -29,6 +29,7 @@ public interface BeanMetadataElement {
 
 	/**
 	 * Return the configuration source {@code Object} for this metadata element
+	 * 获取bean元对象持有的配置元素
 	 * (may be {@code null}).
 	 */
 	@Nullable

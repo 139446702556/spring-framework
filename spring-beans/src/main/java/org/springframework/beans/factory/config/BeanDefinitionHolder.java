@@ -38,11 +38,17 @@ import org.springframework.util.StringUtils;
  * @see org.springframework.beans.factory.support.ChildBeanDefinition
  */
 public class BeanDefinitionHolder implements BeanMetadataElement {
-
+	/**
+	 * beanDefinition对象
+	 */
 	private final BeanDefinition beanDefinition;
-
+	/**
+	 * bean名称
+	 */
 	private final String beanName;
-
+	/**
+	 * bean的别名集合
+	 */
 	@Nullable
 	private final String[] aliases;
 
@@ -58,6 +64,7 @@ public class BeanDefinitionHolder implements BeanMetadataElement {
 
 	/**
 	 * Create a new BeanDefinitionHolder.
+	 * 创建一个新的BeanDefinitionHolder对象
 	 * @param beanDefinition the BeanDefinition to wrap
 	 * @param beanName the name of the bean, as specified for the bean definition
 	 * @param aliases alias names for the bean, or {@code null} if none

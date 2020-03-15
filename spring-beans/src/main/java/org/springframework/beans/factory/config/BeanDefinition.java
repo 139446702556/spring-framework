@@ -25,7 +25,7 @@ import org.springframework.lang.Nullable;
  * A BeanDefinition describes a bean instance, which has property values,
  * constructor argument values, and further information supplied by
  * concrete implementations.
- *
+ *	此接口定义的setter方法皆与bean标签的属性一一对应
  * <p>This is just a minimal interface: The main intention is to allow a
  * {@link BeanFactoryPostProcessor} such as {@link PropertyPlaceholderConfigurer}
  * to introspect and modify property values and other bean metadata.
@@ -41,6 +41,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Scope identifier for the standard singleton scope: "singleton".
+	 * 标准单例范围的范围标识符：“singleton”（此bean在全局只有一个对象）
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
@@ -48,6 +49,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Scope identifier for the standard prototype scope: "prototype".
+	 * 标准原型范围的范围标识符：“prototype”（此bean在每次注入的时候均会在重新创建一个）
 	 * <p>Note that extended bean factories might support further scopes.
 	 * @see #setScope
 	 */
@@ -81,20 +83,24 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 
 	// Modifiable attributes
+	//下面是bean对应的属性操作
 
 	/**
 	 * Set the name of the parent definition of this bean definition, if any.
+	 * 设置此bean definition的parent definition的名称
 	 */
 	void setParentName(@Nullable String parentName);
 
 	/**
 	 * Return the name of the parent definition of this bean definition, if any.
+	 * 获取parentName
 	 */
 	@Nullable
 	String getParentName();
 
 	/**
 	 * Specify the bean class name of this bean definition.
+	 * 通过指定参数设置这个bean definition的bean类名称
 	 * <p>The class name can be modified during bean factory post-processing,
 	 * typically replacing the original class name with a parsed variant of it.
 	 * @see #setParentName
@@ -105,6 +111,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Return the current bean class name of this bean definition.
+	 * 获取类名称
 	 * <p>Note that this does not have to be the actual class name used at runtime, in
 	 * case of a child definition overriding/inheriting the class name from its parent.
 	 * Also, this may just be the class that a factory method is called on, or it may
@@ -120,6 +127,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Override the target scope of this bean, specifying a new scope name.
+	 * 设置对象作用域
 	 * @see #SCOPE_SINGLETON
 	 * @see #SCOPE_PROTOTYPE
 	 */
@@ -127,6 +135,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Return the name of the current target scope for this bean,
+	 * 获取对象作用域
 	 * or {@code null} if not known yet.
 	 */
 	@Nullable
@@ -134,6 +143,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set whether this bean should be lazily initialized.
+	 * 设置是否延迟加载（true的话是在第一次需要注入此bean时进行初始化，false则是在程序启动时进行初始化bean）
 	 * <p>If {@code false}, the bean will get instantiated on startup by bean
 	 * factories that perform eager initialization of singletons.
 	 */
@@ -148,6 +158,8 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 	/**
 	 * Set the names of the beans that this bean depends on being initialized.
 	 * The bean factory will guarantee that these beans get initialized first.
+	 * 设置此bean依赖于的被初始化的bean名称
+	 * bean工厂将确保首先初始化这些bean
 	 */
 	void setDependsOn(@Nullable String... dependsOn);
 
@@ -159,6 +171,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set whether this bean is a candidate for getting autowired into some other bean.
+	 * 设置这个bean是否可以被自动装配到其它bean中
 	 * <p>Note that this flag is designed to only affect type-based autowiring.
 	 * It does not affect explicit references by name, which will get resolved even
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
@@ -173,6 +186,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set whether this bean is a primary autowire candidate.
+	 * 设置此bean是否时主要的自动装配候选
 	 * <p>If this value is {@code true} for exactly one bean among multiple
 	 * matching candidates, it will serve as a tie-breaker.
 	 */
@@ -185,6 +199,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Specify the factory bean to use, if any.
+	 * 指定要使用的工厂bean名称
 	 * This the name of the bean to call the specified factory method on.
 	 * @see #setFactoryMethodName
 	 */
@@ -244,6 +259,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set the name of the initializer method.
+	 * 设置初始化方法名称
 	 * @since 5.1
 	 */
 	void setInitMethodName(@Nullable String initMethodName);

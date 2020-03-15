@@ -41,6 +41,7 @@ public final class ParseState {
 
 	/**
 	 * Internal {@link LinkedList} storage.
+	 * 内部的链式集合存储容器
 	 */
 	private final LinkedList<Entry> state;
 
@@ -64,6 +65,7 @@ public final class ParseState {
 
 	/**
 	 * Add a new {@link Entry} to the {@link LinkedList}.
+	 * 添加一个实体对象到链式集合中
 	 */
 	public void push(Entry entry) {
 		this.state.push(entry);
@@ -71,6 +73,7 @@ public final class ParseState {
 
 	/**
 	 * Remove an {@link Entry} from the {@link LinkedList}.
+	 * 从链式集合中移除一个实体对象
 	 */
 	public void pop() {
 		this.state.pop();

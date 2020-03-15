@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
  * Base class for concrete, full-fledged {@link BeanDefinition} classes,
  * factoring out common properties of {@link GenericBeanDefinition},
  * {@link RootBeanDefinition}, and {@link ChildBeanDefinition}.
- *
+ * 其它几种基础类的基类
  * <p>The autowire constants match the ones defined in the
  * {@link org.springframework.beans.factory.config.AutowireCapableBeanFactory}
  * interface.
@@ -50,9 +50,9 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Mark Fisher
- * @see GenericBeanDefinition
- * @see RootBeanDefinition
- * @see ChildBeanDefinition
+ * @see GenericBeanDefinition 一站式服务类
+ * @see RootBeanDefinition  父bean节点或只有一个的bean节点（无嵌套）
+ * @see ChildBeanDefinition  子bean节点
  */
 @SuppressWarnings("serial")
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
@@ -204,6 +204,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Create a new AbstractBeanDefinition with default settings.
+	 * 创建一个新的AbstractBeanDefinition对象，参数使用null为默认设置
 	 */
 	protected AbstractBeanDefinition() {
 		this(null, null);
@@ -212,6 +213,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Create a new AbstractBeanDefinition with the given
 	 * constructor argument values and property values.
+	 * 创建一个AbstractBeanDefinition对象，通过参数值来设置对应的属性值
 	 */
 	protected AbstractBeanDefinition(@Nullable ConstructorArgumentValues cargs, @Nullable MutablePropertyValues pvs) {
 		this.constructorArgumentValues = cargs;
@@ -367,6 +369,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Specify the bean class name of this bean definition.
+	 * 指定此bean定义的bean类名称
 	 */
 	@Override
 	public void setBeanClassName(@Nullable String beanClassName) {
@@ -375,6 +378,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the current bean class name of this bean definition.
+	 * 返回当前beanDefinition的bean类名称
 	 */
 	@Override
 	@Nullable
@@ -390,6 +394,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Specify the class for this bean.
+	 * 为当前这个bean设置指定类
 	 */
 	public void setBeanClass(@Nullable Class<?> beanClass) {
 		this.beanClass = beanClass;

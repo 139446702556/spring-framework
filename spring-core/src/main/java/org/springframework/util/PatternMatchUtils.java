@@ -31,6 +31,7 @@ public abstract class PatternMatchUtils {
 	 * Match a String against the given pattern, supporting the following simple
 	 * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
 	 * arbitrary number of pattern parts), as well as direct equality.
+	 * 判断当前模糊匹配表达式pattern是否可以和str匹配
 	 * @param pattern the pattern to match against
 	 * @param str the String to match
 	 * @return whether the String matches the given pattern
@@ -76,6 +77,7 @@ public abstract class PatternMatchUtils {
 	 * Match a String against the given patterns, supporting the following simple
 	 * pattern styles: "xxx*", "*xxx", "*xxx*" and "xxx*yyy" matches (with an
 	 * arbitrary number of pattern parts), as well as direct equality.
+	 * patterns数组中的模式有一个与str匹配的，则返回true，否则false
 	 * @param patterns the patterns to match against
 	 * @param str the String to match
 	 * @return whether the String matches any of the given patterns
