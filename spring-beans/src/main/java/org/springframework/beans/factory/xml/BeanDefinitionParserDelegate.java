@@ -303,9 +303,12 @@ public class BeanDefinitionParserDelegate {
 	 * defaults are not explicitly set locally.
 	 * @see #populateDefaults(DocumentDefaultsDefinition, DocumentDefaultsDefinition, org.w3c.dom.Element)
 	 * @see #getDefaults()
+	 * 初始化默认值，懒加载、自动注入等一些设置
 	 */
 	public void initDefaults(Element root, @Nullable BeanDefinitionParserDelegate parent) {
+		//通过加载document文档中当前节点的属性来对一些相关属性进行设置，没有则用默认值
 		populateDefaults(this.defaults, (parent != null ? parent.defaults : null), root);
+		//触发一个默认事件
 		this.readerContext.fireDefaultsRegistered(this.defaults);
 	}
 
@@ -1363,6 +1366,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a custom element (outside of the default namespace).
+	 * 解析一个自定义元素（在默认名称空间之外）
 	 * @param ele the element to parse
 	 * @return the resulting bean definition
 	 */
@@ -1373,6 +1377,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a custom element (outside of the default namespace).
+	 * 解析一个自定义元素（在默认名称空间之外）
 	 * @param ele the element to parse
 	 * @param containingBd the containing bean definition (if any)
 	 * @return the resulting bean definition
@@ -1485,6 +1490,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Get the namespace URI for the supplied node.
+	 * 获取给定的节点的命名空间URI
 	 * <p>The default implementation uses {@link Node#getNamespaceURI}.
 	 * Subclasses may override the default implementation to provide a
 	 * different namespace identification mechanism.
@@ -1497,6 +1503,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Get the local name for the supplied {@link Node}.
+	 * 获取指定节点的本地名称
 	 * <p>The default implementation calls {@link Node#getLocalName}.
 	 * Subclasses may override the default implementation to provide a
 	 * different mechanism for getting the local name.
@@ -1508,6 +1515,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Determine whether the name of the supplied node is equal to the supplied name.
+	 * 确定提供的节点的名称是否等于提供的名称
 	 * <p>The default implementation checks the supplied desired name against both
 	 * {@link Node#getNodeName()} and {@link Node#getLocalName()}.
 	 * <p>Subclasses may override the default implementation to provide a different
@@ -1521,6 +1529,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Determine whether the given URI indicates the default namespace.
+	 * 确定命名空间Uri是否为空或者http://www.springframework.org/schema/beans
 	 */
 	public boolean isDefaultNamespace(@Nullable String namespaceUri) {
 		return (!StringUtils.hasLength(namespaceUri) || BEANS_NAMESPACE_URI.equals(namespaceUri));
@@ -1528,6 +1537,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Determine whether the given node indicates the default namespace.
+	 * 确定给定节点是否为默认的命名空间
 	 */
 	public boolean isDefaultNamespace(Node node) {
 		return isDefaultNamespace(getNamespaceURI(node));

@@ -1147,6 +1147,7 @@ public abstract class StringUtils {
 	 * @see java.util.StringTokenizer
 	 * @see String#trim()
 	 * @see #delimitedListToStringArray
+	 * 通过指定的分割符delimiters来对str进行切割，返回切割后得到的数组
 	 */
 	public static String[] tokenizeToStringArray(
 			@Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {

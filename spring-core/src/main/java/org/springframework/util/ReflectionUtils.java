@@ -199,6 +199,7 @@ public abstract class ReflectionUtils {
 	 * SecurityManager (if active).
 	 * @param ctor the constructor to make accessible
 	 * @see java.lang.reflect.Constructor#setAccessible
+	 * 检查当前构造函数的修饰符访问权限和对应的类的访问权限，如果不可访问，将其访问权限设置为true及可访问
 	 */
 	@SuppressWarnings("deprecation")  // on JDK 9
 	public static void makeAccessible(Constructor<?> ctor) {

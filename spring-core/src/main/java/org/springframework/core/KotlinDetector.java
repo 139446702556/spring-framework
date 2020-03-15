@@ -68,6 +68,7 @@ public abstract class KotlinDetector {
 
 	/**
 	 * Determine whether Kotlin reflection is present.
+	 * 确定Kotlin反射是否存在
 	 * @since 5.1
 	 */
 	public static boolean isKotlinReflectPresent() {
@@ -77,6 +78,7 @@ public abstract class KotlinDetector {
 	/**
 	 * Determine whether the given {@code Class} is a Kotlin type
 	 * (with Kotlin metadata present on it).
+	 * 通过检查类相应的注解，来确定给定的类是否为kotlin类型
 	 */
 	public static boolean isKotlinType(Class<?> clazz) {
 		return (kotlinMetadata != null && clazz.getDeclaredAnnotation(kotlinMetadata) != null);

@@ -112,10 +112,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	private int validationMode = VALIDATION_AUTO;
 
 	private boolean namespaceAware = false;
-
+	/**
+	 * 默认的BeanDefinitionDocumentReader的类对象
+	 */
 	private Class<? extends BeanDefinitionDocumentReader> documentReaderClass =
 			DefaultBeanDefinitionDocumentReader.class;
-
+	/**快速失败问题报告器*/
 	private ProblemReporter problemReporter = new FailFastProblemReporter();
 
 	private ReaderEventListener eventListener = new EmptyReaderEventListener();
@@ -543,6 +545,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
 	 * Register the bean definitions contained in the given DOM document.
+	 * 根据给定的dom文档，注册其包含的bean definitions（bean 定义）
 	 * Called by {@code loadBeanDefinitions}.
 	 * <p>Creates a new instance of the parser class and invokes
 	 * {@code registerBeanDefinitions} on it.
@@ -555,24 +558,31 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		//创建BeanDefinitionDocumentReader对象，用来读取document并注册BeanDefinition
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		//获取已经注册的BeanDefinition数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		//createReaderContext方法先用来创建XmlReaderContext对象，然后用其对象和xml构建的文档来注册BeanDefinition
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		//计算新注册的BeanDefinition数量
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 
 	/**
 	 * Create the {@link BeanDefinitionDocumentReader} to use for actually
 	 * reading bean definitions from an XML document.
+	 * 创建一个BeanDefinitionDocumentReader对象，用于从Xml document中读取bean definition
 	 * <p>The default implementation instantiates the specified "documentReaderClass".
 	 * @see #setDocumentReaderClass
 	 */
 	protected BeanDefinitionDocumentReader createBeanDefinitionDocumentReader() {
+		//通过bean工具来根据指定的documentReader的类对象创建实例化对象
 		return BeanUtils.instantiateClass(this.documentReaderClass);
 	}
 
 	/**
 	 * Create the {@link XmlReaderContext} to pass over to the document reader.
+	 * 创建一个xmlreaderContext对象传递给文档读取器
 	 */
 	public XmlReaderContext createReaderContext(Resource resource) {
 		return new XmlReaderContext(resource, this.problemReporter, this.eventListener,

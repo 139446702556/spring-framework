@@ -231,6 +231,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * property and assign its value to the set of active profiles.
 	 * @see #getActiveProfiles()
 	 * @see #ACTIVE_PROFILES_PROPERTY_NAME
+	 * 获取指定的spring.profiles.active属性的内容，并生成activeProfiles集合
 	 */
 	protected Set<String> doGetActiveProfiles() {
 		synchronized (this.activeProfiles) {
@@ -289,6 +290,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * @see #getDefaultProfiles()
 	 * @see #DEFAULT_PROFILES_PROPERTY_NAME
 	 * @see #getReservedDefaultProfiles()
+	 * 通过获取指定属性的值，来构建默认的配置文件集合并返回
 	 */
 	protected Set<String> doGetDefaultProfiles() {
 		synchronized (this.defaultProfiles) {
@@ -349,6 +351,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	/**
 	 * Return whether the given profile is active, or if active profiles are empty
 	 * whether the profile should be active by default.
+	 * 判定给定的配置文件是否为活动属性设置的配置文件，或者当活动配置文件为空的时候判定是否为默认属性设置的配置文件内容
 	 * @throws IllegalArgumentException per {@link #validateProfile(String)}
 	 */
 	protected boolean isProfileActive(String profile) {

@@ -107,7 +107,9 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	public final BeanDefinitionRegistry getBeanFactory() {
 		return this.registry;
 	}
-
+	/**
+	 * 获取bean definition存储器
+	 */
 	@Override
 	public final BeanDefinitionRegistry getRegistry() {
 		return this.registry;

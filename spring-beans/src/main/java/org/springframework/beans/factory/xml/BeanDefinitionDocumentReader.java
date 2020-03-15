@@ -23,7 +23,7 @@ import org.springframework.beans.factory.BeanDefinitionStoreException;
 /**
  * SPI for parsing an XML document that contains Spring bean definitions.
  * Used by {@link XmlBeanDefinitionReader} for actually parsing a DOM document.
- *
+ *	通过解析xml document来获得spring bean definition
  * <p>Instantiated per document to parse: implementations can hold
  * state in instance variables during the execution of the
  * {@code registerBeanDefinitions} method &mdash; for example, global
@@ -39,8 +39,9 @@ public interface BeanDefinitionDocumentReader {
 	/**
 	 * Read bean definitions from the given DOM document and
 	 * register them with the registry in the given reader context.
-	 * @param doc the DOM document
-	 * @param readerContext the current context of the reader
+	 * 从给定document对象中解析定义的beand efinition，并将它们注册到注册表中
+	 * @param doc the DOM document 待解析的document对象
+	 * @param readerContext the current context of the reader 解析器的当前上下文，包括目标注册表和被解析的资源，它是根据resource来创建的
 	 * (includes the target registry and the resource being parsed)
 	 * @throws BeanDefinitionStoreException in case of parsing errors
 	 */

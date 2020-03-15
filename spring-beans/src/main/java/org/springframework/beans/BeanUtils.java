@@ -119,11 +119,14 @@ public abstract class BeanUtils {
 			throw new BeanInstantiationException(clazz, "Specified class is an interface");
 		}
 		try {
+			//通过类对象的构造函数实例化对象
 			return instantiateClass(clazz.getDeclaredConstructor());
 		}
 		catch (NoSuchMethodException ex) {
+			//查找与kotlin中主构造函数对应的java构造函数
 			Constructor<T> ctor = findPrimaryConstructor(clazz);
 			if (ctor != null) {
+				//实例化对象
 				return instantiateClass(ctor);
 			}
 			throw new BeanInstantiationException(clazz, "No default constructor found", ex);
@@ -163,11 +166,14 @@ public abstract class BeanUtils {
 	 * @return the new instance
 	 * @throws BeanInstantiationException if the bean cannot be instantiated
 	 * @see Constructor#newInstance
+	 * 使用构造函数来创建类的实例化对象
 	 */
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
 		Assert.notNull(ctor, "Constructor must not be null");
 		try {
+			//检查构造函数是否可以访问，如果不可以访问则设置为可访问
 			ReflectionUtils.makeAccessible(ctor);
+			//如果此构造函数是kotlin类型的并且支持反射，则返回kotlin主构造函数创建的对象，否则用反射传入的构造函数来创建对象
 			return (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass()) ?
 					KotlinDelegate.instantiateClass(ctor, args) : ctor.newInstance(args));
 		}
@@ -193,12 +199,15 @@ public abstract class BeanUtils {
 	 * @param clazz the class to check
 	 * @since 5.0
 	 * @see <a href="https://kotlinlang.org/docs/reference/classes.html#constructors">Kotlin docs</a>
+	 * 查找与kotlin主构造函数对应的java构造函数
 	 */
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public static <T> Constructor<T> findPrimaryConstructor(Class<T> clazz) {
 		Assert.notNull(clazz, "Class must not be null");
+		//此类型支持kotlin反射，并且是kotlin类型
 		if (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(clazz)) {
+			//查找和kotlin主构造函数对应的java构造函数
 			Constructor<T> kotlinPrimaryConstructor = KotlinDelegate.findPrimaryConstructor(clazz);
 			if (kotlinPrimaryConstructor != null) {
 				return kotlinPrimaryConstructor;
@@ -710,6 +719,7 @@ public abstract class BeanUtils {
 
 		/**
 		 * Retrieve the Java constructor corresponding to the Kotlin primary constructor, if any.
+		 * 查找与kotlin主构造函数对应的java构造函数（如果存在的话）
 		 * @param clazz the {@link Class} of the Kotlin class
 		 * @see <a href="https://kotlinlang.org/docs/reference/classes.html#constructors">
 		 * https://kotlinlang.org/docs/reference/classes.html#constructors</a>
@@ -735,14 +745,16 @@ public abstract class BeanUtils {
 
 		/**
 		 * Instantiate a Kotlin class using the provided constructor.
+		 * 使用提供的构造函数实例化kotlin类
 		 * @param ctor the constructor of the Kotlin class to instantiate
 		 * @param args the constructor arguments to apply
 		 * (use {@code null} for unspecified parameter if needed)
 		 */
 		public static <T> T instantiateClass(Constructor<T> ctor, Object... args)
 				throws IllegalAccessException, InvocationTargetException, InstantiationException {
-
+			//获取kotlin主构造函数
 			KFunction<T> kotlinConstructor = ReflectJvmMapping.getKotlinFunction(ctor);
+			//为空，则用传入的构造函数来创建对象
 			if (kotlinConstructor == null) {
 				return ctor.newInstance(args);
 			}
@@ -755,6 +767,7 @@ public abstract class BeanUtils {
 					argParameters.put(parameters.get(i), args[i]);
 				}
 			}
+			//否则使用kotlin主构造函数创建对象
 			return kotlinConstructor.callBy(argParameters);
 		}
 
