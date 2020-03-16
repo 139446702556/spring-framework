@@ -33,6 +33,7 @@ public class NullSourceExtractor implements SourceExtractor {
 
 	/**
 	 * This implementation simply returns {@code null} for any input.
+	 * 这个实现简单的返回null
 	 */
 	@Override
 	@Nullable

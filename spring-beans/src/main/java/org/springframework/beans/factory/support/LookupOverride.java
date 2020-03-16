@@ -42,6 +42,7 @@ public class LookupOverride extends MethodOverride {
 
 	/**
 	 * Construct a new LookupOverride.
+	 * 创建一个新的LookupOverride对象
 	 * @param methodName the name of the method to override
 	 * @param beanName the name of the bean in the current {@code BeanFactory}
 	 * that the overridden method should return (may be {@code null})

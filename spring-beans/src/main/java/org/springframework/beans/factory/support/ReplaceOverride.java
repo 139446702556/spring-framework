@@ -37,12 +37,13 @@ import org.springframework.util.ObjectUtils;
 public class ReplaceOverride extends MethodOverride {
 
 	private final String methodReplacerBeanName;
-
+	/**类型标识符集合*/
 	private List<String> typeIdentifiers = new LinkedList<>();
 
 
 	/**
 	 * Construct a new ReplaceOverride.
+	 * 构造一个新的ReplaceOverride对象
 	 * @param methodName the name of the method to override
 	 * @param methodReplacerBeanName the bean name of the MethodReplacer
 	 */
@@ -63,6 +64,7 @@ public class ReplaceOverride extends MethodOverride {
 	/**
 	 * Add a fragment of a class string, like "Exception"
 	 * or "java.lang.Exc", to identify a parameter type.
+	 * 将指定标识符添加到类型标识符集合中
 	 * @param identifier a substring of the fully qualified class name
 	 */
 	public void addTypeIdentifier(String identifier) {

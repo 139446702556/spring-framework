@@ -47,6 +47,7 @@ public abstract class MethodOverride implements BeanMetadataElement {
 
 	/**
 	 * Construct a new override for the given method.
+	 * 为给定的方法构建一个新的重载，方法名不能为空
 	 * @param methodName the name of the method to override
 	 */
 	protected MethodOverride(String methodName) {

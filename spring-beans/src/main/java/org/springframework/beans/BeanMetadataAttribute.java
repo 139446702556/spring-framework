@@ -39,7 +39,8 @@ public class BeanMetadataAttribute implements BeanMetadataElement {
 
 
 	/**
-	 * Create a new AttributeValue instance.
+	 * Create a new AttributeValue instance
+	 * 创建一个bean元数据属性实例化对象，其name不能为空.
 	 * @param name the name of the attribute (never {@code null})
 	 * @param value the value of the attribute (possibly before type conversion)
 	 */
@@ -52,6 +53,7 @@ public class BeanMetadataAttribute implements BeanMetadataElement {
 
 	/**
 	 * Return the name of the attribute.
+	 * 返回当前属性的名称
 	 */
 	public String getName() {
 		return this.name;

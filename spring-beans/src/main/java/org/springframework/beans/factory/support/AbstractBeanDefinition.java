@@ -870,6 +870,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Return information about methods to be overridden by the IoC
 	 * container. This will be empty if there are no method overrides.
+	 * 返回关于要由IOC容器覆盖的方法的信息。如果没有方法覆盖，则该值为空
 	 * <p>Never returns {@code null}.
 	 */
 	public MethodOverrides getMethodOverrides() {
@@ -989,6 +990,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Set a human-readable description of this bean definition.
+	 * 设置此bean定义的可读描述
 	 */
 	@Override
 	public void setDescription(@Nullable String description) {

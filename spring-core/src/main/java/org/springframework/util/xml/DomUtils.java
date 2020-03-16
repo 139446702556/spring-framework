@@ -51,6 +51,7 @@ public abstract class DomUtils {
 	 * Retrieves all child elements of the given DOM element that match any of the given element names.
 	 * Only looks at the direct child level of the given element; do not go into further depth
 	 * (in contrast to the DOM API's {@code getElementsByTagName} method).
+	 * 从ele标签的子标签中，找到childEleNames集合中包含的名称的标签
 	 * @param ele the DOM element to analyze
 	 * @param childEleNames the child element names to look for
 	 * @return a List of child {@code org.w3c.dom.Element} instances
@@ -60,7 +61,9 @@ public abstract class DomUtils {
 	public static List<Element> getChildElementsByTagName(Element ele, String... childEleNames) {
 		Assert.notNull(ele, "Element must not be null");
 		Assert.notNull(childEleNames, "Element names collection must not be null");
+		//将子元素给定名称数组转化为集合
 		List<String> childEleNameList = Arrays.asList(childEleNames);
+		//迭代当前标签下的全部子标签，找到节点名称在childEleNames集合中存在的节点，最后返回找出的全部节点childEles
 		NodeList nl = ele.getChildNodes();
 		List<Element> childEles = new ArrayList<>();
 		for (int i = 0; i < nl.getLength(); i++) {
@@ -76,6 +79,7 @@ public abstract class DomUtils {
 	 * Retrieves all child elements of the given DOM element that match the given element name.
 	 * Only look at the direct child level of the given element; do not go into further depth
 	 * (in contrast to the DOM API's {@code getElementsByTagName} method).
+	 * 获取ele元素节点下子节点名称在childEleName中包含的节点
 	 * @param ele the DOM element to analyze
 	 * @param childEleName the child element name to look for
 	 * @return a List of child {@code org.w3c.dom.Element} instances
@@ -88,6 +92,7 @@ public abstract class DomUtils {
 
 	/**
 	 * Utility method that returns the first child element identified by its name.
+	 * 从ele元素的子节点集合中找寻到与childEleName名字一直的子节点
 	 * @param ele the DOM element to analyze
 	 * @param childEleName the child element name to look for
 	 * @return the {@code org.w3c.dom.Element} instance, or {@code null} if none found
@@ -108,6 +113,7 @@ public abstract class DomUtils {
 
 	/**
 	 * Utility method that returns the first child element value identified by its name.
+	 * 从指定元素的字节点中找到由其名称标识的第一个子元素，并获取其值
 	 * @param ele the DOM element to analyze
 	 * @param childEleName the child element name to look for
 	 * @return the extracted text value, or {@code null} if no child element found
@@ -141,6 +147,7 @@ public abstract class DomUtils {
 	 * <p>Appends all CharacterData nodes and EntityReference nodes into a single
 	 * String value, excluding Comment nodes. Only exposes actual user-specified
 	 * text, no default values of any kind.
+	 * 从给定的DOM元素中提取文本值，忽略XML注释
 	 * @see CharacterData
 	 * @see EntityReference
 	 * @see Comment
@@ -180,6 +187,7 @@ public abstract class DomUtils {
 
 	/**
 	 * Matches the given node's name and local name against the given desired name.
+	 * 将给定节点的名称和本地名称与给定的期望值进行匹配
 	 */
 	private static boolean nodeNameMatch(Node node, String desiredName) {
 		return (desiredName.equals(node.getNodeName()) || desiredName.equals(node.getLocalName()));
