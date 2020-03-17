@@ -54,6 +54,7 @@ public class TypedStringValue implements BeanMetadataElement {
 
 	/**
 	 * Create a new {@link TypedStringValue} for the given String value.
+	 * 通过给定的value值创建一个新的TypedStringValue对象
 	 * @param value the String value
 	 */
 	public TypedStringValue(@Nullable String value) {
@@ -85,6 +86,7 @@ public class TypedStringValue implements BeanMetadataElement {
 
 	/**
 	 * Set the String value.
+	 * 设置此对象字符串的value值
 	 * <p>Only necessary for manipulating a registered value,
 	 * for example in BeanFactoryPostProcessors.
 	 * @see PropertyPlaceholderConfigurer

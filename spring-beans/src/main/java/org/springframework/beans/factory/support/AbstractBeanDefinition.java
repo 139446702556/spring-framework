@@ -157,7 +157,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private boolean autowireCandidate = true;
 
 	private boolean primary = false;
-
+	/**用于存储限定符类型名与限定符解析对象的映射关系表*/
 	private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
 
 	@Nullable
@@ -666,6 +666,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Register a qualifier to be used for autowire candidate resolution,
 	 * keyed by the qualifier's type name.
+	 * 注册一个限定符用于自动注入时，候选解析；由限定符的类型名作为键值
 	 * @see AutowireCandidateQualifier#getTypeName()
 	 */
 	public void addQualifier(AutowireCandidateQualifier qualifier) {
@@ -816,6 +817,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return constructor argument values for this bean (never {@code null}).
+	 * 返回当前beanDefinition对象中的constructorArgumentValues对象，如果其为空，则实例化创建
 	 */
 	@Override
 	public ConstructorArgumentValues getConstructorArgumentValues() {
@@ -842,6 +844,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return property values for this bean (never {@code null}).
+	 * 返回当前beanDefinition对象的propertyValues属性值
 	 */
 	@Override
 	public MutablePropertyValues getPropertyValues() {

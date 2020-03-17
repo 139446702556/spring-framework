@@ -42,9 +42,9 @@ import org.springframework.util.ObjectUtils;
  * @see BeanDefinition#getConstructorArgumentValues
  */
 public class ConstructorArgumentValues {
-
+	/**索引与值对象关系映射表，key为index，value为值构成的ValueHolder对象，存储有index属性的标签信息*/
 	private final Map<Integer, ValueHolder> indexedArgumentValues = new LinkedHashMap<>();
-
+	/**通用参数值集合，存储无index属性的constructor-args标签信息*/
 	private final List<ValueHolder> genericArgumentValues = new ArrayList<>();
 
 
@@ -103,6 +103,7 @@ public class ConstructorArgumentValues {
 
 	/**
 	 * Add an argument value for the given index in the constructor argument list.
+	 * 检查参数的有效性，并将其添加到一个构造函数参数集合表中
 	 * @param index the index in the constructor argument list
 	 * @param newValue the argument value in the form of a ValueHolder
 	 */
@@ -115,6 +116,9 @@ public class ConstructorArgumentValues {
 	/**
 	 * Add an argument value for the given index in the constructor argument list,
 	 * merging the new value (typically a collection) with the current value
+	 * 添加当前信息到注册表中；如果已经存在，检查是否为Mergeable实现类的实例化对象，如果是
+	 * 并且开启了合并开关则进行当前值和新值的合并操作，并重新设置会注册表；否则直接将新值设置到指定的key对应的
+	 * value的位置，直接覆盖。
 	 * if demanded: see {@link org.springframework.beans.Mergeable}.
 	 * @param key the index in the constructor argument list
 	 * @param newValue the argument value in the form of a ValueHolder
@@ -123,7 +127,9 @@ public class ConstructorArgumentValues {
 		ValueHolder currentValue = this.indexedArgumentValues.get(key);
 		if (currentValue != null && newValue.getValue() instanceof Mergeable) {
 			Mergeable mergeable = (Mergeable) newValue.getValue();
+			//是否开启合并
 			if (mergeable.isMergeEnabled()) {
+				//合并规则根据不同Mergeable的实现类的merge方法实现而定
 				newValue.setValue(mergeable.merge(currentValue.getValue()));
 			}
 		}
@@ -132,6 +138,7 @@ public class ConstructorArgumentValues {
 
 	/**
 	 * Check whether an argument value has been registered for the given index.
+	 * 检查是否为给定的index索引注册了参数值（从索引与参数值对应的注册表查找是否包含为index的key）
 	 * @param index the index in the constructor argument list
 	 */
 	public boolean hasIndexedArgumentValue(int index) {
@@ -206,6 +213,7 @@ public class ConstructorArgumentValues {
 
 	/**
 	 * Add a generic argument value to be matched by type or name (if available).
+	 * 通过name或者type匹配来添加一个通用的参数值到集合中
 	 * <p>Note: A single generic argument value will just be used once,
 	 * rather than matched multiple times.
 	 * @param newValue the argument value in the form of a ValueHolder
@@ -214,32 +222,44 @@ public class ConstructorArgumentValues {
 	 * ValueHolder instances carrying the same content are of course allowed.
 	 */
 	public void addGenericArgumentValue(ValueHolder newValue) {
+		//参数非空
 		Assert.notNull(newValue, "ValueHolder must not be null");
+		//genericArgumentValues中无此对象
 		if (!this.genericArgumentValues.contains(newValue)) {
+			//添加到genericArgumentValues中
 			addOrMergeGenericArgumentValue(newValue);
 		}
 	}
 
 	/**
 	 * Add a generic argument value, merging the new value (typically a collection)
+	 * 添加指定参数对象到genericArgumentValues集合中，如果已存在同名对象，当前新对象满足合并条件，则合并后添加，不满住的话将直接覆盖
 	 * with the current value if demanded: see {@link org.springframework.beans.Mergeable}.
 	 * @param newValue the argument value in the form of a ValueHolder
 	 */
 	private void addOrMergeGenericArgumentValue(ValueHolder newValue) {
+		//检查当前valueHolder对象name属性不为空
 		if (newValue.getName() != null) {
+			//迭代已有的genericArgumentValues集合
 			for (Iterator<ValueHolder> it = this.genericArgumentValues.iterator(); it.hasNext();) {
 				ValueHolder currentValue = it.next();
+				//找到与当前newvalue对象name属性相同的集合中对象
 				if (newValue.getName().equals(currentValue.getName())) {
+					//检查此对象的值是否为Mergeable接口的实现类
 					if (newValue.getValue() instanceof Mergeable) {
 						Mergeable mergeable = (Mergeable) newValue.getValue();
+						//开启合并开关
 						if (mergeable.isMergeEnabled()) {
+							//新旧对象value属性值合并
 							newValue.setValue(mergeable.merge(currentValue.getValue()));
 						}
 					}
+					//移除集合中当前与newValue对象name相同的对象
 					it.remove();
 				}
 			}
 		}
+		//添加新对象到genericArgumentValues中
 		this.genericArgumentValues.add(newValue);
 	}
 
@@ -454,6 +474,7 @@ public class ConstructorArgumentValues {
 
 		/**
 		 * Create a new ValueHolder for the given value.
+		 * 通过给定的值创建一个ValueHolder对象
 		 * @param value the argument value
 		 */
 		public ValueHolder(@Nullable Object value) {

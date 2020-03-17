@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * {@link ParseState} entry representing a JavaBean property.
+ * ParseState实例是表示一个java bean属性的项
  *
  * @author Rob Harrop
  * @since 2.0
@@ -31,6 +32,7 @@ public class PropertyEntry implements ParseState.Entry {
 
 	/**
 	 * Creates a new instance of the {@link PropertyEntry} class.
+	 * 创建一个PropertyEntry类的实例化对象，name为空时报错
 	 * @param name the name of the JavaBean property represented by this instance
 	 * @throws IllegalArgumentException if the supplied {@code name} is {@code null}
 	 * or consists wholly of whitespace

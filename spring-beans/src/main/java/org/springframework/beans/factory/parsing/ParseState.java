@@ -48,6 +48,7 @@ public final class ParseState {
 
 	/**
 	 * Create a new {@code ParseState} with an empty {@link LinkedList}.
+	 * 创建一个新的ParseState对象（其结构为一个空的链表集合）
 	 */
 	public ParseState() {
 		this.state = new LinkedList<>();

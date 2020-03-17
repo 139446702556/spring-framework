@@ -30,6 +30,7 @@ public class QualifierEntry implements ParseState.Entry {
 
 
 	public QualifierEntry(String typeName) {
+		//typeName为空报错
 		if (!StringUtils.hasText(typeName)) {
 			throw new IllegalArgumentException("Invalid qualifier type '" + typeName + "'.");
 		}

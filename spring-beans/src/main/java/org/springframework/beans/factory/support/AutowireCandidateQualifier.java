@@ -34,6 +34,7 @@ public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
 
 	/**
 	 * The name of the key used to store the value.
+	 * 用于存储值的键的名称
 	 */
 	public static final String VALUE_KEY = "value";
 
@@ -52,6 +53,7 @@ public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
 	/**
 	 * Construct a qualifier to match against an annotation of the
 	 * given type name.
+	 * 构造一个限定符来匹配给定类型名称的注释
 	 * <p>The type name may match the fully-qualified class name of
 	 * the annotation or the short class name (without the package).
 	 * @param typeName the name of the annotation type

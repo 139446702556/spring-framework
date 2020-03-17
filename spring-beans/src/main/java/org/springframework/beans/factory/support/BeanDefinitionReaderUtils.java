@@ -40,6 +40,7 @@ public abstract class BeanDefinitionReaderUtils {
 	/**
 	 * Separator for generated bean names. If a class name or parent name is not
 	 * unique, "#1", "#2" etc will be appended, until the name becomes unique.
+	 * 如果类名或者父类名不是唯一的，在生成bean名称时使用的分隔符
 	 */
 	public static final String GENERATED_BEAN_NAME_SEPARATOR = BeanFactoryUtils.GENERATED_BEAN_NAME_SEPARATOR;
 

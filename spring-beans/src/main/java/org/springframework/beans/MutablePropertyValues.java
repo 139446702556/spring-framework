@@ -45,7 +45,7 @@ import org.springframework.util.StringUtils;
 public class MutablePropertyValues implements PropertyValues, Serializable {
 
 	private final List<PropertyValue> propertyValueList;
-
+	/**set集合，用于存储处理过的属性，在其中存在的则为已经解析过的属性*/
 	@Nullable
 	private Set<String> processedProperties;
 
@@ -54,6 +54,7 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 
 	/**
 	 * Creates a new empty MutablePropertyValues object.
+	 * 创建一个新的MutablePropertyValues空对象，初始化propertyValueList属性字段为空集合
 	 * <p>Property values can be added with the {@code add} method.
 	 * @see #add(String, Object)
 	 */
@@ -169,14 +170,19 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	 * @return this in order to allow for adding multiple property values in a chain
 	 */
 	public MutablePropertyValues addPropertyValue(PropertyValue pv) {
+		//遍历当前属性值对象集合
 		for (int i = 0; i < this.propertyValueList.size(); i++) {
 			PropertyValue currentPv = this.propertyValueList.get(i);
+			//找到与当前pv对象属性名相同的curretPv对象
 			if (currentPv.getName().equals(pv.getName())) {
+				//合并新属性值对象和currentPv对象
 				pv = mergeIfRequired(pv, currentPv);
+				//修改当前i位置的值为pv
 				setPropertyValueAt(pv, i);
 				return this;
 			}
 		}
+		//如果是新添加的属性，则将pv添加到propertyValueList中
 		this.propertyValueList.add(pv);
 		return this;
 	}
@@ -209,6 +215,8 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	/**
 	 * Modify a PropertyValue object held in this object.
 	 * Indexed from 0.
+	 * 将propertyValueList对象中的i位置的属性值修改为pv
+	 * 索引从0开始
 	 */
 	public void setPropertyValueAt(PropertyValue pv, int i) {
 		this.propertyValueList.set(i, pv);
@@ -220,14 +228,20 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	 * @see Mergeable
 	 */
 	private PropertyValue mergeIfRequired(PropertyValue newPv, PropertyValue currentPv) {
+		//获取newPv对象的属性值
 		Object value = newPv.getValue();
+		//如果为Mergeable接口实现类的对象
 		if (value instanceof Mergeable) {
 			Mergeable mergeable = (Mergeable) value;
+			//如果开启合并
 			if (mergeable.isMergeEnabled()) {
+				//调用新对象的merge方法合并两个对象的值
 				Object merged = mergeable.merge(currentPv.getValue());
+				//返回有newPv的名称和新的合并值构成的PropertyValue对象
 				return new PropertyValue(newPv.getName(), merged);
 			}
 		}
+		//默认返回newPv对象
 		return newPv;
 	}
 
@@ -311,7 +325,10 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 		}
 		return changes;
 	}
-
+	/**
+	 * 如果存在当前属性名对应的属性对象或者此属性名已经处理过了，则返回true
+	 * 否则false
+	 */
 	@Override
 	public boolean contains(String propertyName) {
 		return (getPropertyValue(propertyName) != null ||
