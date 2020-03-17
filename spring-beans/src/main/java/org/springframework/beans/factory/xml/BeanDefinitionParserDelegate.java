@@ -1589,9 +1589,10 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Decorate the given bean definition through a namespace handler, if applicable.
-	 * @param ele the current element
-	 * @param originalDef the current bean definition
-	 * @param containingBd the containing bean definition (if any)
+	 * 通过命名空间处理程序给定的beanDefinition中自定义标签逻辑（如果存在的话）
+	 * @param ele the current element 当前的元素节点
+	 * @param originalDef the current bean definition  当前beanDefinition
+	 * @param containingBd the containing bean definition (if any) 包含的bean定义
 	 * @return the decorated bean definition
 	 */
 	public BeanDefinitionHolder decorateBeanDefinitionIfRequired(
@@ -1600,16 +1601,22 @@ public class BeanDefinitionParserDelegate {
 		BeanDefinitionHolder finalDefinition = originalDef;
 
 		// Decorate based on custom attributes first.
+		//获取属性集合
 		NamedNodeMap attributes = ele.getAttributes();
+		//遍历属性集合，查看是否有适用于装饰的属性
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Node node = attributes.item(i);
+			//装饰对应的节点
 			finalDefinition = decorateIfRequired(node, finalDefinition, containingBd);
 		}
 
 		// Decorate based on custom nested elements.
+		//获取元素的全部子节点
 		NodeList children = ele.getChildNodes();
+		//遍历子节点，并查看是否有适用于装饰的子节点
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
+			//判断当前节点为xml元素节点
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				finalDefinition = decorateIfRequired(node, finalDefinition, containingBd);
 			}
@@ -1620,6 +1627,7 @@ public class BeanDefinitionParserDelegate {
 	/**
 	 * Decorate the given bean definition through a namespace handler,
 	 * if applicable.
+	 * 通过命名空间处理程序修饰给定的bean定义（如果使用的话）
 	 * @param node the current child node
 	 * @param originalDef the current bean definition
 	 * @param containingBd the containing bean definition (if any)
@@ -1627,27 +1635,33 @@ public class BeanDefinitionParserDelegate {
 	 */
 	public BeanDefinitionHolder decorateIfRequired(
 			Node node, BeanDefinitionHolder originalDef, @Nullable BeanDefinition containingBd) {
-
+		//获取自定义标签节点的命名空间URI
 		String namespaceUri = getNamespaceURI(node);
+		//过滤掉默认的命名空间标签节点
 		if (namespaceUri != null && !isDefaultNamespace(namespaceUri)) {
+			//获取相应的处理器
 			NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 			if (handler != null) {
+				//对指定节点进行装饰处理
 				BeanDefinitionHolder decorated =
 						handler.decorate(node, originalDef, new ParserContext(this.readerContext, this, containingBd));
 				if (decorated != null) {
 					return decorated;
 				}
 			}
+			//如果没有获取到处理器，并且命名空间uri开头为此域名，则报错
 			else if (namespaceUri.startsWith("http://www.springframework.org/")) {
 				error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", node);
 			}
 			else {
 				// A custom namespace, not to be handled by Spring - maybe "xml:...".
+				//自定义命名空间，可能不是spring可以处理的，例如：“xml:...”
 				if (logger.isDebugEnabled()) {
 					logger.debug("No Spring NamespaceHandler found for XML schema namespace [" + namespaceUri + "]");
 				}
 			}
 		}
+		//默认返回传入的BeanDefinitionHolder
 		return originalDef;
 	}
 
