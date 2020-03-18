@@ -95,6 +95,7 @@ public abstract class ClassUtils {
 	/**
 	 * Map with primitive type name as key and corresponding primitive
 	 * type as value, for example: "int" -> "int.class".
+	 * 用于存储类型名称与类型对象的关系表（一些基本类型和其包装类）
 	 */
 	private static final Map<String, Class<?>> primitiveTypeNameMap = new HashMap<>(32);
 
@@ -231,6 +232,8 @@ public abstract class ClassUtils {
 	 * for primitives (e.g. "int") and array class names (e.g. "String[]").
 	 * Furthermore, it is also capable of resolving inner class names in Java source
 	 * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+	 * 基本类型通过使用程序启动时对类型名称和类型对象的缓存中获取，如果是数组等特殊类型，则需要做一定操作；
+	 * 如果是自定义类型的话，则使用class.forname使用指定的classLoader来进行对其加载创建class对象
 	 * @param name the name of the Class
 	 * @param classLoader the class loader to use
 	 * (may be {@code null}, which indicates the default class loader)
@@ -243,7 +246,7 @@ public abstract class ClassUtils {
 			throws ClassNotFoundException, LinkageError {
 
 		Assert.notNull(name, "Name must not be null");
-
+		//从类型名称与类型对象的关系表中获取name的类型对象
 		Class<?> clazz = resolvePrimitiveClassName(name);
 		if (clazz == null) {
 			clazz = commonClassCache.get(name);

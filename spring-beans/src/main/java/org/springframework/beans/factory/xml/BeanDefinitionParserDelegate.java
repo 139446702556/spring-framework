@@ -1546,7 +1546,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a custom element (outside of the default namespace).
-	 * 解析一个自定义元素（在默认名称空间之外）
+	 * 解析一个自定义元素标签（在默认名称空间之外）
 	 * @param ele the element to parse
 	 * @return the resulting bean definition
 	 */
@@ -1557,22 +1557,28 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Parse a custom element (outside of the default namespace).
-	 * 解析一个自定义元素（在默认名称空间之外）
+	 * 解析一个自定义元素标签（在默认名称空间之外）
 	 * @param ele the element to parse
 	 * @param containingBd the containing bean definition (if any)
 	 * @return the resulting bean definition
 	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
+		//获取nameSpaceURI
 		String namespaceUri = getNamespaceURI(ele);
+		//自定义标签nameSpaceURI为空无法解析，则返回null
 		if (namespaceUri == null) {
 			return null;
 		}
+		//根据相应的nameSpaceURI获取相应的处理器（handler），此处理器为自定义的类实现了NamespaceHandler接口；
+		//查找过程是通过namespaceUri在spring.handlers文件生成的注册表中查找到相应的处理器，进行加载使用
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
+		//无自定义处理器，报错
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		//调用自定义的handler的parse方法进行解析
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 
@@ -1700,7 +1706,7 @@ public class BeanDefinitionParserDelegate {
 
 	/**
 	 * Get the local name for the supplied {@link Node}.
-	 * 获取指定节点的本地名称
+	 * 获取指定节点的本地名称（元素名称）
 	 * <p>The default implementation calls {@link Node#getLocalName}.
 	 * Subclasses may override the default implementation to provide a
 	 * different mechanism for getting the local name.

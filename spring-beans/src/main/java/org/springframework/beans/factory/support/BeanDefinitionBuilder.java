@@ -38,6 +38,7 @@ public final class BeanDefinitionBuilder {
 
 	/**
 	 * Create a new {@code BeanDefinitionBuilder} used to construct a {@link GenericBeanDefinition}.
+	 * 创建一个BeanDefinitionBuilder对象，参数为GenericBeanDefinition类对象
 	 */
 	public static BeanDefinitionBuilder genericBeanDefinition() {
 		return new BeanDefinitionBuilder(new GenericBeanDefinition());
@@ -138,6 +139,7 @@ public final class BeanDefinitionBuilder {
 
 	/**
 	 * Enforce the use of factory methods.
+	 * 此类为BeanDefinition 工厂方法定义类
 	 */
 	private BeanDefinitionBuilder(AbstractBeanDefinition beanDefinition) {
 		this.beanDefinition = beanDefinition;
@@ -153,6 +155,7 @@ public final class BeanDefinitionBuilder {
 
 	/**
 	 * Validate and return the created BeanDefinition object.
+	 * 验证和返回创建的beanDefinition对象
 	 */
 	public AbstractBeanDefinition getBeanDefinition() {
 		this.beanDefinition.validate();

@@ -60,27 +60,40 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 	@Override
 	@Nullable
 	public final BeanDefinition parse(Element element, ParserContext parserContext) {
+		//内部解析，返回element元素标签解析得到的AbstractBeanDefinition对象
 		AbstractBeanDefinition definition = parseInternal(element, parserContext);
+		//判断definition对象不为空，并且不是嵌套的
 		if (definition != null && !parserContext.isNested()) {
 			try {
+				//解析id属性值（没有时，生成beanName）
 				String id = resolveId(element, definition, parserContext);
+				//id为空，报错
 				if (!StringUtils.hasText(id)) {
 					parserContext.getReaderContext().error(
 							"Id is required for element '" + parserContext.getDelegate().getLocalName(element)
 									+ "' when used as a top-level tag", element);
 				}
 				String[] aliases = null;
+				//如果设置解析name属性值作为别名的话
 				if (shouldParseNameAsAliases()) {
+					//解析name属性值
 					String name = element.getAttribute(NAME_ATTRIBUTE);
+					//通过分隔符逗号来对name值进行切割，生成aliases数组
 					if (StringUtils.hasLength(name)) {
 						aliases = StringUtils.trimArrayElements(StringUtils.commaDelimitedListToStringArray(name));
 					}
 				}
+				//创建一个BeanDefinitionHolder对象
 				BeanDefinitionHolder holder = new BeanDefinitionHolder(definition, id, aliases);
+				//注册BeanDefinition
 				registerBeanDefinition(holder, parserContext.getRegistry());
+				//如果应该触发事件，则触发
 				if (shouldFireEvents()) {
+					//创建BeanComponentDefinition对象
 					BeanComponentDefinition componentDefinition = new BeanComponentDefinition(holder);
+					//模板方法，交给用户创建子类来实现
 					postProcessComponentDefinition(componentDefinition);
+					//注册组件，并触发
 					parserContext.registerComponent(componentDefinition);
 				}
 			}
@@ -108,13 +121,16 @@ public abstract class AbstractBeanDefinitionParser implements BeanDefinitionPars
 	 */
 	protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
 			throws BeanDefinitionStoreException {
-
+		//在应该生成一个通用id的时候，使用readerContext生成一个唯一的beanName
 		if (shouldGenerateId()) {
 			return parserContext.getReaderContext().generateBeanName(definition);
 		}
 		else {
+			//获取id属性值
 			String id = element.getAttribute(ID_ATTRIBUTE);
+			//为空
 			if (!StringUtils.hasText(id) && shouldGenerateIdAsFallback()) {
+				//生成通用beanName
 				id = parserContext.getReaderContext().generateBeanName(definition);
 			}
 			return id;

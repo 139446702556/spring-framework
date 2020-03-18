@@ -67,6 +67,7 @@ public class CompositeComponentDefinition extends AbstractComponentDefinition {
 
 	/**
 	 * Add the given component as nested element of this composite component.
+	 * 将给定的组件作为嵌套组件添加到此嵌套组件的容器中
 	 * @param component the nested component to add
 	 */
 	public void addNestedComponent(ComponentDefinition component) {

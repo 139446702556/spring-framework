@@ -60,31 +60,44 @@ public abstract class AbstractSingleBeanDefinitionParser extends AbstractBeanDef
 	 */
 	@Override
 	protected final AbstractBeanDefinition parseInternal(Element element, ParserContext parserContext) {
+		//创建BeanDefinitionBuilder对象
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition();
+		//获取此节点的父类节点名称
 		String parentName = getParentName(element);
+		//设置父节点名称
 		if (parentName != null) {
 			builder.getRawBeanDefinition().setParentName(parentName);
 		}
+		//获取自定义标签中的class，这个时候会去调用自定义解析中的getBeanClass方法
 		Class<?> beanClass = getBeanClass(element);
+		//如果beanClass不为空，表示子类重写了getBeanClass方法
 		if (beanClass != null) {
+			//设置bean class
 			builder.getRawBeanDefinition().setBeanClass(beanClass);
 		}
+		//如果beanClass为null，表示子类没有实现getBeanClass方法
 		else {
+			//则尝试去调用getBeanClassName方法，看子类是否重写了此方法
 			String beanClassName = getBeanClassName(element);
+			//设置bean Definition的beanClassName属性值
 			if (beanClassName != null) {
 				builder.getRawBeanDefinition().setBeanClassName(beanClassName);
 			}
 		}
+		//设置source属性
 		builder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
+		//设置scope属性，内部的beanDefinition的作用域必须与包含其的bean相同
 		BeanDefinition containingBd = parserContext.getContainingBeanDefinition();
 		if (containingBd != null) {
 			// Inner bean definition must receive same scope as containing bean.
 			builder.setScope(containingBd.getScope());
 		}
+		//自定义bean通过判断默认的DocumentDefaultDefinition的lazy-init属性值，如果为true，则此bean的lazy-init属性也为true，否则为false
 		if (parserContext.isDefaultLazyInit()) {
 			// Default-lazy-init applies to custom bean definitions as well.
 			builder.setLazyInit(true);
 		}
+		//调用用户自定义子类实现的doParse方法进行解析
 		doParse(element, parserContext, builder);
 		return builder.getBeanDefinition();
 	}

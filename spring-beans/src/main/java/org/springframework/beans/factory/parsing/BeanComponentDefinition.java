@@ -62,6 +62,8 @@ public class BeanComponentDefinition extends BeanDefinitionHolder implements Com
 
 	/**
 	 * Create a new BeanComponentDefinition for the given bean.
+	 * 通过给定的beanDefinitionHolder来解析生成BeanComponentDefinition对象，其中将解析此
+	 * 给定bean的属性值，来将其分为内部bean和bean引用两种形式存储
 	 * @param beanDefinitionHolder the BeanDefinitionHolder encapsulating
 	 * the bean definition as well as the name of the bean
 	 */

@@ -47,6 +47,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	/**
 	 * Stores the {@link BeanDefinitionParser} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
+	 * key:元素名称
+	 * value：对应的BeanDefinitionParser的解析器
 	 */
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
@@ -66,11 +68,14 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	/**
 	 * Parses the supplied {@link Element} by delegating to the {@link BeanDefinitionParser} that is
 	 * registered for that {@link Element}.
+	 * 解析提供的元素标签节点，方法是将其委托给该元素注册的BeanDefinitionParser对象来进行解析
 	 */
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		//获取元素element对应的BeanDefinitionParser对象
 		BeanDefinitionParser parser = findParserForElement(element, parserContext);
+		//使用BeanDefinitionParser来对自定义元素标签节点进行解析
 		return (parser != null ? parser.parse(element, parserContext) : null);
 	}
 
@@ -80,7 +85,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 */
 	@Nullable
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		//获取指定element元素的名称
 		String localName = parserContext.getDelegate().getLocalName(element);
+		//通过指定元素名去解析器映射表获取对应的BeanDefinitionParser对象
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {
 			parserContext.getReaderContext().fatal(
