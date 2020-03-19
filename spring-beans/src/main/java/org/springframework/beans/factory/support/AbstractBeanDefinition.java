@@ -223,6 +223,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Create a new AbstractBeanDefinition as a deep copy of the given
 	 * bean definition.
+	 * 从给定的BeanDefinition拷贝配置来创建一个新的AbstractBeanDefinition对象
 	 * @param original the original bean definition to copy from
 	 */
 	protected AbstractBeanDefinition(BeanDefinition original) {
@@ -617,6 +618,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the bean names that this bean depends on.
+	 * 返回此bean所依赖的bean名称
 	 */
 	@Override
 	@Nullable
@@ -973,6 +975,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Return whether this bean definition is 'synthetic', that is,
 	 * not defined by the application itself.
+	 * 返回这个beanDefinition是否是合成的，也就是说不是由应用程序本身定义的
 	 */
 	public boolean isSynthetic() {
 		return this.synthetic;

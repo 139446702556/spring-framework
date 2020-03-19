@@ -72,22 +72,22 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Cache of singleton objects: bean name to bean instance.
-	 * 单例对象的缓存
+	 * 单例对象的缓存容器
 	 * key：beanName
 	 * value：bean实例对象
 	 */
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
-	/** Cache of singleton factories: bean name to ObjectFactory. */
+	/** Cache of singleton factories: bean name to ObjectFactory.  单例工厂的缓存，beanName：FactoryObject */
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
-	/** Cache of early singleton objects: bean name to bean instance. */
+	/** Cache of early singleton objects: bean name to bean instance. 早期单例对象的缓存 beanName：bean实例对象 */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
-	/** Names of beans that are currently in creation. */
+	/** Names of beans that are currently in creation. 当前正在创建的bean名称 */
 	private final Set<String> singletonsCurrentlyInCreation =
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
@@ -179,12 +179,19 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		//从单例bean对象容器中获取
 		Object singletonObject = this.singletonObjects.get(beanName);
+		//如果没有获取到，并且当前bean正处于创建状态中
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			//加锁全局对象singletonObjects，防止此时创建结束插入到此容器中，从而删除了中间容器的数据
 			synchronized (this.singletonObjects) {
+				//从早期单例对象存储容器中获取（加载未完成时的过度容器）
 				singletonObject = this.earlySingletonObjects.get(beanName);
+				//如果未获取到，并且允许创建早期引用
 				if (singletonObject == null && allowEarlyReference) {
+					//获取beanName对应的单例工厂
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					//创建指定的bean对象，并插入到earlySingletonObjects中，从singletonFactories中删除掉加载过的bean信息
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
 						this.earlySingletonObjects.put(beanName, singletonObject);
@@ -326,6 +333,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Return whether the specified singleton bean is currently in creation
+	 * 通过判断beanName是否在singletonsCurrentlyInCreation容器中，来判断指定的单例bean是否正在创建
 	 * (within the entire factory).
 	 * @param beanName the name of the bean
 	 */
@@ -396,6 +404,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Register a dependent bean for the given bean,
 	 * to be destroyed before the given bean is destroyed.
+	 * 为给定的bean注册一个依赖的bean信息；依赖的bean在给定的bean销毁之前销毁它
 	 * @param beanName the name of the bean
 	 * @param dependentBeanName the name of the dependent bean
 	 */
