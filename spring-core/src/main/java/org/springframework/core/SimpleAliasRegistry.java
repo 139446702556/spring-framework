@@ -43,15 +43,21 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	/** Logger available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	/** Map from alias to canonical name. */
+	/**
+	 * Map from alias to canonical name.
+	 * 用于存储别名和bean名称的映射
+	 */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
 
 	@Override
 	public void registerAlias(String name, String alias) {
+		//校验name、alias不能为空
 		Assert.hasText(name, "'name' must not be empty");
 		Assert.hasText(alias, "'alias' must not be empty");
+		//锁定全局变量
 		synchronized (this.aliasMap) {
+			//如果当前的别名和bean名称相等的话，则移除alias，并且记录debug日志
 			if (alias.equals(name)) {
 				this.aliasMap.remove(alias);
 				if (logger.isDebugEnabled()) {
@@ -59,12 +65,16 @@ public class SimpleAliasRegistry implements AliasRegistry {
 				}
 			}
 			else {
+				//获取alias已经注册的beanName
 				String registeredName = this.aliasMap.get(alias);
+				//已经存在
 				if (registeredName != null) {
+					//和当前beanName相同，则无需注册
 					if (registeredName.equals(name)) {
 						// An existing alias - no need to re-register
 						return;
 					}
+					//不允许别名覆盖，则抛出IllegalStateException异常
 					if (!allowAliasOverriding()) {
 						throw new IllegalStateException("Cannot define alias '" + alias + "' for name '" +
 								name + "': It is already registered for name '" + registeredName + "'.");
@@ -74,7 +84,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				//检查是否存在循环指向
 				checkForAliasCircle(name, alias);
+				//注册alias和beanName的映射
 				this.aliasMap.put(alias, name);
 				if (logger.isTraceEnabled()) {
 					logger.trace("Alias definition '" + alias + "' registered for name '" + name + "'");
@@ -93,11 +105,14 @@ public class SimpleAliasRegistry implements AliasRegistry {
 
 	/**
 	 * Determine whether the given name has the given alias registered.
+	 * 确定给定的名称是否注册了给定的别名
 	 * @param name the name to check
 	 * @param alias the alias to look for
 	 * @since 4.2.1
 	 */
 	public boolean hasAlias(String name, String alias) {
+		//循环遍历aliasMap映射表，看当前alias和name的关系是否存在循环引用，即（A，1）（1，B）A和B为bean名称和别名
+		//或者看当前name和alias是否已经注册了
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
 			String registeredName = entry.getValue();
 			if (registeredName.equals(name)) {

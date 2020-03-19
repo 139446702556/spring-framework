@@ -163,10 +163,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Nullable
 	private SecurityContextProvider securityContextProvider;
 
-	/** Map from bean name to merged RootBeanDefinition. */
+	/**
+	 * Map from bean name to merged RootBeanDefinition.
+	 * beanName和RootBeanDefinition的映射关系表
+	 */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
-	/** Names of beans that have already been created at least once. */
+	/**
+	 * Names of beans that have already been created at least once.
+	 * 创建就绪的bean名称集合（用于存储至少已经创建过一次的bean名称）
+	 */
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	/** Names of beans that are currently in creation. */
@@ -1339,6 +1345,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Remove the merged bean definition for the specified bean,
 	 * recreating it on next access.
+	 * 删除指定bean的合并beanDefinitin；在下一次访问时重新创建它
 	 * @param beanName the bean name to clear the merged definition for
 	 */
 	protected void clearMergedBeanDefinition(String beanName) {
@@ -1623,6 +1630,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Check whether this factory's bean creation phase already started,
 	 * i.e. whether any bean has been marked as created in the meantime.
+	 * 检测当前工厂创建bean的阶段是否已经开始了
 	 * @since 4.2.2
 	 * @see #markBeanAsCreated
 	 */
