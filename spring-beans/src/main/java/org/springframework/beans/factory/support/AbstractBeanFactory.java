@@ -273,7 +273,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			//完成FactoryBean的相关处理，并用来获取FactoryBean的处理结果
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
-
+		//如果此beanName从单例模式对象缓存中没有获取到数据
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
@@ -1091,6 +1091,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected boolean isPrototypeCurrentlyInCreation(String beanName) {
 		Object curVal = this.prototypesCurrentlyInCreation.get();
+		//判断当前正在创建中的记录curVal是否与beanName相等或者curVal包含beanName
 		return (curVal != null &&
 				(curVal.equals(beanName) || (curVal instanceof Set && ((Set<?>) curVal).contains(beanName))));
 	}
@@ -1202,7 +1203,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return the original bean name
 	 */
 	protected String originalBeanName(String name) {
+		//将当前名称转化为规范的beanName，如果名称有&符号，在转换的时候会被去掉
 		String beanName = transformedBeanName(name);
+		//如果name以&符号开头，在beanName开头加上
 		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
 			beanName = FACTORY_BEAN_PREFIX + beanName;
 		}
@@ -1285,6 +1288,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return mbd;
 		}
 		//否则进行创建，并把创建好的RootBeanDefinition插入到缓存映射表中
+		//如果返回的beanDefinition是子类bean的话，则合并父类相关属性
 		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
 	}
 
@@ -1414,7 +1418,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args)
 			throws BeanDefinitionStoreException {
-
+		//检查给定的RootBeanDefinition对象是否为抽象的；如果是的话，则不可以创建实例化对象，所以抛出异常
 		if (mbd.isAbstract()) {
 			throw new BeanIsAbstractException(beanName);
 		}
@@ -1657,12 +1661,17 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param beanName the name of the bean
 	 */
 	protected void markBeanAsCreated(String beanName) {
+		//没有创建beanName对应的bean
 		if (!this.alreadyCreated.contains(beanName)) {
+			//加上全局锁
 			synchronized (this.mergedBeanDefinitions) {
+				//再次检查一次，DCL双检查模式（加全局锁）
 				if (!this.alreadyCreated.contains(beanName)) {
 					// Let the bean definition get re-merged now that we're actually creating
 					// the bean... just in case some of its metadata changed in the meantime.
+					//从mergedBeanDefinitions中删除beanName，并在下次使用时重新创建它
 					clearMergedBeanDefinition(beanName);
+					//添加到已创建bean的集合中
 					this.alreadyCreated.add(beanName);
 				}
 			}
