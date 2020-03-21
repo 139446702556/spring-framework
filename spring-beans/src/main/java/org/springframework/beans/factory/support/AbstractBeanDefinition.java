@@ -1100,7 +1100,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		// Check that lookup methods exist and determine their overloaded status.
 		//存在需要覆盖的方法
 		if (hasMethodOverrides()) {
-			//循环检测当前要覆盖的方法是否存在，如果不存在，则抛异常；存在则标签其方法的重载标识为未重载
+			//循环检测当前要覆盖的方法是否存在，如果不存在，则抛异常；存在则标记其方法的重载标识为未重载
 			getMethodOverrides().getOverrides().forEach(this::prepareMethodOverride);
 		}
 	}
@@ -1124,6 +1124,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		//如果找到了只有一个，则设置其方法的override标识为未重载，以避免arg类型检查的开销
 		else if (count == 1) {
 			// Mark override as not overloaded, to avoid the overhead of arg type checking.
+			//将当前重载方法的标识设置为未重载；这样做是因为一个类中如果有多个重载方法的话，在方法
+			//调用的时候需要根据参数去判断到底重载的是哪个方法；这里的优化主要是针对当count==1时
+			//后续操作省去了对参数的判断
 			mo.setOverloaded(false);
 		}
 	}
