@@ -93,6 +93,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
 	/** Set of registered singletons, containing the bean names in registration order. */
+	/**一组已注册的单例beanName（bean名称），是按照注册顺序排列的bean名称*/
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
 	/** Names of beans that are currently in creation. 当前正在创建中的单例bean名称的集合 */
@@ -142,15 +143,20 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Add the given singleton object to the singleton cache of this factory.
+	 * 将给定的单例对象添加到该工厂的单例缓存中
 	 * <p>To be called for eager registration of singletons.
 	 * @param beanName the name of the bean
 	 * @param singletonObject the singleton object
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
+			//将当前创建的新的单例对象与beanName的关系添加到缓存中
 			this.singletonObjects.put(beanName, singletonObject);
+			//从单例beanFactory的缓存中删除与beanName相关的信息
 			this.singletonFactories.remove(beanName);
+			//从早期创建的单例bean的缓存中删除掉已经创建成功的beanName
 			this.earlySingletonObjects.remove(beanName);
+			//将已经注册beanName添加到单例缓存中
 			this.registeredSingletons.add(beanName);
 		}
 	}
@@ -226,9 +232,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @return the registered singleton object
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
+		//检查beanName不为空
 		Assert.notNull(beanName, "Bean name must not be null");
+		//针对singletonObjects进行全局加锁
 		synchronized (this.singletonObjects) {
+			//从单例对象缓存中检查一遍是否有beanName对应的对象
+			//因为单例模式本来就是复用已经创建的bean，所以这步骤不能省
 			Object singletonObject = this.singletonObjects.get(beanName);
+			//为空，开始加载过程
 			if (singletonObject == null) {
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
@@ -238,13 +249,18 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				//单例对象创建的前置处理
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
+				//如果当前的异常记录集合中为空（无异常）
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
+					//初始化异常记录集合对象
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					//初始化bean
+					//这个过程其实就是调用createBean（）方法的结果
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -265,12 +281,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					throw ex;
 				}
 				finally {
+					//创建对象结束，清空异常记录
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					//创建单例对象的后置处理方法
 					afterSingletonCreation(beanName);
 				}
+				//如果此单例对象是新创建的
 				if (newSingleton) {
+					//则将当前的beanName和新创建的单例对象添加到缓存中
 					addSingleton(beanName, singletonObject);
 				}
 			}

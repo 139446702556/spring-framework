@@ -479,6 +479,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Return whether this a <b>Singleton</b>, with a single shared instance
 	 * returned from all calls.
+	 * 判断当前beanDefinition的作用域是否为单例模式（默认不设置极为单例的）
 	 * @see #SCOPE_SINGLETON
 	 */
 	@Override

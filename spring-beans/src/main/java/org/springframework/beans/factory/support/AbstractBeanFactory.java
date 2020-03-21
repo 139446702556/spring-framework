@@ -177,7 +177,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	/** Names of beans that are currently in creation. */
-	/**当前正在创建的原型bean的名称*/
+	/**当前正在创建的原型模式的bean的名称*/
 	private final ThreadLocal<Object> prototypesCurrentlyInCreation =
 			new NamedThreadLocal<>("Prototype beans currently in creation");
 
@@ -374,16 +374,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
-						//标记当前原型模式的bean正在创建
+						//标记当前原型模式的bean正在创建（前置处理）
 						beforePrototypeCreation(beanName);
 						//创建bean实例化对象
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
-						//当前原型模式的bena创建结束，将此bean的标记从缓存中移除
+						//当前原型模式的bena创建结束，将此bean的标记从缓存中移除（后置处理）
 						afterPrototypeCreation(beanName);
 					}
-					//完成FactoryBean的相关处理，并用来获取FactoryBean的处理结果
+					//完成FactoryBean的相关处理，并用来获取FactoryBean的处理结果（从bean实例中获取对象）
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
@@ -1098,22 +1098,27 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Callback before prototype creation.
+	 * 原型模式的bean创建之前执行的前置方法，用于对给定beanName的状态进行标记
 	 * <p>The default implementation register the prototype as currently in creation.
 	 * @param beanName the name of the prototype about to be created
 	 * @see #isPrototypeCurrentlyInCreation
 	 */
 	@SuppressWarnings("unchecked")
 	protected void beforePrototypeCreation(String beanName) {
+		//获取正在创建的原型模式（此处使用ThreadLocal进行存储，保证线程的安全性）
 		Object curVal = this.prototypesCurrentlyInCreation.get();
+		//为空，证明还没有，第一个的存储为String形式
 		if (curVal == null) {
 			this.prototypesCurrentlyInCreation.set(beanName);
 		}
+		//从String=>Set集合
 		else if (curVal instanceof String) {
 			Set<String> beanNameSet = new HashSet<>(2);
 			beanNameSet.add((String) curVal);
 			beanNameSet.add(beanName);
 			this.prototypesCurrentlyInCreation.set(beanNameSet);
 		}
+		//如果本身就是Set容器，则直接添加
 		else {
 			Set<String> beanNameSet = (Set<String>) curVal;
 			beanNameSet.add(beanName);
@@ -1122,6 +1127,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Callback after prototype creation.
+	 * 原型模式的bean对象创建之后执行（后置方法）
 	 * <p>The default implementation marks the prototype as not in creation anymore.
 	 * @param beanName the name of the prototype that has been created
 	 * @see #isPrototypeCurrentlyInCreation
@@ -1129,12 +1135,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@SuppressWarnings("unchecked")
 	protected void afterPrototypeCreation(String beanName) {
 		Object curVal = this.prototypesCurrentlyInCreation.get();
+		//String=>null
 		if (curVal instanceof String) {
 			this.prototypesCurrentlyInCreation.remove();
 		}
+		//如果curVal为Set容器，则直接移除该beanName
 		else if (curVal instanceof Set) {
 			Set<String> beanNameSet = (Set<String>) curVal;
 			beanNameSet.remove(beanName);
+			//Set=>null
 			if (beanNameSet.isEmpty()) {
 				this.prototypesCurrentlyInCreation.remove();
 			}

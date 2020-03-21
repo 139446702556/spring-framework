@@ -66,8 +66,11 @@ public class SimpleThreadScope implements Scope {
 
 	@Override
 	public Object get(String name, ObjectFactory<?> objectFactory) {
+		//获取本线程持有的scope缓存（存储的为beanName->bean实例化对象）
 		Map<String, Object> scope = this.threadScope.get();
+		//获取name对应的bean对象
 		Object scopedObject = scope.get(name);
+		//未找到，则使用工厂对象创建bean实例对象，并加入到缓存中
 		if (scopedObject == null) {
 			scopedObject = objectFactory.getObject();
 			scope.put(name, scopedObject);
