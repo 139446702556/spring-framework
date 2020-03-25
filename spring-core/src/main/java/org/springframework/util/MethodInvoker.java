@@ -282,6 +282,8 @@ public class MethodInvoker {
 
 
 	/**
+	 * 判断给定类型集合和给定参数值集合的类型的匹配程度，对应的参数值的类型与给定的对应类型越匹配越相近，权重值
+	 * 越小，父接口比父类的权重值小；值的类型与给定类型越接近，类型差异权重越小
 	 * Algorithm that judges the match between the declared parameter types of a candidate method
 	 * and a specific list of arguments that this method is supposed to be invoked with.
 	 * <p>Determines a weight that represents the class hierarchy difference between types and
@@ -303,18 +305,23 @@ public class MethodInvoker {
 	 */
 	public static int getTypeDifferenceWeight(Class<?>[] paramTypes, Object[] args) {
 		int result = 0;
+		//迭代当前方法的参数类型集合
 		for (int i = 0; i < paramTypes.length; i++) {
+			//如果当前参数值与类型不匹配，则返回最大类型差异权重
 			if (!ClassUtils.isAssignableValue(paramTypes[i], args[i])) {
 				return Integer.MAX_VALUE;
 			}
+			//如果类型与值匹配
 			if (args[i] != null) {
 				Class<?> paramType = paramTypes[i];
 				Class<?> superClass = args[i].getClass().getSuperclass();
 				while (superClass != null) {
+					//判断当前给定类型是否等于其父类，是权重加2
 					if (paramType.equals(superClass)) {
 						result = result + 2;
 						superClass = null;
 					}
+					//当前值的父类类型是否是给定类的子类，权重加在2
 					else if (ClassUtils.isAssignable(paramType, superClass)) {
 						result = result + 2;
 						superClass = superClass.getSuperclass();
@@ -323,6 +330,7 @@ public class MethodInvoker {
 						superClass = null;
 					}
 				}
+				//如果参数类型为接口类型，则权重加1
 				if (paramType.isInterface()) {
 					result = result + 1;
 				}

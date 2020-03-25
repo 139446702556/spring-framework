@@ -138,6 +138,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			@Nullable Object factoryBean, final Method factoryMethod, Object... args) {
 
 		try {
+			//检查当前工厂方法的可访问情况，并将其设置为可访问的
 			if (System.getSecurityManager() != null) {
 				AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 					ReflectionUtils.makeAccessible(factoryMethod);
@@ -147,21 +148,27 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			else {
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
-
+			//获取之前可调用的工厂方法
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				//将当前的工厂方法保存到缓存中
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				//调用当前的工厂方法来创建bean对象
 				Object result = factoryMethod.invoke(factoryBean, args);
+				//如果因为创建失败或者其它原因导致创建的对象为null，则将其赋值为NullBean对象
 				if (result == null) {
 					result = new NullBean();
 				}
 				return result;
 			}
 			finally {
+				//如果缓存中设置此工厂方法之前有一个工厂方法缓存在其中
 				if (priorInvokedFactoryMethod != null) {
+					//则将其重新设置到缓存中
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}
 				else {
+					//否则直接移除缓存中的工厂方法
 					currentlyInvokedFactoryMethod.remove();
 				}
 			}

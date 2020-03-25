@@ -68,6 +68,7 @@ class BeanDefinitionValueResolver {
 
 	/**
 	 * Create a BeanDefinitionValueResolver for the given BeanFactory and BeanDefinition.
+	 * 通过给定的beanFactory和beanDefinition来创建一个新的BeanDefintionValueResolver对象
 	 * @param beanFactory the BeanFactory to resolve against
 	 * @param beanName the name of the bean that we work on
 	 * @param beanDefinition the BeanDefinition of the bean that we work on

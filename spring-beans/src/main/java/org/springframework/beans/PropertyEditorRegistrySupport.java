@@ -106,7 +106,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 
 	@Nullable
 	private Map<Class<?>, PropertyEditor> customEditors;
-
+	/**propertyPath->CustomEditorHolder*/
 	@Nullable
 	private Map<String, CustomEditorHolder> customEditorsForPath;
 
@@ -117,6 +117,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Specify a Spring 3.0 ConversionService to use for converting
 	 * property values, as an alternative to JavaBeans PropertyEditors.
+	 * 指定一个用于转换属性值的Spring 3.0转换服务，作为JavaBeans propertyeditor的替代方案。
 	 */
 	public void setConversionService(@Nullable ConversionService conversionService) {
 		this.conversionService = conversionService;
@@ -138,12 +139,15 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Activate the default editors for this registry instance,
 	 * allowing for lazily registering default editors when needed.
+	 * 激活此注册表实例的默认编辑器，允许在需要时惰性地注册默认编辑器。
 	 */
 	protected void registerDefaultEditors() {
+		//默认编辑器激活
 		this.defaultEditorsActive = true;
 	}
 
 	/**
+	 * 激活仅用于配置目的的编辑器
 	 * Activate config value editors which are only intended for configuration purposes,
 	 * such as {@link org.springframework.beans.propertyeditors.StringArrayPropertyEditor}.
 	 * <p>Those editors are not registered by default simply because they are in
@@ -291,16 +295,21 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 
 	@Override
 	public void registerCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath, PropertyEditor propertyEditor) {
+		//检查参数
 		if (requiredType == null && propertyPath == null) {
 			throw new IllegalArgumentException("Either requiredType or propertyPath is required");
 		}
+		//属性路径如果不为空
 		if (propertyPath != null) {
+			//则通过customEditorsForPath存储路径与自定义编辑器持有者的关系
 			if (this.customEditorsForPath == null) {
 				this.customEditorsForPath = new LinkedHashMap<>(16);
 			}
 			this.customEditorsForPath.put(propertyPath, new CustomEditorHolder(propertyEditor, requiredType));
 		}
+		//属性路径为空
 		else {
+			//则使用customEditors保存请求类型与属性编辑器的对应关系
 			if (this.customEditors == null) {
 				this.customEditors = new LinkedHashMap<>(16);
 			}
@@ -516,6 +525,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
 	/**
 	 * Holder for a registered custom editor with property name.
 	 * Keeps the PropertyEditor itself plus the type it was registered for.
+	 * 用于保存PropertyEditor本身和其注册的类型（此类为自定义注册器持有者）
 	 */
 	private static final class CustomEditorHolder {
 

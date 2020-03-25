@@ -51,8 +51,11 @@ public class PrioritizedParameterNameDiscoverer implements ParameterNameDiscover
 	@Override
 	@Nullable
 	public String[] getParameterNames(Method method) {
+		//遍历注册了的全部的参数名称解析器集合
 		for (ParameterNameDiscoverer pnd : this.parameterNameDiscoverers) {
+			//通过名称解析器解析此方法method的全部参数的名称
 			String[] result = pnd.getParameterNames(method);
+			//如果不为空（解析正常未发生异常），则返回
 			if (result != null) {
 				return result;
 			}

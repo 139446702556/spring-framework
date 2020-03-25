@@ -402,6 +402,7 @@ public abstract class ReflectionUtils {
 	 */
 	public static void doWithMethods(Class<?> clazz, MethodCallback mc, @Nullable MethodFilter mf) {
 		// Keep backing up the inheritance hierarchy.
+		//获取此类对象以及父类对象的方法集合和此类实现接口的默认方法集合的总和
 		Method[] methods = getDeclaredMethods(clazz);
 		for (Method method : methods) {
 			if (mf != null && !mf.matches(method)) {
@@ -585,6 +586,7 @@ public abstract class ReflectionUtils {
 	 * necessary. The {@code setAccessible(true)} method is only called
 	 * when actually necessary, to avoid unnecessary conflicts with a JVM
 	 * SecurityManager (if active).
+	 * 如果当前方法为不可访问的，则将其设置为可访问的
 	 * @param method the method to make accessible
 	 * @see java.lang.reflect.Method#setAccessible
 	 */

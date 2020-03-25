@@ -1297,6 +1297,7 @@ public abstract class StringUtils {
 	/**
 	 * Convert a {@code Collection} into a delimited {@code String} (e.g., CSV).
 	 * <p>Useful for {@code toString()} implementations.
+	 * 将给定的集合转换为字符串，每个元素中间用逗号隔开
 	 * @param coll the {@code Collection} to convert (potentially {@code null} or empty)
 	 * @return the delimited {@code String}
 	 */

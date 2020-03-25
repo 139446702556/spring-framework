@@ -137,7 +137,8 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
 	/**
 	 * Set a bean instance to hold, without any unwrapping of {@link java.util.Optional}.
-	 * @param object the actual target object
+	 * 设置要保存的bean实例对象
+	 * @param object the actual target object 实际的目标对象
 	 * @since 4.3
 	 * @see #setWrappedInstance(Object)
 	 */
@@ -156,10 +157,13 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
 	/**
 	 * Set the class to introspect.
+	 * 将类设置为自省
 	 * Needs to be called when the target object changes.
+	 * 需要在目标对象进行更改时进行调用
 	 * @param clazz the class to introspect
 	 */
 	protected void setIntrospectionClass(Class<?> clazz) {
+		//当缓存的自省结果类对象与当前更改的clazz类对象不一致时，清空
 		if (this.cachedIntrospectionResults != null && this.cachedIntrospectionResults.getBeanClass() != clazz) {
 			this.cachedIntrospectionResults = null;
 		}

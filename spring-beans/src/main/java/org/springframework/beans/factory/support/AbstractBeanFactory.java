@@ -131,16 +131,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private BeanExpressionResolver beanExpressionResolver;
 
 	/** Spring ConversionService to use instead of PropertyEditors. */
+	/**使用的是spring的ConversionService而不是属性编辑器（PropertyEditors）*/
 	@Nullable
 	private ConversionService conversionService;
 
 	/** Custom PropertyEditorRegistrars to apply to the beans of this factory. */
+	/**应用于这个bean工厂的bean们的自定义PropertyEditorRegistrars*/
 	private final Set<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
 
 	/** Custom PropertyEditors to apply to the beans of this factory. */
+	/**beanFactory->自定义PropertyEditors*/
 	private final Map<Class<?>, Class<? extends PropertyEditor>> customEditors = new HashMap<>(4);
 
 	/** A custom TypeConverter to use, overriding the default PropertyEditor mechanism. */
+	/**要使用的自定义的TypeConverter（类型转换器），覆盖默认的PropertyEditor机制*/
 	@Nullable
 	private TypeConverter typeConverter;
 
@@ -863,6 +867,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Return the custom TypeConverter to use, if any.
+	 * 返回要使用的自定义类型解析器
 	 * @return the custom TypeConverter, or {@code null} if none specified
 	 */
 	@Nullable
@@ -1238,18 +1243,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Initialize the given PropertyEditorRegistry with the custom editors
 	 * that have been registered with this BeanFactory.
+	 * 使用在这个beanFactory中注册的自定义编辑器初始化给定的PropertyEditorRegistry
 	 * <p>To be called for BeanWrappers that will create and populate bean
 	 * instances, and for SimpleTypeConverter used for constructor argument
 	 * and factory method type conversion.
 	 * @param registry the PropertyEditorRegistry to initialize
 	 */
 	protected void registerCustomEditors(PropertyEditorRegistry registry) {
+		//将给定的registry对象转化为PropertyEditorRegistrySupport
 		PropertyEditorRegistrySupport registrySupport =
 				(registry instanceof PropertyEditorRegistrySupport ? (PropertyEditorRegistrySupport) registry : null);
 		if (registrySupport != null) {
 			registrySupport.useConfigValueEditors();
 		}
+		//如果该工厂有属性编辑器注册
 		if (!this.propertyEditorRegistrars.isEmpty()) {
+			//迭代，给每个属性编辑器注册上各种的自定义编辑器
 			for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
 				try {
 					registrar.registerCustomEditors(registry);
@@ -1478,7 +1487,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (mbd.hasBeanClass()) {
 				return mbd.getBeanClass();
 			}
-			//如果不存在，则通过beanClassName使用classLoader去加载类对象
+			//如果不存在，则通过beanClassName使用classLoader去加载类对象（可能其中存在表达式，因此需要相应解析器的处理）
 			if (System.getSecurityManager() != null) {
 				return AccessController.doPrivileged((PrivilegedExceptionAction<Class<?>>) () ->
 					doResolveBeanClass(mbd, typesToMatch), getAccessControlContext());
@@ -1502,7 +1511,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Nullable
 	private Class<?> doResolveBeanClass(RootBeanDefinition mbd, Class<?>... typesToMatch)
 			throws ClassNotFoundException {
-
+		//获取当前bean工厂的classLoader
 		ClassLoader beanClassLoader = getBeanClassLoader();
 		ClassLoader dynamicLoader = beanClassLoader;
 		boolean freshResolve = false;
@@ -1510,7 +1519,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if (!ObjectUtils.isEmpty(typesToMatch)) {
 			// When just doing type checks (i.e. not creating an actual instance yet),
 			// use the specified temporary class loader (e.g. in a weaving scenario).
+			//获取临时类加载器
 			ClassLoader tempClassLoader = getTempClassLoader();
+			//不为空，则将当前typesToMatch指定类型集合加入到排除集合中
 			if (tempClassLoader != null) {
 				dynamicLoader = tempClassLoader;
 				freshResolve = true;
@@ -1522,12 +1533,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 		}
-
+		//获取当前bean对应的class名称
 		String className = mbd.getBeanClassName();
+		//如果不为空
 		if (className != null) {
+			//按照设置的表达式解析器来对className进行解析
 			Object evaluated = evaluateBeanDefinitionString(className, mbd);
+			//如果解析过
 			if (!className.equals(evaluated)) {
 				// A dynamically resolved expression, supported as of 4.2...
+				//如果是通过一个动态的解析表达式解析成为类对象，则返回
 				if (evaluated instanceof Class) {
 					return (Class<?>) evaluated;
 				}
@@ -1539,6 +1554,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					throw new IllegalStateException("Invalid class name expression result: " + evaluated);
 				}
 			}
+			//如果类信息经过处理过，则通过classLoader来进行加载className对应的类生成类对象
 			if (freshResolve) {
 				// When resolving against a temporary class loader, exit early in order
 				// to avoid storing the resolved Class in the bean definition.
@@ -1563,6 +1579,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Evaluate the given String as contained in a bean definition,
 	 * potentially resolving it as an expression.
+	 * 评估BeanDefinition中包含的给定字符串，可能将其解析成一个表达式
 	 * @param value the value to check
 	 * @param beanDefinition the bean definition that the value comes from
 	 * @return the resolved value

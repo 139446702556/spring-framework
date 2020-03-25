@@ -105,6 +105,7 @@ public class MethodParameter {
 	 * @param parameterIndex the index of the parameter: -1 for the method
 	 * return type; 0 for the first method parameter; 1 for the second method
 	 * parameter, etc.
+	 * 创建一个MethodParameter对象
 	 */
 	public MethodParameter(Method method, int parameterIndex) {
 		this(method, parameterIndex, 1);
@@ -123,6 +124,7 @@ public class MethodParameter {
 	public MethodParameter(Method method, int parameterIndex, int nestingLevel) {
 		Assert.notNull(method, "Method must not be null");
 		this.executable = method;
+		//对给定索引做一下校验
 		this.parameterIndex = validateIndex(method, parameterIndex);
 		this.nestingLevel = nestingLevel;
 	}
@@ -404,6 +406,7 @@ public class MethodParameter {
 
 	/**
 	 * Return the type of the method/constructor parameter.
+	 * 返回当前方法或构造函数的此参数类型，如果参数索引无效，则返回方法的返回值类型
 	 * @return the parameter type (never {@code null})
 	 */
 	public Class<?> getParameterType() {
@@ -714,12 +717,14 @@ public class MethodParameter {
 	 * Create a new MethodParameter for the given method or constructor.
 	 * <p>This is a convenience factory method for scenarios where a
 	 * Method or Constructor reference is treated in a generic fashion.
+	 * 根据给定的方法执行器和参数索引创建一个MethodParameter对象
 	 * @param executable the Method or Constructor to specify a parameter for
 	 * @param parameterIndex the index of the parameter
 	 * @return the corresponding MethodParameter instance
 	 * @since 5.0
 	 */
 	public static MethodParameter forExecutable(Executable executable, int parameterIndex) {
+		//如果执行器是方法类型（工厂方法）或者构造函数，则创建MethodParameter对象，否则抛出异常
 		if (executable instanceof Method) {
 			return new MethodParameter((Method) executable, parameterIndex);
 		}
@@ -762,7 +767,7 @@ public class MethodParameter {
 		throw new IllegalArgumentException("Given parameter [" + parameter +
 				"] does not match any parameter in the declaring executable");
 	}
-
+	/**验证当前给定索引值是否超出函数参数个数*/
 	private static int validateIndex(Executable executable, int parameterIndex) {
 		int count = executable.getParameterCount();
 		Assert.isTrue(parameterIndex >= -1 && parameterIndex < count,

@@ -78,12 +78,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Constant that indicates autowiring bean properties by type.
+	 * 常量，该常量根据类型指示自动装配bean属性。
 	 * @see #setAutowireMode
 	 */
 	public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
 
 	/**
 	 * Constant that indicates autowiring a constructor.
+	 * 表示自动装配构造函数的常量。
 	 * @see #setAutowireMode
 	 */
 	public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
@@ -159,7 +161,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private boolean primary = false;
 	/**用于存储限定符类型名与限定符解析对象的映射关系表*/
 	private final Map<String, AutowireCandidateQualifier> qualifiers = new LinkedHashMap<>();
-
+	/**创建bean的Supplier对象*/
 	@Nullable
 	private Supplier<?> instanceSupplier;
 
@@ -562,24 +564,31 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the resolved autowire code,
+	 * 返回已解析的自动装配的模式
 	 * (resolving AUTOWIRE_AUTODETECT to AUTOWIRE_CONSTRUCTOR or AUTOWIRE_BY_TYPE).
 	 * @see #AUTOWIRE_AUTODETECT
 	 * @see #AUTOWIRE_CONSTRUCTOR
 	 * @see #AUTOWIRE_BY_TYPE
 	 */
 	public int getResolvedAutowireMode() {
+		//如果是自动检测自动装配模式
 		if (this.autowireMode == AUTOWIRE_AUTODETECT) {
 			// Work out whether to apply setter autowiring or constructor autowiring.
 			// If it has a no-arg constructor it's deemed to be setter autowiring,
 			// otherwise we'll try constructor autowiring.
+			//获取当前bean类对象的全部构造函数
 			Constructor<?>[] constructors = getBeanClass().getConstructors();
+			//遍历
 			for (Constructor<?> constructor : constructors) {
+				//如果此类对象有默认构造函数，则返回通过类型自动注册模式
 				if (constructor.getParameterCount() == 0) {
 					return AUTOWIRE_BY_TYPE;
 				}
 			}
+			//如果没有默认构造函数，则返回自动装配构造函数
 			return AUTOWIRE_CONSTRUCTOR;
 		}
+		//否则，直接返回
 		else {
 			return this.autowireMode;
 		}
@@ -710,6 +719,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	}
 
 	/**
+	 * 设置beanDefinition的Supplier对象
+	 * 此对象如果存在的话，会使用此对象来创建bean，而覆盖掉构造函数或工厂方法
 	 * Specify a callback for creating an instance of the bean,
 	 * as an alternative to a declaratively specified factory method.
 	 * <p>If such a callback is set, it will override any other constructor
@@ -725,6 +736,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return a callback for creating an instance of the bean, if any.
+	 * 返回一个回调函数，用于初始化bean的实例
 	 * @since 5.0
 	 */
 	@Nullable
@@ -749,6 +761,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return whether to allow access to non-public constructors and methods.
+	 * 是否访问非公共函数和方法
 	 */
 	public boolean isNonPublicAccessAllowed() {
 		return this.nonPublicAccessAllowed;
@@ -783,6 +796,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the factory bean name, if any.
+	 * 如果存在的话，返回当前factoryBean的名称
 	 */
 	@Override
 	@Nullable
@@ -834,6 +848,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return if there are constructor argument values defined for this bean.
+	 * 如果在资源文件定义中，有为此bean的构造函数定义的参数值，则返回true，否则false
 	 */
 	@Override
 	public boolean hasConstructorArgumentValues() {

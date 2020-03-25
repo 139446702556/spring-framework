@@ -159,6 +159,7 @@ public class ConstructorArgumentValues {
 
 	/**
 	 * Get argument value for the given index in the constructor argument list.
+	 * 在构造函数参数列表中获取给定索引的参数值（获取的值的类型和名称要和给定的匹配）
 	 * @param index the index in the constructor argument list
 	 * @param requiredType the type to match (can be {@code null} to match
 	 * untyped values only)
@@ -168,8 +169,11 @@ public class ConstructorArgumentValues {
 	 */
 	@Nullable
 	public ValueHolder getIndexedArgumentValue(int index, @Nullable Class<?> requiredType, @Nullable String requiredName) {
+		//检查索引的有效性
 		Assert.isTrue(index >= 0, "Index must not be negative");
+		//从indexedArgumentValues中获取指定的值持有人
 		ValueHolder valueHolder = this.indexedArgumentValues.get(index);
+		//如果指定index索引获取到的valueHolder的类型和名称与给定的相匹配，则返回此valueHolder对象
 		if (valueHolder != null &&
 				(valueHolder.getType() == null ||
 						(requiredType != null && ClassUtils.matchesTypeName(requiredType, valueHolder.getType()))) &&
@@ -177,6 +181,7 @@ public class ConstructorArgumentValues {
 						(requiredName != null && requiredName.equals(valueHolder.getName())))) {
 			return valueHolder;
 		}
+		//如果不匹配，则返回空
 		return null;
 	}
 
@@ -288,6 +293,8 @@ public class ConstructorArgumentValues {
 	 * Look for the next generic argument value that matches the given type,
 	 * ignoring argument values that have already been used in the current
 	 * resolution process.
+	 * 从genericArgumentValues中获取与给定的参数类型和参数名匹配的参数值对象（类型为父子关系或者实现接口关系也可以）
+	 * usedValueHolders 在当前解析过程中已经使用的valueHolder对象，因此不应该再次返回
 	 * @param requiredType the type to match (can be {@code null} to find
 	 * an arbitrary next generic argument value)
 	 * @param requiredName the name to match (can be {@code null} to not
@@ -370,9 +377,13 @@ public class ConstructorArgumentValues {
 	 */
 	@Nullable
 	public ValueHolder getArgumentValue(int index, @Nullable Class<?> requiredType, @Nullable String requiredName, @Nullable Set<ValueHolder> usedValueHolders) {
+		//索引有效性检查
 		Assert.isTrue(index >= 0, "Index must not be negative");
+		//获取指定索引的参数值
 		ValueHolder valueHolder = getIndexedArgumentValue(index, requiredType, requiredName);
+		//如果未获取到
 		if (valueHolder == null) {
+			//则从通用的参数集合中获取
 			valueHolder = getGenericArgumentValue(requiredType, requiredName, usedValueHolders);
 		}
 		return valueHolder;
@@ -493,9 +504,10 @@ public class ConstructorArgumentValues {
 
 		/**
 		 * Create a new ValueHolder for the given value, type and name.
-		 * @param value the argument value
-		 * @param type the type of the constructor argument
-		 * @param name the name of the constructor argument
+		 * 通过给定的value、type和name创建一个新的ValueHolder对象
+		 * @param value the argument value 参数值
+		 * @param type the type of the constructor argument 构造函数参数的类型
+		 * @param name the name of the constructor argument 构造函数参数的名称
 		 */
 		public ValueHolder(@Nullable Object value, @Nullable String type, @Nullable String name) {
 			this.value = value;
@@ -566,6 +578,8 @@ public class ConstructorArgumentValues {
 		/**
 		 * Return whether this holder contains a converted value already ({@code true}),
 		 * or whether the value still needs to be converted ({@code false}).
+		 * 判断当前valueHolder是否包含一个转换完成的值（如果为true）
+		 * 如果为false，则表示当前的值仍然需要转换
 		 */
 		public synchronized boolean isConverted() {
 			return this.converted;
@@ -583,6 +597,7 @@ public class ConstructorArgumentValues {
 		/**
 		 * Return the converted value of the constructor argument,
 		 * after processed type conversion.
+		 * 在处理类型转换之后，返回构造函数参数的转换值
 		 */
 		@Nullable
 		public synchronized Object getConvertedValue() {

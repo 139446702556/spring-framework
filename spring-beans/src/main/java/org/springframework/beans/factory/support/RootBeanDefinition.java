@@ -77,24 +77,30 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	volatile ResolvableType factoryMethodReturnType;
 
 	/** Package-visible field for caching a unique factory method candidate for introspection. */
+	/**用于缓存创建bean对象时用的唯一工厂方法*/
 	@Nullable
 	volatile Method factoryMethodToIntrospect;
 
 	/** Common lock for the four constructor fields below. */
+	/**下面四个构造函数字段使用的公共锁*/
 	final Object constructorArgumentLock = new Object();
 
 	/** Package-visible field for caching the resolved constructor or factory method. */
+	/**用于缓存已解析的构造函数或工厂方法*/
 	@Nullable
 	Executable resolvedConstructorOrFactoryMethod;
 
 	/** Package-visible field that marks the constructor arguments as resolved. */
+	/**构造函数参数是否已解析*/
 	boolean constructorArgumentsResolved = false;
 
 	/** Package-visible field for caching fully resolved constructor arguments. */
+	/**用于缓存完全解析的构造函数参数（参数解析后得到的最终值）*/
 	@Nullable
 	Object[] resolvedConstructorArguments;
 
 	/** Package-visible field for caching partly prepared constructor arguments. */
+	/**用于缓存部分准备好的构造函数参数（构造函数参数的原始值）*/
 	@Nullable
 	Object[] preparedConstructorArguments;
 
@@ -156,6 +162,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	public <T> RootBeanDefinition(@Nullable Class<T> beanClass, @Nullable Supplier<T> instanceSupplier) {
 		super();
 		setBeanClass(beanClass);
+		//设置InstanceSupplier属性
 		setInstanceSupplier(instanceSupplier);
 	}
 
@@ -173,6 +180,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 		super();
 		setBeanClass(beanClass);
 		setScope(scope);
+		//设置InstanceSupplier属性
 		setInstanceSupplier(instanceSupplier);
 	}
 
@@ -368,6 +376,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
 	/**
 	 * Check whether the given candidate qualifies as a factory method.
+	 * 检查给定候选方法是否符合工厂方法
 	 */
 	public boolean isFactoryMethod(Method candidate) {
 		return candidate.getName().equals(getFactoryMethodName());

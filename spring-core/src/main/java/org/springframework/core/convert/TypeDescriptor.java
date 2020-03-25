@@ -536,6 +536,7 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * Create a new type descriptor from the given type.
+	 * 根据给定的类型创建一个新的类型描述器
 	 * <p>Use this to instruct the conversion system to convert an object to a
 	 * specific target type, when no type location such as a method parameter or
 	 * field is available to provide additional conversion context.

@@ -106,6 +106,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
 	/** List of suppressed Exceptions, available for associating related causes. */
+	/**可吞掉的父类异常列表，可用于关联相关原因*/
 	@Nullable
 	private Set<Exception> suppressedExceptions;
 
@@ -305,6 +306,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Register an Exception that happened to get suppressed during the creation of a
 	 * singleton bean instance, e.g. a temporary circular reference resolution problem.
+	 * 将指定异常添加到suppressedExceptions集合中
 	 * @param ex the Exception to register
 	 */
 	protected void onSuppressedException(Exception ex) {

@@ -47,14 +47,19 @@ public class StandardReflectionParameterNameDiscoverer implements ParameterNameD
 
 	@Nullable
 	private String[] getParameterNames(Parameter[] parameters) {
+		//设置参数名存储容器
 		String[] parameterNames = new String[parameters.length];
+		//遍历参数集合
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter param = parameters[i];
+			//如果该参数对象根据类文件不能获取到名称，则返回null
 			if (!param.isNamePresent()) {
 				return null;
 			}
+			//获取参数名称存储到集合
 			parameterNames[i] = param.getName();
 		}
+		//返回所有参数的名称集合
 		return parameterNames;
 	}
 

@@ -54,9 +54,11 @@ abstract class AutowireUtils {
 	private static final Comparator<Executable> EXECUTABLE_COMPARATOR = (e1, e2) -> {
 		boolean p1 = Modifier.isPublic(e1.getModifiers());
 		boolean p2 = Modifier.isPublic(e2.getModifiers());
+		//首先，public的方法优先排在非public方法的前面
 		if (p1 != p2) {
 			return (p1 ? -1 : 1);
 		}
+		//其次，按照参数个数排序，参数数量降序，即参数个数多的排在前面
 		int c1pl = e1.getParameterCount();
 		int c2pl = e2.getParameterCount();
 		return Integer.compare(c2pl, c1pl);
@@ -79,6 +81,7 @@ abstract class AutowireUtils {
 	 * with a maximum of arguments. The result will contain public methods first,
 	 * with decreasing number of arguments, then non-public methods, again with
 	 * decreasing number of arguments.
+	 * 给给定的工厂方法们排序，public的优先于非public的，同种访问级别的时候参数个数多的排在前面
 	 * @param factoryMethods the factory method array to sort
 	 */
 	public static void sortFactoryMethods(Method[] factoryMethods) {

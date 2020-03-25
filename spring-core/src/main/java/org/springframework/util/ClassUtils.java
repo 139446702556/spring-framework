@@ -540,6 +540,7 @@ public abstract class ClassUtils {
 	public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
 		Assert.notNull(lhsType, "Left-hand side type must not be null");
 		Assert.notNull(rhsType, "Right-hand side type must not be null");
+		//判断给定的lhsType类对象是否与rhsType类对象相同，或者lhsType是rhsType的超类或超接口
 		if (lhsType.isAssignableFrom(rhsType)) {
 			return true;
 		}
@@ -562,6 +563,7 @@ public abstract class ClassUtils {
 	 * Determine if the given type is assignable from the given value,
 	 * assuming setting by reflection. Considers primitive wrapper classes
 	 * as assignable to the corresponding primitive types.
+	 * 判断给定的type类型对象是否与value对象类型相同，或者是其的超类
 	 * @param type the target type
 	 * @param value the value that should be assigned to the type
 	 * @return if the type is assignable from the value
@@ -898,12 +900,14 @@ public abstract class ClassUtils {
 	 * @return the user-defined class
 	 */
 	public static Class<?> getUserClass(Class<?> clazz) {
+		//如果此类是cglib生成的子类，则返回原始类（即此类的父类（超类））
 		if (clazz.getName().contains(CGLIB_CLASS_SEPARATOR)) {
 			Class<?> superclass = clazz.getSuperclass();
 			if (superclass != null && superclass != Object.class) {
 				return superclass;
 			}
 		}
+		//否则返回给定的当前类对象clazz
 		return clazz;
 	}
 
