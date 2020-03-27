@@ -1261,6 +1261,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			//迭代，给每个属性编辑器注册上各种的自定义编辑器
 			for (PropertyEditorRegistrar registrar : this.propertyEditorRegistrars) {
 				try {
+					//给当前给定对象注册各资源访问编辑器
 					registrar.registerCustomEditors(registry);
 				}
 				catch (BeanCreationException ex) {

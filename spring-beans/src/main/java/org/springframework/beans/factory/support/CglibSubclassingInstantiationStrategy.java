@@ -82,6 +82,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			@Nullable Constructor<?> ctor, Object... args) {
 
 		// Must generate CGLIB subclass...
+		//通过cglib生成一个子类对象
 		return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
 	}
 
@@ -98,7 +99,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		private final RootBeanDefinition beanDefinition;
 
 		private final BeanFactory owner;
-
+		/**使用给定的BeanDefinition和bean工厂创建一个cglib子类创建器对象*/
 		CglibSubclassCreator(RootBeanDefinition beanDefinition, BeanFactory owner) {
 			this.beanDefinition = beanDefinition;
 			this.owner = owner;
@@ -107,6 +108,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		/**
 		 * Create a new instance of a dynamically generated subclass implementing the
 		 * required lookups.
+		 * 通过cglib创建一个给定类的子类，并返回此子类创建的对象
 		 * @param ctor constructor to use. If this is {@code null}, use the
 		 * no-arg constructor (no parameterization, or Setter Injection)
 		 * @param args arguments to use for the constructor.
@@ -114,14 +116,19 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * @return new instance of the dynamically generated subclass
 		 */
 		public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
+			//通过cglib创建一个该类的子类代理类
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
+			//如果没有给定构造器，则通过BeanUtils使用默认构造器创建一个代理类对象
 			if (ctor == null) {
 				instance = BeanUtils.instantiateClass(subclass);
 			}
+			//如果给定了构造器
 			else {
 				try {
+					//则获取代理类中与给定构造器相对应的构造器对象
 					Constructor<?> enhancedSubclassConstructor = subclass.getConstructor(ctor.getParameterTypes());
+					//通过给定参数与代理类构造器对象，反射创建bean实例对象
 					instance = enhancedSubclassConstructor.newInstance(args);
 				}
 				catch (Exception ex) {
@@ -131,6 +138,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			}
 			// SPR-10785: set callbacks directly on the instance instead of in the
 			// enhanced class (via the Enhancer) in order to avoid memory leaks.
+			//直接在实例对象上而不是增强类中设置回调（通过增强器），以避免内存泄漏
 			Factory factory = (Factory) instance;
 			factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
 					new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
