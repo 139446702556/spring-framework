@@ -1170,24 +1170,32 @@ public abstract class ClassUtils {
 	 */
 	@Nullable
 	public static Method getMethodIfAvailable(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+		//clazz和方法名称不为空
 		Assert.notNull(clazz, "Class must not be null");
 		Assert.notNull(methodName, "Method name must not be null");
+		//如果有方法参数
 		if (paramTypes != null) {
 			try {
+				//通过反射获取给定类对象中methodName名称的方法
 				return clazz.getMethod(methodName, paramTypes);
 			}
 			catch (NoSuchMethodException ex) {
+				//异常情况返回空
 				return null;
 			}
 		}
 		else {
 			Set<Method> candidates = new HashSet<>(1);
+			//获取当前类对象的全部的public方法
 			Method[] methods = clazz.getMethods();
+			//迭代全部public方法
 			for (Method method : methods) {
+				//找到和当前给定方法名称相同的方法，保存到candidates集合中
 				if (methodName.equals(method.getName())) {
 					candidates.add(method);
 				}
 			}
+			//如果只通过方法名可以唯一确定一个方法，则返回，否则返回空
 			if (candidates.size() == 1) {
 				return candidates.iterator().next();
 			}
@@ -1307,21 +1315,28 @@ public abstract class ClassUtils {
 	 * @see #getMostSpecificMethod
 	 */
 	public static Method getInterfaceMethodIfPossible(Method method) {
+		//如果此方法对象的访问符不是public或者此方法实在接口中定义的，则直接返回
 		if (!Modifier.isPublic(method.getModifiers()) || method.getDeclaringClass().isInterface()) {
 			return method;
 		}
 		return interfaceMethodCache.computeIfAbsent(method, key -> {
+			//获取当前方法对象所属的类对象
 			Class<?> current = key.getDeclaringClass();
+			//如果类对象不为空，且不为object类对象（遍历其子类和所有父类实现的接口中的方法，找到与给定方法匹配的定义方法对象返回，如果未找到返回给定方法对象）
 			while (current != null && current != Object.class) {
+				//获取其实现的全部接口
 				Class<?>[] ifcs = current.getInterfaces();
+				//迭代全部的接口
 				for (Class<?> ifc : ifcs) {
 					try {
+						//在接口中找到与给定方法名称和参数匹配的方法对象，并返回
 						return ifc.getMethod(key.getName(), key.getParameterTypes());
 					}
 					catch (NoSuchMethodException ex) {
 						// ignore
 					}
 				}
+				//未找到，则继续查找父类
 				current = current.getSuperclass();
 			}
 			return key;

@@ -234,6 +234,7 @@ public abstract class BeanUtils {
 	@Nullable
 	public static Method findMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
 		try {
+			//在给定的类对象中获取指定方法名称的public方法
 			return clazz.getMethod(methodName, paramTypes);
 		}
 		catch (NoSuchMethodException ex) {
@@ -255,9 +256,11 @@ public abstract class BeanUtils {
 	@Nullable
 	public static Method findDeclaredMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) {
 		try {
+			//通过反射获取其类对象中全部方法中的methodName方法
 			return clazz.getDeclaredMethod(methodName, paramTypes);
 		}
 		catch (NoSuchMethodException ex) {
+			//如果未获取到指定方法，则递归调用去其父类中查找methodName名称的方法，找到返回，若都没有则返回null
 			if (clazz.getSuperclass() != null) {
 				return findDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
 			}

@@ -120,7 +120,7 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 
 	@Nullable
 	private Set<Member> externallyManagedConfigMembers;
-
+	/**用于缓存外部管理的初始化方法*/
 	@Nullable
 	private Set<String> externallyManagedInitMethods;
 

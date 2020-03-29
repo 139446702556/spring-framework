@@ -22,7 +22,9 @@ import org.springframework.lang.Nullable;
 /**
  * Factory hook that allows for custom modification of new bean instances,
  * e.g. checking for marker interfaces or wrapping them with proxies.
- *
+ * 此接口的作用为：如果我们想要在spring容器完成baen的实例化、配置以及其他的初始化后添加一些自己的逻辑
+ * 那么使用该接口；此接口给了用户充足的权限去更改或者扩展spring，是我们对spring扩展或者增强必不可少的一个接口
+ * 像spring这样优秀的开放式框架必不可少的
  * <p>ApplicationContexts can autodetect BeanPostProcessor beans in their
  * bean definitions and apply them to any beans subsequently created.
  * Plain bean factories allow for programmatic registration of post-processors,

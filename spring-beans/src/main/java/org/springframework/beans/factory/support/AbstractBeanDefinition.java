@@ -186,7 +186,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private MutablePropertyValues propertyValues;
 
 	private MethodOverrides methodOverrides = new MethodOverrides();
-
+	/**用于保存bean定义的初始化方法，即init-method设置的初始化方法名*/
 	@Nullable
 	private String initMethodName;
 
@@ -926,6 +926,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the name of the initializer method.
+	 * 返回设置的初始化方法名称
 	 */
 	@Override
 	@Nullable
@@ -944,6 +945,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Indicate whether the configured init method is the default.
+	 * 指示配置的初始化方法是否是默认方法
 	 * @see #getInitMethodName()
 	 */
 	public boolean isEnforceInitMethod() {
