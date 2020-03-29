@@ -609,7 +609,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		//如果当前beanDefinition是单例模式的，并且允许循环引用，当前bean也正在创建中，则需要早期暴露出单例bean对象
 		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
 				isSingletonCurrentlyInCreation(beanName));
-		//需要
+		//需要早期暴露单例对象引用
 		if (earlySingletonExposure) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Eagerly caching bean '" + beanName +
@@ -990,6 +990,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					//调用处理器的getEarlyBeanReference方法来对早期暴露的bean对象进行处理，并返回处理结果
+					//此方法默认实现为直接返回传入的bean（具体需要实现类具体实现）
 					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
 				}
 			}

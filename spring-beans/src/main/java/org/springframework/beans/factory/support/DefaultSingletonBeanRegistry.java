@@ -88,7 +88,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * bean在创建的过程中就已经当引用对应关系加入到此结构中了，所以在bean的创建过程中，就可以
 	 * 通过getbean方法来获取
 	 *
-	 * 这个map也是解决循环依赖的关键所在
+	 * 这个map也是解决循环依赖引用的关键所在
 	 */
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
@@ -111,6 +111,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private Set<Exception> suppressedExceptions;
 
 	/** Flag that indicates whether we're currently within destroySingletons. */
+	/**标识符，表示当前bean工厂是否正在销毁单例对象*/
 	private boolean singletonsCurrentlyInDestruction = false;
 
 	/** Disposable bean instances: bean name to disposable instance. */
@@ -193,10 +194,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Return the (raw) singleton object registered under the given name.
+	 * 返回在给定名称下注册的（原始）单例对象
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
-	 * @param beanName the name of the bean to look for
-	 * @param allowEarlyReference whether early references should be created or not
+	 * @param beanName the name of the bean to look for 要查找的bean的名称
+	 * @param allowEarlyReference whether early references should be created or not 是否应该创建早期引用（在为创建完成时就暴露引用），该引用可能是不完整（对象内的信息为全部初始化完成）
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
 	@Nullable
@@ -246,6 +248,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			Object singletonObject = this.singletonObjects.get(beanName);
 			//为空，开始加载过程
 			if (singletonObject == null) {
+				//如果当前正在销毁单例对象，则不允许在这时候创建，则抛出异常
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
@@ -256,6 +259,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				}
 				//单例对象创建的前置处理
 				beforeSingletonCreation(beanName);
+				//表示当前单例对象是否为新创建的
 				boolean newSingleton = false;
 				//如果当前的异常记录集合中为空（无异常）
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -267,6 +271,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					//初始化bean
 					//这个过程其实就是调用createBean（）方法的结果
 					singletonObject = singletonFactory.getObject();
+					//新创建单例对象
 					newSingleton = true;
 				}
 				catch (IllegalStateException ex) {
