@@ -274,9 +274,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
 	protected void setPropertyValue(PropertyTokenHolder tokens, PropertyValue pv) throws BeansException {
 		if (tokens.keys != null) {
+			//处理bean对象中数组、集合、map等容器结构的属性值注入
 			processKeyedProperty(tokens, pv);
 		}
 		else {
+			//处理bean对象中单个引用对象注入
 			processLocalProperty(tokens, pv);
 		}
 	}
@@ -810,8 +812,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	 */
 	@SuppressWarnings("unchecked")  // avoid nested generic
 	protected AbstractNestablePropertyAccessor getPropertyAccessorForPropertyPath(String propertyPath) {
+		//确定给定属性路径中的第一个(或最后一个)嵌套属性分隔符，忽略键中的点
 		int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
 		// Handle nested properties recursively.
+		//递归处理嵌套属性
 		if (pos > -1) {
 			String nestedProperty = propertyPath.substring(0, pos);
 			String nestedPath = propertyPath.substring(pos + 1);

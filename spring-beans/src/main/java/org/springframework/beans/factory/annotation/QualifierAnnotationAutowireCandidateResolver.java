@@ -204,6 +204,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 
 	/**
 	 * Checks whether the given annotation type is a recognized qualifier type.
+	 * 检查给定的注释类型是否是可识别的限定符类型。
 	 */
 	protected boolean isQualifier(Class<? extends Annotation> annotationType) {
 		for (Class<? extends Annotation> qualifierType : this.qualifierTypes) {
@@ -318,15 +319,19 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 */
 	@Override
 	public boolean isRequired(DependencyDescriptor descriptor) {
+		//判断给定的依赖描述符的required属性是否为false，如果为true，则需要检测当前属性上的@Autowired注解的required属性
 		if (!super.isRequired(descriptor)) {
 			return false;
 		}
+		//获取指定属性或者setter方法上的@Autowired注解
 		Autowired autowired = descriptor.getAnnotation(Autowired.class);
+		//如果没有找到@Autowired注解，则以依赖描述符为主，返回true，否则返回此注解的required属性值
 		return (autowired == null || autowired.required());
 	}
 
 	/**
 	 * Determine whether the given dependency declares a qualifier annotation.
+	 * 检测给定的依赖描述符中是否存在一个@qualifier注解
 	 * @see #isQualifier(Class)
 	 * @see Qualifier
 	 */
@@ -342,13 +347,17 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 
 	/**
 	 * Determine whether the given dependency declares a value annotation.
+	 * 确定给定的依赖项中是否声明了@value注解
 	 * @see Value
 	 */
 	@Override
 	@Nullable
 	public Object getSuggestedValue(DependencyDescriptor descriptor) {
+		//查找当前属性上是否有@value注解，有的话获取其的值
 		Object value = findValue(descriptor.getAnnotations());
+		//如果属性上没有@value注解
 		if (value == null) {
+			//从当前属性对应的setter方法上获取@value注解的值
 			MethodParameter methodParam = descriptor.getMethodParameter();
 			if (methodParam != null) {
 				value = findValue(methodParam.getMethodAnnotations());
@@ -359,6 +368,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 
 	/**
 	 * Determine a suggested value from any of the given candidate annotations.
+	 * 从给定的候选注解数组中找到@value注解，并获取其中的值，返回
 	 */
 	@Nullable
 	protected Object findValue(Annotation[] annotationsToSearch) {

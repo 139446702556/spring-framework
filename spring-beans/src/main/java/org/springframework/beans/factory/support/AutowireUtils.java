@@ -92,6 +92,7 @@ abstract class AutowireUtils {
 
 	/**
 	 * Determine whether the given bean property is excluded from dependency checks.
+	 * 确定给定的bean属性是否被排除在依赖项检查之外
 	 * <p>This implementation excludes properties defined by CGLIB.
 	 * @param pd the PropertyDescriptor of the bean property
 	 * @return whether the bean property is excluded
@@ -114,8 +115,9 @@ abstract class AutowireUtils {
 	/**
 	 * Return whether the setter method of the given bean property is defined
 	 * in any of the given interfaces.
-	 * @param pd the PropertyDescriptor of the bean property
-	 * @param interfaces the Set of interfaces (Class objects)
+	 * 返回给定bean属性的setter方法是否在任何给定接口中定义。
+	 * @param pd the PropertyDescriptor of the bean property  bean的属性描述器对象
+	 * @param interfaces the Set of interfaces (Class objects)  给定的接口，类对象集合
 	 * @return whether the setter method is defined by an interface
 	 */
 	public static boolean isSetterDefinedInInterface(PropertyDescriptor pd, Set<Class<?>> interfaces) {

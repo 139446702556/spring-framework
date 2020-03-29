@@ -94,8 +94,9 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	/**
 	 * Create a new descriptor for a method or constructor parameter.
-	 * @param methodParameter the MethodParameter to wrap
-	 * @param required whether the dependency is required
+	 * 通过给定的一个方法或构造函数参数对象创建一个新的DependencyDescriptor对象
+	 * @param methodParameter the MethodParameter to wrap  要包装的MethodParameter
+	 * @param required whether the dependency is required  是否需要依赖项
 	 * @param eager whether this dependency is 'eager' in the sense of
 	 * eagerly resolving potential target beans for type matching
 	 */
@@ -361,6 +362,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	/**
 	 * Initialize parameter name discovery for the underlying method parameter, if any.
+	 * 通过给定参数来初始化参数名称发现器
 	 * <p>This method does not actually try to retrieve the parameter name at
 	 * this point; it just allows discovery to happen when the application calls
 	 * {@link #getDependencyName()} (if ever).
@@ -382,6 +384,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	/**
 	 * Determine the declared (non-generic) type of the wrapped parameter/field.
+	 * 确定包装参数/字段的声明类型（非泛型）
 	 * @return the declared type (never {@code null})
 	 */
 	public Class<?> getDependencyType() {

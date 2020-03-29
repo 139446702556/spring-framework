@@ -59,6 +59,7 @@ public abstract class OrderUtils {
 	private static final Map<Class<?>, Object> orderCache = new ConcurrentReferenceHashMap<>(64);
 
 	/** Cache for @Priority value (or NOT_ANNOTATED marker) per Class. */
+	/**缓存类对象与其优先级值的缓存注册表*/
 	private static final Map<Class<?>, Object> priorityCache = new ConcurrentReferenceHashMap<>();
 
 

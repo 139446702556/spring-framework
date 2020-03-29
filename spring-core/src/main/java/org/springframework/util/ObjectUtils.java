@@ -179,6 +179,7 @@ public abstract class ObjectUtils {
 
 	/**
 	 * Check whether the given array contains the given element.
+	 * 检测给定的原始是否包含在给定的数组中
 	 * @param array the array to check (may be {@code null},
 	 * in which case the return value will always be {@code false})
 	 * @param element the element to check for
@@ -601,6 +602,7 @@ public abstract class ObjectUtils {
 
 	/**
 	 * Return a String representation of an object's overall identity.
+	 * 返回给定对象整体标识的字符串表示形式
 	 * @param obj the object (may be {@code null})
 	 * @return the object's identity as String representation,
 	 * or an empty String if the object was {@code null}

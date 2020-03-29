@@ -102,18 +102,21 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Constant that indicates no dependency check at all.
+	 * 没有依赖项检查
 	 * @see #setDependencyCheck
 	 */
 	public static final int DEPENDENCY_CHECK_NONE = 0;
 
 	/**
 	 * Constant that indicates dependency checking for object references.
+	 * 只对对象引用的依赖项检查
 	 * @see #setDependencyCheck
 	 */
 	public static final int DEPENDENCY_CHECK_OBJECTS = 1;
 
 	/**
 	 * Constant that indicates dependency checking for "simple" properties.
+	 * 只对“简单”属性的依赖项检查
 	 * @see #setDependencyCheck
 	 * @see org.springframework.beans.BeanUtils#isSimpleProperty
 	 */
@@ -121,6 +124,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Constant that indicates dependency checking for all properties
+	 * 需要对所有属性的依赖项进行检查
 	 * (object references as well as "simple" properties).
 	 * @see #setDependencyCheck
 	 */
@@ -148,7 +152,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private boolean abstractFlag = false;
 
 	private boolean lazyInit = false;
-
+	/**自动注入模式，默认为不自动注入*/
 	private int autowireMode = AUTOWIRE_NO;
 
 	private int dependencyCheck = DEPENDENCY_CHECK_NONE;
@@ -571,7 +575,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @see #AUTOWIRE_BY_TYPE
 	 */
 	public int getResolvedAutowireMode() {
-		//如果是自动检测自动装配模式
+		//如果是自动检测自动装配模式，获取对应的检查模式
 		if (this.autowireMode == AUTOWIRE_AUTODETECT) {
 			// Work out whether to apply setter autowiring or constructor autowiring.
 			// If it has a no-arg constructor it's deemed to be setter autowiring,
@@ -609,6 +613,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the dependency check code.
+	 * 返回依赖项检查代码（状态）
 	 */
 	public int getDependencyCheck() {
 		return this.dependencyCheck;
@@ -876,6 +881,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return if there are property values values defined for this bean.
+	 * 如果有为当前bean定义的属性值集合，则返回true
 	 * @since 5.0.2
 	 */
 	@Override

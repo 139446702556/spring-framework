@@ -232,10 +232,13 @@ public abstract class BeanFactoryUtils {
 			ListableBeanFactory lbf, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
 
 		Assert.notNull(lbf, "ListableBeanFactory must not be null");
+		//通过给定类型获取和类型相符的bean名称集合
 		String[] result = lbf.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
+		//如果此bean工厂为分层的，则对其父类的beanFactory进行类型匹配，找出其中满足给定类型的bean对象，并和子类合并返回
 		if (lbf instanceof HierarchicalBeanFactory) {
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
 			if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {
+				//此处为递归操作，从当前子类开始解析多层父类的bean对象集合
 				String[] parentResult = beanNamesForTypeIncludingAncestors(
 						(ListableBeanFactory) hbf.getParentBeanFactory(), type, includeNonSingletons, allowEagerInit);
 				result = mergeNamesWithParent(result, parentResult, hbf);

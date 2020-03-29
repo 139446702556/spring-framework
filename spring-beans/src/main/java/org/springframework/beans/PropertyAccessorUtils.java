@@ -41,6 +41,7 @@ public abstract class PropertyAccessorUtils {
 
 	/**
 	 * Check whether the given property path indicates an indexed or nested property.
+	 * 检查给定属性路径是否指示索引或者嵌套属性
 	 * @param propertyPath the property path to check
 	 * @return whether the path indicates an indexed or nested property
 	 */
@@ -81,6 +82,7 @@ public abstract class PropertyAccessorUtils {
 	/**
 	 * Determine the first (or last) nested property separator in the
 	 * given property path, ignoring dots in keys (like "map[my.key]").
+	 * 确认给定属性路径中的第一个（或最后一个）嵌套属性分隔符，忽略键中的点(like "map[my.key]")
 	 * @param propertyPath the property path to check
 	 * @param last whether to return the last separator rather than the first
 	 * @return the index of the nested property separator, or -1 if none

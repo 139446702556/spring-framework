@@ -106,6 +106,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
 			return OrderUtils.getPriority((Class<?>) obj);
 		}
 		Integer priority = OrderUtils.getPriority(obj.getClass());
+		//如果在当前类对象找不到@Priority注解，并且当前对象为装修代理类，则去其代理的类上获取
 		if (priority == null && obj instanceof DecoratingProxy) {
 			priority = OrderUtils.getPriority(((DecoratingProxy) obj).getDecoratedClass());
 		}

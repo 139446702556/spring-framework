@@ -65,6 +65,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	/**
 	 * Cached introspections results for this object, to prevent encountering
 	 * the cost of JavaBeans introspection every time.
+	 * 缓存自省的结果用于此对象，以防止每次遇到javaBean自省的开销
 	 */
 	@Nullable
 	private CachedIntrospectionResults cachedIntrospectionResults;
@@ -173,6 +174,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	/**
 	 * Obtain a lazily initialized CachedIntrospectionResults instance
 	 * for the wrapped object.
+	 * 为包装对象获取一个延迟初始化的cachedIntrospectionResults实例（即第一次使用时初始化）
 	 */
 	private CachedIntrospectionResults getCachedIntrospectionResults() {
 		if (this.cachedIntrospectionResults == null) {
@@ -211,16 +213,21 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 	 */
 	@Nullable
 	public Object convertForProperty(@Nullable Object value, String propertyName) throws TypeMismatchException {
+		//从缓存中获取当前属性名对应的属性描述符
 		CachedIntrospectionResults cachedIntrospectionResults = getCachedIntrospectionResults();
 		PropertyDescriptor pd = cachedIntrospectionResults.getPropertyDescriptor(propertyName);
+		//未获取到，抛出异常
 		if (pd == null) {
 			throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
 					"No property '" + propertyName + "' found");
 		}
+		//从缓存中获取类型描述符
 		TypeDescriptor td = cachedIntrospectionResults.getTypeDescriptor(pd);
+		//未获取到，则创建并插入到缓存中
 		if (td == null) {
 			td = cachedIntrospectionResults.addTypeDescriptor(pd, new TypeDescriptor(property(pd)));
 		}
+		//转换指定属性值为给定的类型描述类型
 		return convertForProperty(propertyName, null, value, td);
 	}
 

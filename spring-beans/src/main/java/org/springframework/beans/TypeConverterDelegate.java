@@ -343,6 +343,7 @@ class TypeConverterDelegate {
 	/**
 	 * Convert the value to the required type (if necessary from a String),
 	 * using the given property editor.
+	 * 使用给定的属性编辑器将值转换为所需的类型（如果需要从字符串转换为指定类型的话）
 	 * @param oldValue the previous value, if available (may be {@code null})
 	 * @param newValue the proposed new value
 	 * @param requiredType the type we must convert to

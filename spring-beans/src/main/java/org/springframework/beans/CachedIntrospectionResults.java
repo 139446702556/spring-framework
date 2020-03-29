@@ -253,6 +253,7 @@ public final class CachedIntrospectionResults {
 	private final BeanInfo beanInfo;
 
 	/** PropertyDescriptor objects keyed by property name String. */
+	/**用于存储属性名称->PropertyDescriptor对象关系的映射表*/
 	private final Map<String, PropertyDescriptor> propertyDescriptorCache;
 
 	/** TypeDescriptor objects keyed by PropertyDescriptor. */

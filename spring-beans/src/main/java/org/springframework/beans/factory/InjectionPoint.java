@@ -135,6 +135,7 @@ public class InjectionPoint {
 
 	/**
 	 * Retrieve a field/parameter annotation of the given type, if any.
+	 * 检索当前属性或者对应的setter方法上的@Autowired注解
 	 * @param annotationType the annotation type to retrieve
 	 * @return the annotation instance, or {@code null} if none found
 	 * @since 4.3.9

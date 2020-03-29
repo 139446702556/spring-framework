@@ -453,7 +453,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param dependentBeanName the name of the dependent bean
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
-		//获取标准的beanName
+		//获取标准的beanName（如果此beanName字段值为别名，则会被转换未真正的bean名称）
 		String canonicalName = canonicalName(beanName);
 		//添加<canonicalName，[dependentBeanName]>到dependentBeanMap中
 		synchronized (this.dependentBeanMap) {

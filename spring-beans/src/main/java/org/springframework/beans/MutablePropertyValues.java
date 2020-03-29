@@ -166,6 +166,9 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	/**
 	 * Add a PropertyValue object, replacing any existing one for the
 	 * corresponding property or getting merged with it (if applicable).
+	 * 查找当前属性值对象集合中是否有给定的PropertyValue对象
+	 * 有，则合并两个属性值对象，然后插入
+	 * 没有则直接插入
 	 * @param pv the PropertyValue object to add
 	 * @return this in order to allow for adding multiple property values in a chain
 	 */
@@ -203,6 +206,7 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	/**
 	 * Add a PropertyValue object, replacing any existing one for the
 	 * corresponding property or getting merged with it (if applicable).
+	 * 将给定的属性值对象设置给指定的属性名对应的属性（如不存在，则添加）
 	 * @param propertyName name of the property
 	 * @param propertyValue value of the property
 	 * @return this in order to allow for adding multiple property values in a chain

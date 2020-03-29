@@ -85,15 +85,20 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 	@Override
 	public void setPropertyValues(PropertyValues pvs, boolean ignoreUnknown, boolean ignoreInvalid)
 			throws BeansException {
-
+		//存储属性值注入时产生的异常
 		List<PropertyAccessException> propertyAccessExceptions = null;
+		//获取属性集合
 		List<PropertyValue> propertyValues = (pvs instanceof MutablePropertyValues ?
 				((MutablePropertyValues) pvs).getPropertyValueList() : Arrays.asList(pvs.getPropertyValues()));
+
+		//遍历属性集合
 		for (PropertyValue pv : propertyValues) {
 			try {
 				// This method may throw any BeansException, which won't be caught
 				// here, if there is a critical failure such as no matching field.
 				// We can attempt to deal only with less serious exceptions.
+				//给bean对象注入相应的属性值，通过获取属性的引用来设置（通过反射设置字段为可访问），或者使用属性对应的setter方法来设置
+				//具体通过那种方式来注入，取决于使用的实现的属性访问器的setValue方法
 				setPropertyValue(pv);
 			}
 			catch (NotWritablePropertyException ex) {
@@ -109,6 +114,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 				// Otherwise, just ignore it and continue...
 			}
 			catch (PropertyAccessException ex) {
+				//记录属性访问异常，先吞掉异常后续处理
 				if (propertyAccessExceptions == null) {
 					propertyAccessExceptions = new ArrayList<>();
 				}
@@ -117,6 +123,7 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
 		}
 
 		// If we encountered individual exceptions, throw the composite exception.
+		//如果在依赖注入时，发生了PropertyAccessException异常，则抛出异常对象
 		if (propertyAccessExceptions != null) {
 			PropertyAccessException[] paeArray = propertyAccessExceptions.toArray(new PropertyAccessException[0]);
 			throw new PropertyBatchUpdateException(paeArray);

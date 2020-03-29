@@ -1406,6 +1406,7 @@ public abstract class AnnotationUtils {
 	/**
 	 * Retrieve the <em>value</em> of the {@code value} attribute of a
 	 * single-element Annotation, given an annotation instance.
+	 * 获取给定注解对象的value属性值
 	 * @param annotation the annotation instance from which to retrieve the value
 	 * @return the attribute value, or {@code null} if not found unless the attribute
 	 * value cannot be retrieved due to an {@link AnnotationConfigurationException},

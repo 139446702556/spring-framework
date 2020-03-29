@@ -149,6 +149,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private TypeConverter typeConverter;
 
 	/** String resolvers to apply e.g. to annotation attribute values. */
+	/**应用于注解属性值的字符串解析器*/
 	private final List<StringValueResolver> embeddedValueResolvers = new CopyOnWriteArrayList<>();
 
 	/** BeanPostProcessors to apply in createBean. */
@@ -457,11 +458,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public boolean containsBean(String name) {
+		//bean名称转换（工厂bean则去掉开头的&符号，如果是别名则转换为对应的bean名）
 		String beanName = transformedBeanName(name);
+		//判断是否存在该beanname对应的单例对象或者beanDefinition
 		if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
+			//给定name名称字段如果不是获取工厂bean引用或者以&符号开头并且是工厂bean对象，则返回true，否则false
 			return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));
 		}
 		// Not found -> check parent.
+		//如果在当前bean工厂中未找到name对应的信息，则检查其父类工厂
 		BeanFactory parentBeanFactory = getParentBeanFactory();
 		return (parentBeanFactory != null && parentBeanFactory.containsBean(originalBeanName(name)));
 	}
@@ -904,9 +909,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Override
 	@Nullable
 	public String resolveEmbeddedValue(@Nullable String value) {
+		//检查给定value是否为null
 		if (value == null) {
 			return null;
 		}
+		//遍历字符串值解析器集合，执行其resolveStringValue方法解析给定值
 		String result = value;
 		for (StringValueResolver resolver : this.embeddedValueResolvers) {
 			result = resolver.resolveStringValue(result);
@@ -941,6 +948,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return the list of BeanPostProcessors that will get applied
 	 * to beans created with this factory.
+	 * 返回将应用于此工厂创建bean的beanPostProcessors后置处理器列表
 	 */
 	public List<BeanPostProcessor> getBeanPostProcessors() {
 		return this.beanPostProcessors;
@@ -1010,6 +1018,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Delegate the creation of the access control context to the
 	 * {@link #setSecurityContextProvider SecurityContextProvider}.
+	 * 将访问控制上下文的创建委托给SecurityContextProvider
 	 */
 	@Override
 	public AccessControlContext getAccessControlContext() {

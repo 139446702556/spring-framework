@@ -85,6 +85,7 @@ public @interface Autowired {
 
 	/**
 	 * Declares whether the annotated dependency is required.
+	 * 声明带此注释的依赖项是否是必须的，默认为true
 	 * <p>Defaults to {@code true}.
 	 */
 	boolean required() default true;
