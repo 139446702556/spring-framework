@@ -40,6 +40,8 @@ public interface BeanClassLoaderAware extends Aware {
 	/**
 	 * Callback that supplies the bean {@link ClassLoader class loader} to
 	 * a bean instance.
+	 * 将BeanClassLoader提供给bean实例回调
+	 * 在bean的属性填充之后、初始化方法回调之前回调
 	 * <p>Invoked <i>after</i> the population of normal bean properties but
 	 * <i>before</i> an initialization callback such as
 	 * {@link InitializingBean InitializingBean's}

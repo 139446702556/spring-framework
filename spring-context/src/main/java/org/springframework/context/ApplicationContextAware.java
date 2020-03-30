@@ -61,6 +61,8 @@ public interface ApplicationContextAware extends Aware {
 	/**
 	 * Set the ApplicationContext that this object runs in.
 	 * Normally this call will be used to initialize the object.
+	 * 设置此运行中的bean对象的ApplicationContext
+	 * 通常该方法的调用被用来初始化对象
 	 * <p>Invoked after population of normal bean properties but before an init callback such
 	 * as {@link org.springframework.beans.factory.InitializingBean#afterPropertiesSet()}
 	 * or a custom init-method. Invoked after {@link ResourceLoaderAware#setResourceLoader},
