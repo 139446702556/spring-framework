@@ -328,7 +328,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				//从容器中获取beanName相应的GenericBeanDefinition对象，并将其转化为RootBeanDefinition对象
 				//主要是为了后续处理，后续处理都是针对于RootBeanDefinition的
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
-				//检查给定的合并的BeanDefinition
+				//检查给定的合并的BeanDefinition (检测当前beanDefinition是否为抽象的，是则抛出异常)
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
