@@ -21,6 +21,9 @@ package org.springframework.beans.factory;
  * have been set by a {@link BeanFactory}: e.g. to perform custom initialization,
  * or merely to check that all mandatory properties have been set.
  *
+ * 该接口定义的方法在创建完bean的实例对象之后，并且填充完全部属性之后，进行初始化执行中执行
+ * 该方法允许bean实例设置了所有bean属性之后执行初始化工作，如果该过程出现了错误则需要抛出异常
+ *
  * <p>An alternative to implementing {@code InitializingBean} is specifying a custom
  * init method, for example in an XML bean definition. For a list of all bean
  * lifecycle methods, see the {@link BeanFactory BeanFactory javadocs}.

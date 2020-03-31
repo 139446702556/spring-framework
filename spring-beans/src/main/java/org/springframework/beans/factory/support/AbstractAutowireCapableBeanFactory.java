@@ -2014,6 +2014,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * 激活用户自定义的init方法
 	 * 两种实现自定义初始化方法的方式：1、实现InitializingBean接口的类中，afterPropertiesSet方法则为初始化方法（bean类型实现此接口）
 	 * 2、init-method属性设置初始化方法
+	 * 这两种实现初始化方法的方式是都会执行的，不互斥（只要设置的init-method属性的方法名称与afterPropertiesSet不同）
+	 * 如果afterPropertiesSet方法存在并且执行报错了，则会直接终止执行，下面的init-method设置的方法将不会执行
 	 * @param beanName the bean name in the factory (for debugging purposes)
 	 * @param bean the new bean instance we may need to initialize
 	 * @param mbd the merged bean definition that the bean was created with
@@ -2053,7 +2055,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (mbd != null && bean.getClass() != NullBean.class) {
 			//获取bean定义的初始化方法名（init-method属性设置的）
 			String initMethodName = mbd.getInitMethodName();
-			//如果设置了init-method属性，并且此bean没有实现InitializingBean接口，设置的初始化方法名不等于afterPropertiesSet
+			//如果设置了init-method属性，并且此bean没有实现InitializingBean接口或者设置的初始化方法名不等于afterPropertiesSet
 			//并且外部管理的初始化方法不包含此方法
 			if (StringUtils.hasLength(initMethodName) &&
 					!(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
