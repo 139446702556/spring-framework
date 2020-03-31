@@ -49,6 +49,7 @@ public class OrderComparator implements Comparator<Object> {
 
 	/**
 	 * Shared default instance of {@code OrderComparator}.
+	 * 共享默认的orderComparator实例对象（默认使用的比较器）
 	 */
 	public static final OrderComparator INSTANCE = new OrderComparator();
 
@@ -77,7 +78,7 @@ public class OrderComparator implements Comparator<Object> {
 		else if (p2 && !p1) {
 			return 1;
 		}
-
+		//分别调用给定两个对象实现的getOrder方法来获取排序的优先级
 		int i1 = getOrder(o1, sourceProvider);
 		int i2 = getOrder(o2, sourceProvider);
 		return Integer.compare(i1, i2);

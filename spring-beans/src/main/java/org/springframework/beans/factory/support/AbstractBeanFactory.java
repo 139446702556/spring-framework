@@ -153,6 +153,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final List<StringValueResolver> embeddedValueResolvers = new CopyOnWriteArrayList<>();
 
 	/** BeanPostProcessors to apply in createBean. */
+	/**在创建bean时应用的全部bean的后置处理器*/
 	private final List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
 
 	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered. */
@@ -924,20 +925,24 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 		return result;
 	}
-
+	/**此方法用于用户给spring容器创建bean的过程中，添加自定义的BeanPostProcessor，来进行一些配置或增加一些处理逻辑*/
 	@Override
 	public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
 		Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
 		// Remove from old position, if any
+		//从bean的后置处理器集合中移除当前给定的后置处理器
 		this.beanPostProcessors.remove(beanPostProcessor);
 		// Track whether it is instantiation/destruction aware
+		//如果此bean的后置处理器支持实例化，则修改相应存在标识
 		if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
 			this.hasInstantiationAwareBeanPostProcessors = true;
 		}
+		//如果此bean的后置处理器支持销毁相关操作，则修改相应存在标识
 		if (beanPostProcessor instanceof DestructionAwareBeanPostProcessor) {
 			this.hasDestructionAwareBeanPostProcessors = true;
 		}
 		// Add to end of list
+		//将当前后置处理器添加到beanPostProcessors集合中的末尾
 		this.beanPostProcessors.add(beanPostProcessor);
 	}
 
@@ -1642,6 +1647,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	/**
 	 * Check whether the given bean is defined as a {@link FactoryBean}.
+	 * 检测给定的bean定义是否是一个FactoryBean对象
 	 * @param beanName the name of the bean
 	 * @param mbd the corresponding bean definition
 	 */

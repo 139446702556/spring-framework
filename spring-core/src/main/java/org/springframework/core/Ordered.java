@@ -44,12 +44,14 @@ public interface Ordered {
 
 	/**
 	 * Useful constant for the highest precedence value.
+	 * 最高优先级对应的常数
 	 * @see java.lang.Integer#MIN_VALUE
 	 */
 	int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
 
 	/**
 	 * Useful constant for the lowest precedence value.
+	 * 最低优先值对应的常数
 	 * @see java.lang.Integer#MAX_VALUE
 	 */
 	int LOWEST_PRECEDENCE = Integer.MAX_VALUE;

@@ -25,6 +25,13 @@ import org.springframework.lang.Nullable;
  * 此接口的作用为：如果我们想要在spring容器完成baen的实例化、配置以及其他的初始化后添加一些自己的逻辑
  * 那么使用该接口；此接口给了用户充足的权限去更改或者扩展spring，是我们对spring扩展或者增强必不可少的一个接口
  * 像spring这样优秀的开放式框架必不可少的
+ *
+ * BeanPostProcessor的作用：在bean完成实例化后，如果我们需要对其进行一些配置、增加一些自己的处理逻辑，则使用它
+ *
+ * 此BeanPostProcessor的作用域是容器级别的，它注册后会作用于和它在同一个bean工厂容器中每一个bean对象
+ * 此对象在ApplicationContext中支持排序，而在BeanFactory中不支持（其顺序和注册顺序相同）
+ * ApplicationContext中会自动注册所有实现了BeanPostProcessor接口的bean对象到容器中，
+ * 而BeanFactory中的bean后置处理器只能手动添加到其中
  * <p>ApplicationContexts can autodetect BeanPostProcessor beans in their
  * bean definitions and apply them to any beans subsequently created.
  * Plain bean factories allow for programmatic registration of post-processors,
