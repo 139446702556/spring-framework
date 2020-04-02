@@ -128,6 +128,8 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	/**
 	 * Resolve the given placeholder using the given properties, performing
 	 * a system properties check according to the given mode.
+	 * 使用给定的属性解析给定的占位符，根据给定的模式执行系统属性检查。
+	 * 即是从系统属性中获取当前属性名对应的属性值，还是从给定的自定义属性容器中获取
 	 * <p>The default implementation delegates to {@code resolvePlaceholder
 	 * (placeholder, props)} before/after the system properties check.
 	 * <p>Subclasses can override this for custom resolution strategies,
@@ -157,6 +159,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	}
 
 	/**
+	 * 从给定的属性对象中获取指定的属性名称对应的属性值
 	 * Resolve the given placeholder using the given properties.
 	 * The default implementation simply checks for a corresponding property key.
 	 * <p>Subclasses can override this for customized placeholder-to-key mappings
@@ -208,8 +211,9 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 	@Override
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)
 			throws BeansException {
-
+		//创建StringValueResolver对象（获取一个字符串值解析器）
 		StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(props);
+		//处理属性（占位符替换为真值的操作）
 		doProcessProperties(beanFactoryToProcess, valueResolver);
 	}
 
@@ -221,18 +225,23 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
 		private final PlaceholderResolver resolver;
 
 		public PlaceholderResolvingStringValueResolver(Properties props) {
+			//创建PropertyPlaceholderHelper对象（进行替换的工具）
 			this.helper = new PropertyPlaceholderHelper(
 					placeholderPrefix, placeholderSuffix, valueSeparator, ignoreUnresolvablePlaceholders);
+			//创建PropertyPlaceholderConfigurerResolver对象（一种解析占位符替换值的策略，解析占位符返回对应的替换值）
 			this.resolver = new PropertyPlaceholderConfigurerResolver(props);
 		}
 
 		@Override
 		@Nullable
 		public String resolveStringValue(String strVal) throws BeansException {
+			//解析给定strVal字符串中的占位符，用实际值替换掉占位符并返回
 			String resolved = this.helper.replacePlaceholders(strVal, this.resolver);
+			//如果需要过滤掉空格，则过滤
 			if (trimValues) {
 				resolved = resolved.trim();
 			}
+			//如果解析完的值与nullValue相等，则返回null，否则返回当前解析值
 			return (resolved.equals(nullValue) ? null : resolved);
 		}
 	}

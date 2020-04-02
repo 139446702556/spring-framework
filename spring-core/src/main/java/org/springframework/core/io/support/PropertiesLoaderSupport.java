@@ -145,18 +145,19 @@ public abstract class PropertiesLoaderSupport {
 	 */
 	protected Properties mergeProperties() throws IOException {
 		Properties result = new Properties();
-
+		//如果允许本地属性对象覆盖配置属性对象，则加载资源中加载数据到属性中
 		if (this.localOverride) {
 			// Load properties from file upfront, to let local properties override.
+			//从文件中预先加载属性
 			loadProperties(result);
 		}
-
+		//如果本地属性集合不为空，则将其添加到result中，如果有相同的则覆盖
 		if (this.localProperties != null) {
 			for (Properties localProp : this.localProperties) {
 				CollectionUtils.mergePropertiesIntoMap(localProp, result);
 			}
 		}
-
+		//如果不允许本地属性覆盖配置属性，则先加载本地属性，然后在加载配置属性去覆盖本地属性
 		if (!this.localOverride) {
 			// Load properties from file afterwards, to let those properties override.
 			loadProperties(result);
@@ -167,12 +168,15 @@ public abstract class PropertiesLoaderSupport {
 
 	/**
 	 * Load properties into the given instance.
+	 * 将属性加载到给定的属性实例化对象中
 	 * @param props the Properties instance to load into
 	 * @throws IOException in case of I/O errors
 	 * @see #setLocations
 	 */
 	protected void loadProperties(Properties props) throws IOException {
+		//如果资源地址容器不为空
 		if (this.locations != null) {
+			//遍历全部加载的资源对象，并将资源中的属性填充到给定的属性对象props中
 			for (Resource location : this.locations) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Loading properties file from " + location);

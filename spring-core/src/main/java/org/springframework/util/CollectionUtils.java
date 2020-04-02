@@ -101,7 +101,7 @@ public abstract class CollectionUtils {
 	 * default properties linked into the original Properties instance.
 	 * @param props the Properties instance to merge (may be {@code null})
 	 * @param map the target Map to merge the properties into
-	 *  读取属性中的全部key value值，合并到map中
+	 *  读取属性中的全部key value值，合并到map中（如果属性中存在与map相同的属性，则覆盖）
 	 */
 	@SuppressWarnings("unchecked")
 	public static <K, V> void mergePropertiesIntoMap(@Nullable Properties props, Map<K, V> map) {

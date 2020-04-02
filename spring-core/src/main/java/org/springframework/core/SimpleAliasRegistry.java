@@ -105,7 +105,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 
 	/**
 	 * Determine whether the given name has the given alias registered.
-	 * 确定给定的名称是否注册了给定的别名
+	 * 确定给定的名称是否注册了给定的别名（是否存在循环引用）
 	 * @param name the name to check
 	 * @param alias the alias to look for
 	 * @since 4.2.1
@@ -172,32 +172,49 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @param valueResolver the StringValueResolver to apply
 	 */
 	public void resolveAliases(StringValueResolver valueResolver) {
+		//判断值解析器不可为空
 		Assert.notNull(valueResolver, "StringValueResolver must not be null");
+		//加全局锁，锁住别名映射表
 		synchronized (this.aliasMap) {
+			//别名映射表拷贝
 			Map<String, String> aliasCopy = new HashMap<>(this.aliasMap);
+			//迭代遍历别名注册表中的信息
 			aliasCopy.forEach((alias, registeredName) -> {
+				//解析别名中的占位符，替换为具体值
 				String resolvedAlias = valueResolver.resolveStringValue(alias);
+				//解析bean名称的占位符，替换为具体值
 				String resolvedName = valueResolver.resolveStringValue(registeredName);
+				//如果当前解析后得到的别名或者对应的beanName为空，或者两个名称相同，则从别名映射表中移除当前key为当前别名的
 				if (resolvedAlias == null || resolvedName == null || resolvedAlias.equals(resolvedName)) {
 					this.aliasMap.remove(alias);
 				}
+				//如果别名和beanName接存在，并且不相等，而且解析后的别名和解析前的不同（证明别名中有占位符）
 				else if (!resolvedAlias.equals(alias)) {
+					//获取别名对应的beanName
 					String existingName = this.aliasMap.get(resolvedAlias);
+					//存在
 					if (existingName != null) {
+						//如果解析后的beanName和解析后别名从注册表中获取到的beanName相同，则证明解析后的信息已被注册
 						if (existingName.equals(resolvedName)) {
 							// Pointing to existing alias - just remove placeholder
+							//从注册表中移除解析之前的别名和beanName对应关系
 							this.aliasMap.remove(alias);
 							return;
 						}
+						//如果解析后的别名在注册表中能获取出来值，并且和解析后的beanName不同，则抛出异常
 						throw new IllegalStateException(
 								"Cannot register resolved alias '" + resolvedAlias + "' (original: '" + alias +
 								"') for name '" + resolvedName + "': It is already registered for name '" +
 								registeredName + "'.");
 					}
+					//检测是否存在循环引用
 					checkForAliasCircle(resolvedName, resolvedAlias);
+					//移除解析前的别名和beanName的对应关系
 					this.aliasMap.remove(alias);
+					//将解析后的别名和beanName添加到别名注册表中
 					this.aliasMap.put(resolvedAlias, resolvedName);
 				}
+				//如果beanName中有占位符，并且被解析之后与原名称不同，则更新别名映射表中对应的beanName
 				else if (!registeredName.equals(resolvedName)) {
 					this.aliasMap.put(alias, resolvedName);
 				}
@@ -215,6 +232,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @see #hasAlias
 	 */
 	protected void checkForAliasCircle(String name, String alias) {
+		//检测别名和beanName在别名注册表中是否存在循环引用，是则抛出异常
 		if (hasAlias(alias, name)) {
 			throw new IllegalStateException("Cannot register alias '" + alias +
 					"' for name '" + name + "': Circular reference - '" +
