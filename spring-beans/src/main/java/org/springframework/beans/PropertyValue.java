@@ -146,6 +146,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
 	/**
 	 * Set whether this is an optional value, that is, to be ignored
 	 * when no corresponding property exists on the target class.
+	 * 设置该值是否为可选值，即在目标类上不存在相应属性时忽略掉该值
 	 * @since 3.0
 	 */
 	public void setOptional(boolean optional) {

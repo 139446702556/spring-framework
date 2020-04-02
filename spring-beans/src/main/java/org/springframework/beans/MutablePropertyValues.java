@@ -185,7 +185,7 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 				return this;
 			}
 		}
-		//如果是新添加的属性，则将pv添加到propertyValueList中
+		//如果是新添加的属性（未匹配到），则将pv添加到propertyValueList中
 		this.propertyValueList.add(pv);
 		return this;
 	}
