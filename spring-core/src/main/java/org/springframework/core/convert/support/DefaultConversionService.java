@@ -32,6 +32,7 @@ import org.springframework.lang.Nullable;
  * <p>Designed for direct instantiation but also exposes the static
  * {@link #addDefaultConverters(ConverterRegistry)} utility method for ad-hoc
  * use against any {@code ConverterRegistry} instance.
+ * ConversionService的默认实现，适用于大部分情况下的转换工作
  *
  * @author Chris Beams
  * @author Juergen Hoeller
@@ -80,6 +81,7 @@ public class DefaultConversionService extends GenericConversionService {
 
 	/**
 	 * Add converters appropriate for most environments.
+	 * 添加适合大多数幻境的转换器（一些默认转化器、集合的转换器、scalar转换器）
 	 * @param converterRegistry the registry of converters to add to
 	 * (must also be castable to ConversionService, e.g. being a {@link ConfigurableConversionService})
 	 * @throws ClassCastException if the given ConverterRegistry could not be cast to a ConversionService

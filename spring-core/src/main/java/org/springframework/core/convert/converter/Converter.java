@@ -20,11 +20,12 @@ import org.springframework.lang.Nullable;
 
 /**
  * A converter converts a source object of type {@code S} to a target of type {@code T}.
- *
+ * 一个转换器，将S类型的源对象转换为T类型的目标对象
  * <p>Implementations of this interface are thread-safe and can be shared.
- *
+ * 这个接口的实现是线程安全的，可以共享
  * <p>Implementations may additionally implement {@link ConditionalConverter}.
- *
+ * 该接口的实现还有可能实现ConditionalConverter
+ * 用于1：1的source->target 的类型转换
  * @author Keith Donald
  * @since 3.0
  * @param <S> the source type

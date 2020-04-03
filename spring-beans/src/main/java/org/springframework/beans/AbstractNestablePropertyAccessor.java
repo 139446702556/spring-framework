@@ -417,8 +417,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 	}
 
 	private void processLocalProperty(PropertyTokenHolder tokens, PropertyValue pv) {
+		//使用设置的属性名称去当前bean中查找与此名称相同的属性信息（字段信息和getter、setter方法）
 		PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
+		//如果没找到对应的属性信息或者当前属性信息不允许写入
 		if (ph == null || !ph.isWritable()) {
+			//如果当前给定属性值对象可忽略，则记录日志，否则抛出异常
 			if (pv.isOptional()) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Ignoring optional value for property '" + tokens.actualName +

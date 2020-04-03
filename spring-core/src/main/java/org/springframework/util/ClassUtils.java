@@ -89,6 +89,7 @@ public abstract class ClassUtils {
 	/**
 	 * Map with primitive type as key and corresponding wrapper
 	 * type as value, for example: int.class -> Integer.class.
+	 * 以基本类型为键，相应的包装类为值的缓存
 	 */
 	private static final Map<Class<?>, Class<?>> primitiveTypeToWrapperMap = new IdentityHashMap<>(8);
 
@@ -520,6 +521,7 @@ public abstract class ClassUtils {
 	/**
 	 * Resolve the given class if it is a primitive class,
 	 * returning the corresponding primitive wrapper type instead.
+	 * 解析给定的类型对象，如果给定类型为原始类型，则返回其对应的包装类，否则直接返回
 	 * @param clazz the class to check
 	 * @return the original class, or a primitive wrapper for the original primitive type
 	 */

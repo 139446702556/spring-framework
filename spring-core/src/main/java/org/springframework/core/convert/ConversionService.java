@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 /**
  * A service interface for type conversion. This is the entry point into the convert system.
  * Call {@link #convert(Object, Class)} to perform a thread-safe type conversion using this system.
- *
+ * ConversionServices是从spring3之后推出来的用来代替PropertyEditor转换模式的转换体系
  * @author Keith Donald
  * @author Phillip Webb
  * @since 3.0
@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
 public interface ConversionService {
 
 	/**
+	 * 用于判断sourceType是否能够转换为targetType
 	 * Return {@code true} if objects of {@code sourceType} can be converted to the {@code targetType}.
 	 * <p>If this method returns {@code true}, it means {@link #convert(Object, Class)} is capable
 	 * of converting an instance of {@code sourceType} to {@code targetType}.
@@ -65,6 +66,7 @@ public interface ConversionService {
 	boolean canConvert(@Nullable TypeDescriptor sourceType, TypeDescriptor targetType);
 
 	/**
+	 * 将给定的source转化为targetType的类型实例对象
 	 * Convert the given {@code source} to the specified {@code targetType}.
 	 * @param source the source object to convert (may be {@code null})
 	 * @param targetType the target type to convert to (required)
@@ -79,10 +81,10 @@ public interface ConversionService {
 	 * Convert the given {@code source} to the specified {@code targetType}.
 	 * The TypeDescriptors provide additional context about the source and target locations
 	 * where conversion will occur, often object fields or property locations.
-	 * @param source the source object to convert (may be {@code null})
-	 * @param sourceType context about the source type to convert from
+	 * @param source the source object to convert (may be {@code null}) 要转换的源对象
+	 * @param sourceType context about the source type to convert from  源对象的类型上下文
 	 * (may be {@code null} if source is {@code null})
-	 * @param targetType context about the target type to convert to (required)
+	 * @param targetType context about the target type to convert to (required)  源对象要转换的类型的上下文
 	 * @return the converted object, an instance of {@link TypeDescriptor#getObjectType() targetType}
 	 * @throws ConversionException if a conversion exception occurred
 	 * @throws IllegalArgumentException if targetType is {@code null},

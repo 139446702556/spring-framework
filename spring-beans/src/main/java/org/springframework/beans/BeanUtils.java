@@ -552,6 +552,7 @@ public abstract class BeanUtils {
 	/**
 	 * Obtain a new MethodParameter object for the write method of the
 	 * specified property.
+	 * 获取指定属性的的写方法的参数对象来创建一个新的方法参数对象
 	 * @param pd the PropertyDescriptor for the property
 	 * @return a corresponding MethodParameter object
 	 */

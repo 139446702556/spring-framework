@@ -595,7 +595,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//没有使用后置处理方法来修改BeanDefinition
 			if (!mbd.postProcessed) {
 				try {
-					//后置处理修改BeanDefinition
+					//后置处理修改BeanDefinition（此处执行时会检索当前beanDefinition对应的类中标注了@Autowired注解的字段和方法，并创建相应对象保存在缓存中）
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -1517,7 +1517,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				//如果当前bean的后置处理器为InstantiationAwareBeanPostProcessor
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
-					//对所有需要依赖检查的属性进行后置处理
+					//对所有需要依赖检查的属性进行后置处理(此处通过调用beanPostProcessor的相关方法完成了对具有@Autowired注解的字段和方法的自动注入，即给字段赋值，调用相应方法传入对应参数)
 					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 					//处理后的属性值对象为空（postProcessProperties方法为接口默认方法，所以可能是实现类未实现或者仍然返回null）
 					if (pvsToUse == null) {
@@ -1916,13 +1916,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	private Object convertForProperty(
 			@Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
 		//如果类型转换器为默认bw，则使用其类型转换方法convertForProperty
+		//这里主要是因为BeanWrapperImpl实现了PropertyEditorRegistry接口
 		if (converter instanceof BeanWrapperImpl) {
 			return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
 		}
 		//使用其自定义的类型转换器转换属性值为指定类型
 		else {
+			//获取属性对应的PropertyDescriptor对象
 			PropertyDescriptor pd = bw.getPropertyDescriptor(propertyName);
+			//获取属性对应的settring MethodParameter对象
 			MethodParameter methodParam = BeanUtils.getWriteMethodParameter(pd);
+			//执行转换
 			return converter.convertIfNecessary(value, pd.getPropertyType(), methodParam);
 		}
 	}

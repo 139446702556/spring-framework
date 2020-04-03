@@ -22,7 +22,8 @@ import org.springframework.core.convert.TypeDescriptor;
  * Allows a {@link Converter}, {@link GenericConverter} or {@link ConverterFactory} to
  * conditionally execute based on attributes of the {@code source} and {@code target}
  * {@link TypeDescriptor}.
- *
+ * 此接口表示有条件的类型转换，只有给定的sourceType和targetType判断可以转换匹配，才能调用convert方法进行转换
+ * 用于有条件的source->target的类型转换
  * <p>Often used to selectively match custom conversion logic based on the presence of a
  * field or class-level characteristic, such as an annotation or method. For example, when
  * converting from a String field to a Date field, an implementation might return

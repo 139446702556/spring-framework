@@ -42,6 +42,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * 此类用于封装java的Type类型
  * Encapsulates a Java {@link java.lang.reflect.Type}, providing access to
  * {@link #getSuperType() supertypes}, {@link #getInterfaces() interfaces}, and
  * {@link #getGeneric(int...) generic parameters} along with the ability to ultimately
@@ -439,13 +440,17 @@ public class ResolvableType implements Serializable {
 	 * @see #getInterfaces()
 	 */
 	public ResolvableType as(Class<?> type) {
+		//如果当前的ResolvableType对象为空对象，则直接返回
 		if (this == NONE) {
 			return NONE;
 		}
+		//获取当前要解析的类对象
 		Class<?> resolved = resolve();
+		//如果为空，或者和给定的type相同，则直接返回当前ResolvableType对象
 		if (resolved == null || resolved == type) {
 			return this;
 		}
+		//
 		for (ResolvableType interfaceType : getInterfaces()) {
 			ResolvableType interfaceAsType = interfaceType.as(type);
 			if (interfaceAsType != NONE) {
@@ -478,18 +483,26 @@ public class ResolvableType implements Serializable {
 	 * Return a {@link ResolvableType} array representing the direct interfaces
 	 * implemented by this type. If this type does not implement any interfaces an
 	 * empty array is returned.
+	 * 返回一个ResolvableType数组，该数组表示由该类型实现的直接接口；如果该类型未实现任何接口，则返回空数组
 	 * <p>Note: The resulting {@link ResolvableType} instances may not be {@link Serializable}.
 	 * @see #getSuperType()
 	 */
 	public ResolvableType[] getInterfaces() {
+		//获取要解析的类
 		Class<?> resolved = resolve();
+		//如果为空，返回空数组
 		if (resolved == null) {
 			return EMPTY_TYPES_ARRAY;
 		}
+		//获取当前类型直接实现的全部接口
 		ResolvableType[] interfaces = this.interfaces;
+		//如果为空
 		if (interfaces == null) {
+			//获取当前要解析的类直接实现的全部接口类型数组
 			Type[] genericIfcs = resolved.getGenericInterfaces();
+			//初始化interfaces对象数组
 			interfaces = new ResolvableType[genericIfcs.length];
+			//循环获取到的当前解析类实现的接口的类型数组，并通过每个接口的类型创建对应的ResolvableType对象，并加入到interfaces中
 			for (int i = 0; i < genericIfcs.length; i++) {
 				interfaces[i] = forType(genericIfcs[i], this);
 			}

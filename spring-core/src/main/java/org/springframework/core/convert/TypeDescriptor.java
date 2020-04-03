@@ -280,10 +280,12 @@ public class TypeDescriptor implements Serializable {
 	 * @see #getObjectType()
 	 */
 	public boolean isAssignableTo(TypeDescriptor typeDescriptor) {
+		//获取目标类型是否为源对象类型的父类，如果否直接返回false
 		boolean typesAssignable = typeDescriptor.getObjectType().isAssignableFrom(getObjectType());
 		if (!typesAssignable) {
 			return false;
 		}
+		//如果源对象类型和给定目标类型均为集合、数组或者map等容器类型，则使用递归来对其进行子父类关系检查，否则直接返回true
 		if (isArray() && typeDescriptor.isArray()) {
 			return isNestedAssignable(getElementTypeDescriptor(), typeDescriptor.getElementTypeDescriptor());
 		}
@@ -322,9 +324,13 @@ public class TypeDescriptor implements Serializable {
 
 	/**
 	 * If this type is an array, returns the array's component type.
+	 * 如果该类型为数组，则返回数组的组件类型
 	 * If this type is a {@code Stream}, returns the stream's component type.
+	 * 如果该类型是一个流对象，则返回流的组件类型
 	 * If this type is a {@link Collection} and it is parameterized, returns the Collection's element type.
+	 * 如果该类型是一个集合并且它是参数化的，则返回一个集合的元素类型
 	 * If the Collection is not parameterized, returns {@code null} indicating the element type is not declared.
+	 * 如果集合没有参数化，则返回null，表示没有声明元素类型
 	 * @return the array component type or Collection element type, or {@code null} if this type is not
 	 * an array type or a {@code java.util.Collection} or if its element type is not parameterized
 	 * @see #elementTypeDescriptor(Object)

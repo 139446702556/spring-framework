@@ -27,7 +27,7 @@ import org.springframework.core.convert.converter.ConverterRegistry;
  * Converters} through. The latter is particularly useful when working against a
  * {@link org.springframework.core.env.ConfigurableEnvironment ConfigurableEnvironment}
  * instance in application context bootstrapping code.
- *
+ * ConversionService的配置接口，用于合并ConversionService和ConvererRegistry两者的操作，便于通过add或remove的方式添加或者删除转换器
  * @author Chris Beams
  * @since 3.1
  * @see org.springframework.core.env.ConfigurablePropertyResolver#getConversionService()

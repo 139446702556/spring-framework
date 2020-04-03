@@ -59,19 +59,30 @@ final class StringToArrayConverter implements ConditionalGenericConverter {
 	@Override
 	@Nullable
 	public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		//源对象为null，则直接返回
 		if (source == null) {
 			return null;
 		}
+		//将源对象转换为字符串
 		String string = (String) source;
+		//按照逗号来切割给定的字符串，得到字符串数组
 		String[] fields = StringUtils.commaDelimitedListToStringArray(string);
+		//获取TypeDescriptor对象
 		TypeDescriptor targetElementType = targetType.getElementTypeDescriptor();
+		//检查目标元素类型不可为空
 		Assert.state(targetElementType != null, "No target element type");
+		//创建目标数组（给定目标类型的，指定长度的数组）
 		Object target = Array.newInstance(targetElementType.getType(), fields.length);
+		//遍历字符串切割得到的数组
 		for (int i = 0; i < fields.length; i++) {
+			//获取原数据
 			String sourceElement = fields[i];
+			//递归调用，转换原数据为目标类型，返回目标数据
 			Object targetElement = this.conversionService.convert(sourceElement.trim(), sourceType, targetElementType);
+			//将转换得到的目标元素插入到目标数组target中
 			Array.set(target, i, targetElement);
 		}
+		//返回转换得到的目标对象
 		return target;
 	}
 
