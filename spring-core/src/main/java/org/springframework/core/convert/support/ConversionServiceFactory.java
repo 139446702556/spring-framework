@@ -41,12 +41,16 @@ public final class ConversionServiceFactory {
 
 	/**
 	 * Register the given Converter objects with the given target ConverterRegistry.
+	 * 将给定的转换器对象集合注册到给定的目标对象ConverterRegistry中
 	 * @param converters the converter objects: implementing {@link Converter},
 	 * {@link ConverterFactory}, or {@link GenericConverter}
 	 * @param registry the target registry
 	 */
 	public static void registerConverters(@Nullable Set<?> converters, ConverterRegistry registry) {
+		//如果给定的转换器集合不为空
 		if (converters != null) {
+			//遍历给定的转化器集合，将转换器转化为对应匹配类型的转换器并注入到给定的转换器注册器（ConverterRegistry）中
+			//如果当前转换器不属于三种父类转换器的一种，则抛出异常
 			for (Object converter : converters) {
 				if (converter instanceof GenericConverter) {
 					registry.addConverter((GenericConverter) converter);
