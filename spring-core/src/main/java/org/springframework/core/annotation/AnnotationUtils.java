@@ -751,14 +751,21 @@ public abstract class AnnotationUtils {
 	@Nullable
 	private static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> annotationType, Set<Annotation> visited) {
 		try {
+			//从给定类型clazz中获取指定annotationType类型对应的注解对象
 			A annotation = clazz.getDeclaredAnnotation(annotationType);
+			//如果获取到，则直接返回
 			if (annotation != null) {
 				return annotation;
 			}
+			//如果未找到当前clazz类上有指定annotationType类型的注解，则遍历clazz类上的全部注解
 			for (Annotation declaredAnn : getDeclaredAnnotations(clazz)) {
+				//获取注解类型
 				Class<? extends Annotation> declaredType = declaredAnn.annotationType();
+				//如果当前注解不在java.lang.annotation这个包中（证明此注解上方可能存在要找的注解），并将其添加到visited集合中成功
 				if (!isInJavaLangAnnotationPackage(declaredType) && visited.add(declaredAnn)) {
+					//递归调用查找指定注解方法，继续去当前指定clazz类上的全部注解上面查找
 					annotation = findAnnotation(declaredType, annotationType, visited);
+					//找到，则返回
 					if (annotation != null) {
 						return annotation;
 					}

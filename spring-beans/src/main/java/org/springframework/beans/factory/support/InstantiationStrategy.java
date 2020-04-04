@@ -25,7 +25,8 @@ import org.springframework.lang.Nullable;
 
 /**
  * Interface responsible for creating instances corresponding to a root bean definition.
- *
+ * 实例化的策略接口，用于根据给定的RootBeanDefinition来创建对应的实例化对象
+ * 其根据对象情况的不同提供了三种实例化策略：无参构造方法、有参构造方法、工厂方法
  * <p>This is pulled out into a strategy as various approaches are possible,
  * including using CGLIB to create subclasses on the fly to support Method Injection.
  *
@@ -36,6 +37,7 @@ import org.springframework.lang.Nullable;
 public interface InstantiationStrategy {
 
 	/**
+	 * 用于默认构造方法创建实例化对象
 	 * Return an instance of the bean with the given name in this factory.
 	 * @param bd the bean definition
 	 * @param beanName the name of the bean when it is created in this context.
@@ -49,6 +51,7 @@ public interface InstantiationStrategy {
 			throws BeansException;
 
 	/**
+	 * 用于使用给定的构造方法创建实例化对象
 	 * Return an instance of the bean with the given name in this factory,
 	 * creating it via the given constructor.
 	 * @param bd the bean definition
@@ -65,6 +68,7 @@ public interface InstantiationStrategy {
 			Constructor<?> ctor, Object... args) throws BeansException;
 
 	/**
+	 * 使用指定的工厂方法来创建实例化对象
 	 * Return an instance of the bean with the given name in this factory,
 	 * creating it via the given factory method.
 	 * @param bd the bean definition

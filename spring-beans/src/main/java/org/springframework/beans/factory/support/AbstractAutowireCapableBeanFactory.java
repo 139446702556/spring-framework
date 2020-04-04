@@ -690,13 +690,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Override
 	@Nullable
 	protected Class<?> predictBeanType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
+		//从给定的beanDefinition中获取确定的目标类型对象
 		Class<?> targetType = determineTargetType(beanName, mbd, typesToMatch);
 		// Apply SmartInstantiationAwareBeanPostProcessors to predict the
 		// eventual type after a before-instantiation shortcut.
+		//如果确定了，并且当前beanDefinition不是生成的，且存在初始化的bean后置处理器
 		if (targetType != null && !mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			//迭代全部后置处理器
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				//如果bp为SmartInstantiationAwareBeanPostProcessor类型对象
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					//调用bean的后置处理器对应方法来获取断言的bean类型
 					Class<?> predicted = ibp.predictBeanType(targetType, beanName);
 					if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] ||
 							FactoryBean.class.isAssignableFrom(predicted))) {
@@ -718,11 +723,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	@Nullable
 	protected Class<?> determineTargetType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
+		//获取beanDefinition中的targetType类对象
 		Class<?> targetType = mbd.getTargetType();
+		//如果未设置
 		if (targetType == null) {
+			//如果当前beanDefinition设置了factoryMethodName，则从工厂方法的返回值中获取bean的目标类型
+			//否则直接解析当前bean的类型
 			targetType = (mbd.getFactoryMethodName() != null ?
 					getTypeForFactoryMethod(beanName, mbd, typesToMatch) :
 					resolveBeanClass(mbd, beanName, typesToMatch));
+			//缓存当前确定的目标解析类型到BeanDefinition中
 			if (ObjectUtils.isEmpty(typesToMatch) || getTempClassLoader() == null) {
 				mbd.resolvedTargetType = targetType;
 			}

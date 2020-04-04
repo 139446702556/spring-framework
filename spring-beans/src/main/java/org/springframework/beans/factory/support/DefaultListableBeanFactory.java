@@ -356,10 +356,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
 		Assert.notNull(requiredType, "Required type must not be null");
+		//解析给定类型对应的bean对象，通过与给定参数匹配的构造函数或则工厂方法来完成方法创建，如果无法唯一确定bean对象，则抛出异常
 		Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
+		//如果未解析到bean对象，则抛出NoSuchBeanDefinitionException异常
 		if (resolved == null) {
 			throw new NoSuchBeanDefinitionException(requiredType);
 		}
+		//否则返回解析对象
 		return (T) resolved;
 	}
 
@@ -423,10 +426,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Nullable
 	private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) {
+		//通过给定的类型对象和参数获取对应的beanName和beanInstance的关系对象
 		NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, nonUniqueAsNull);
+		//如果解析成功，返回解析得到的bean的实例化对象
 		if (namedBean != null) {
 			return namedBean.getBeanInstance();
 		}
+		//如果当前BeanFactory解析失败，则使用其ParentBeanFactory来进行解析
 		BeanFactory parent = getParentBeanFactory();
 		if (parent instanceof DefaultListableBeanFactory) {
 			return ((DefaultListableBeanFactory) parent).resolveBean(requiredType, args, nonUniqueAsNull);
@@ -1169,48 +1175,67 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Nullable
 	private <T> NamedBeanHolder<T> resolveNamedBean(
 			ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
-
+		//断言给定解析类型不为空
 		Assert.notNull(requiredType, "Required type must not be null");
+		//通过给定类型获取当前BeanFactory中与其匹配的BeanName集合
 		String[] candidateNames = getBeanNamesForType(requiredType);
-
+		//如果存在多个匹配项
 		if (candidateNames.length > 1) {
+			//保存可用来自动注入的候选人
 			List<String> autowireCandidates = new ArrayList<>(candidateNames.length);
+			//迭代全部匹配项
 			for (String beanName : candidateNames) {
+				//如果当前beanName找不到对应的BeanDefinition或者此Bean可以被自动注入到其它bean中，则将其添加到autowireCandidates中
 				if (!containsBeanDefinition(beanName) || getBeanDefinition(beanName).isAutowireCandidate()) {
 					autowireCandidates.add(beanName);
 				}
 			}
+			//如果autowireCandidates不为空，则将其设置为bean的候选集合
 			if (!autowireCandidates.isEmpty()) {
 				candidateNames = StringUtils.toStringArray(autowireCandidates);
 			}
 		}
-
+		//如果只有一个候选名称，则直接返回beanName和beanInstance对象的包装类对象
 		if (candidateNames.length == 1) {
 			String beanName = candidateNames[0];
 			return new NamedBeanHolder<>(beanName, (T) getBean(beanName, requiredType.toClass(), args));
 		}
+		//如果不唯一
 		else if (candidateNames.length > 1) {
+			//存储候选bean
 			Map<String, Object> candidates = new LinkedHashMap<>(candidateNames.length);
+			//迭代全部的候选beanName
 			for (String beanName : candidateNames) {
+				//如果没有给定参数，并且当前beanName存在于单例缓存中
 				if (containsSingleton(beanName) && args == null) {
+					//通过指定beanName获取bean实例化对象
 					Object beanInstance = getBean(beanName);
+					//将其添加到候选注册表candidates中
 					candidates.put(beanName, (beanInstance instanceof NullBean ? null : beanInstance));
 				}
 				else {
+					//将当前beanName与其对应的bean对象的类型对象关系保存到candidates中
 					candidates.put(beanName, getType(beanName));
 				}
 			}
+			//从给定的候选bean中获取标有@Primary注解的bean的名称
 			String candidateName = determinePrimaryCandidate(candidates, requiredType.toClass());
+			//如果不存在，则在获取当前候选bean中，标有@Priority注解的bean中优先级最高的一个bean的名称
 			if (candidateName == null) {
 				candidateName = determineHighestPriorityCandidate(candidates, requiredType.toClass());
 			}
+			//如果获取到了指定beanName
 			if (candidateName != null) {
+				//获取beanName对应的Bean实例对象
 				Object beanInstance = candidates.get(candidateName);
+				//如果获取的beanInstance对象为空或者beanInstance为类型对象
 				if (beanInstance == null || beanInstance instanceof Class) {
+					//使用给定的beanName和beanClass从当前BeanFactory中获取对应的bean对象
 					beanInstance = getBean(candidateName, requiredType.toClass(), args);
 				}
 				return new NamedBeanHolder<>(candidateName, (T) beanInstance);
 			}
+			//如果没有设置当候选bean非唯一返回null的话，则抛出异常，否则返回null
 			if (!nonUniqueAsNull) {
 				throw new NoUniqueBeanDefinitionException(requiredType, candidates.keySet());
 			}

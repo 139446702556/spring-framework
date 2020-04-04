@@ -103,6 +103,7 @@ public class AnnotationAwareOrderComparator extends OrderComparator {
 	@Nullable
 	public Integer getPriority(Object obj) {
 		if (obj instanceof Class) {
+			//获取该类上标注的优先级注解的值
 			return OrderUtils.getPriority((Class<?>) obj);
 		}
 		Integer priority = OrderUtils.getPriority(obj.getClass());

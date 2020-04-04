@@ -358,6 +358,7 @@ public class Enhancer extends AbstractClassGenerator {
 
 	/**
 	 * Set the array of callback types to use.
+	 * 设置要使用的回调类型数组
 	 * This may be used instead of {@link #setCallbacks} when calling
 	 * {@link #createClass}, since it may not be possible to have
 	 * an array of actual callback instances.
@@ -366,6 +367,7 @@ public class Enhancer extends AbstractClassGenerator {
 	 * @param callbackTypes the array of callback types
 	 */
 	public void setCallbackTypes(Class[] callbackTypes) {
+		//检查给定数组不能为空
 		if (callbackTypes != null && callbackTypes.length == 0) {
 			throw new IllegalArgumentException("Array cannot be empty");
 		}

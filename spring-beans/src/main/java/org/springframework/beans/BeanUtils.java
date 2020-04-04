@@ -119,7 +119,7 @@ public abstract class BeanUtils {
 			throw new BeanInstantiationException(clazz, "Specified class is an interface");
 		}
 		try {
-			//通过类对象的构造函数实例化对象
+			//通过类对象的默认构造函数实例化对象
 			return instantiateClass(clazz.getDeclaredConstructor());
 		}
 		catch (NoSuchMethodException ex) {

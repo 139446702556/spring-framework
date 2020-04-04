@@ -124,14 +124,19 @@ public abstract class OrderUtils {
 	 */
 	@Nullable
 	public static Integer getPriority(Class<?> type) {
+		//如果priorityAnnotationType类型为空，则无法查找，则返回null
 		if (priorityAnnotationType == null) {
 			return null;
 		}
+		//如缓存中获取指定类型对应的优先级
 		Object cached = priorityCache.get(type);
+		//缓存中存在则直接返回
 		if (cached != null) {
 			return (cached instanceof Integer ? (Integer) cached : null);
 		}
+		//从指定类上查找优先级注解对象
 		Annotation priority = AnnotationUtils.findAnnotation(type, priorityAnnotationType);
+		//从获取到的优先级注解标签中获取优先级值，并且将其添加到缓存中，返回
 		Integer result = null;
 		if (priority != null) {
 			result = (Integer) AnnotationUtils.getValue(priority);

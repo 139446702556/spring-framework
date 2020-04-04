@@ -33,7 +33,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Simple object instantiation strategy for use in a BeanFactory.
- *
+ * beanFactory的简单对象实例化策略
  * <p>Does not support Method Injection, although it provides hooks for subclasses
  * to override to add Method Injection support, for example by overriding methods.
  *
@@ -56,7 +56,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		return currentlyInvokedFactoryMethod.get();
 	}
 
-
+	/**使用默认构造函数创建实例化对象*/
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
@@ -67,6 +67,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			synchronized (bd.constructorArgumentLock) {
 				//获取缓存的解析完的构造函数或方法
 				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+				//如果缓存中不存在解析后得到的构造器或者工厂方法
 				if (constructorToUse == null) {
 					//获取当前bean的类对象
 					final Class<?> clazz = bd.getBeanClass();
@@ -76,15 +77,16 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					}
 					try {
 						//安全模式
-						//从clazz中获取构造函数
+						//从clazz中获取构造器对象
 						if (System.getSecurityManager() != null) {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						}
 						else {
+							//获取无参构造函数
 							constructorToUse = clazz.getDeclaredConstructor();
 						}
-						//缓存
+						//将获取到的构造器加入到resolvedConstructorOrFactoryMethod缓存中
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					}
 					catch (Throwable ex) {
@@ -111,7 +113,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
-
+	/**使用指定构造函数创建实例化对象*/
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			final Constructor<?> ctor, Object... args) {
@@ -140,14 +142,14 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	 * UnsupportedOperationException, if they can instantiate an object with
 	 * the Method Injection specified in the given RootBeanDefinition.
 	 * Instantiation should use the given constructor and parameters.
-	 * 默认未实现cglib生成子类创建对象逻辑，需要继承此类，使用父类来实现
+	 * 默认未实现cglib生成子类创建对象逻辑，需要继承此类的相应子类来进行实现（此方法交由CglibSubclassingInstantiationStrategy子类实现）
 	 */
 	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName,
 			BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
 
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
-
+	/**使用给定的工厂方法创建实例化对象*/
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			@Nullable Object factoryBean, final Method factoryMethod, Object... args) {
@@ -163,14 +165,14 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			else {
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
-			//获取之前可调用的工厂方法
+			//获取之前可调用的工厂方法（原Method对象）
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
-				//将当前的工厂方法保存到缓存中
+				//将当前的工厂方法保存到currentlyInvokedFactoryMethod缓存中
 				currentlyInvokedFactoryMethod.set(factoryMethod);
 				//调用当前的工厂方法来创建bean对象
 				Object result = factoryMethod.invoke(factoryBean, args);
-				//如果因为创建失败或者其它原因导致创建的对象为null，则将其赋值为NullBean对象
+				//如果因为创建失败或者其它原因导致创建的对象为null（未创建），则将其赋值为NullBean对象
 				if (result == null) {
 					result = new NullBean();
 				}
@@ -183,7 +185,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}
 				else {
-					//否则直接移除缓存中的工厂方法
+					//否则直接移除缓存中当前的工厂方法
 					currentlyInvokedFactoryMethod.remove();
 				}
 			}

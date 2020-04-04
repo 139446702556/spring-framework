@@ -659,6 +659,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return whether this bean is a candidate for getting autowired into some other bean.
+	 * 返回该bean是否可以被自动装配到其它bean当中
 	 */
 	@Override
 	public boolean isAutowireCandidate() {
@@ -910,7 +911,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return if there are method overrides defined for this bean.
-	 * 检测是否为这个beand定义了方法覆盖
+	 * 检测是否为这个bean定义了方法覆盖
 	 * @since 5.0.2
 	 */
 	public boolean hasMethodOverrides() {
