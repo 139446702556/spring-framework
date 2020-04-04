@@ -25,7 +25,7 @@ import org.springframework.lang.Nullable;
  * Common interface for classes that can access named properties
  * (such as bean properties of an object or fields in an object)
  * Serves as base interface for {@link BeanWrapper}.
- *
+ * 可以访问属性的通用型接口（例如对象中的bean属性或者对象中的字段），作为BeanWrapper的基础接口
  * @author Juergen Hoeller
  * @since 1.1
  * @see BeanWrapper
@@ -36,12 +36,14 @@ public interface PropertyAccessor {
 
 	/**
 	 * Path separator for nested properties.
+	 * 嵌套属性的路径分隔符
 	 * Follows normal Java conventions: getFoo().getBar() would be "foo.bar".
 	 */
 	String NESTED_PROPERTY_SEPARATOR = ".";
 
 	/**
 	 * Path separator for nested properties.
+	 * 嵌套属性的路径分隔符
 	 * Follows normal Java conventions: getFoo().getBar() would be "foo.bar".
 	 */
 	char NESTED_PROPERTY_SEPARATOR_CHAR = '.';
@@ -49,30 +51,35 @@ public interface PropertyAccessor {
 	/**
 	 * Marker that indicates the start of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
+	 * 一个标记，指示索引或映射属性的属性键的开头，如“person.addresses[0]”
 	 */
 	String PROPERTY_KEY_PREFIX = "[";
 
 	/**
 	 * Marker that indicates the start of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
+	 * 一个标记，指示索引或映射属性的属性键的开头，如“person.addresses[0]”
 	 */
 	char PROPERTY_KEY_PREFIX_CHAR = '[';
 
 	/**
 	 * Marker that indicates the end of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
+	 * 一个标记，指示索引或者映射属性的属性键的结尾，如“person.addresses[0]”
 	 */
 	String PROPERTY_KEY_SUFFIX = "]";
 
 	/**
 	 * Marker that indicates the end of a property key for an
 	 * indexed or mapped property like "person.addresses[0]".
+	 * 一个标记，指示索引或者映射属性的属性键的结尾，如“person.addresses[0]”
 	 */
 	char PROPERTY_KEY_SUFFIX_CHAR = ']';
 
 
 	/**
 	 * Determine whether the specified property is readable.
+	 * 判断给定propertyName对应的属性对象是否可读，是否包含getter方法
 	 * <p>Returns {@code false} if the property doesn't exist.
 	 * @param propertyName the property to check
 	 * (may be a nested path and/or an indexed/mapped property)
@@ -82,6 +89,7 @@ public interface PropertyAccessor {
 
 	/**
 	 * Determine whether the specified property is writable.
+	 * 判断给定的propertyName对应的属性对象是否可写，是否包含setter方法
 	 * <p>Returns {@code false} if the property doesn't exist.
 	 * @param propertyName the property to check
 	 * (may be a nested path and/or an indexed/mapped property)
@@ -93,6 +101,7 @@ public interface PropertyAccessor {
 	 * Determine the property type for the specified property,
 	 * either checking the property descriptor or checking the value
 	 * in case of an indexed or mapped element.
+	 * 获取指定propertyName对应的属性对象的类型
 	 * @param propertyName the property to check
 	 * (may be a nested path and/or an indexed/mapped property)
 	 * @return the property type for the particular property,
@@ -131,6 +140,8 @@ public interface PropertyAccessor {
 
 	/**
 	 * Set the specified value as current property value.
+	 * 将给定的值设置为当前属性值
+	 * 设置指定propertyValue
 	 * @param propertyName the name of the property to set the value of
 	 * (may be a nested path and/or an indexed/mapped property)
 	 * @param value the new value

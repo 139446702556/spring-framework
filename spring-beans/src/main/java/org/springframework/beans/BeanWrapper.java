@@ -20,7 +20,13 @@ import java.beans.PropertyDescriptor;
 
 /**
  * The central interface of Spring's low-level JavaBeans infrastructure.
+ * BeanWrapper是加载资源文件初始化bean的时候从BeanDefinition到Bean的中间产物
+ * 我们可以成它为低级bean（此结构主要由spring来使用包装bean，是spring的重要组件）
+ * 我们一般通常不会使用到
+ * bean的实例化对象被实例化策略创建出来后，就会被BeanWrapper包裹起来
  *
+ * 低级javaBean基础结构的接口，通常被BeanFactory和DataBinder隐式使用
+ * 它用于分析和操作javaBeans
  * <p>Typically not used directly but rather implicitly via a
  * {@link org.springframework.beans.factory.BeanFactory} or a
  * {@link org.springframework.validation.DataBinder}.

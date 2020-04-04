@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
 /**
  * Encapsulates methods for registering JavaBeans {@link PropertyEditor PropertyEditors}.
  * This is the central interface that a {@link PropertyEditorRegistrar} operates on.
- *
+ * 用于注册javaBean的属性编辑器，核心作用的中心接口，由beanWrapper扩展，BeanWrapperImpl和DataBinder继承和实现
  * <p>Extended by {@link BeanWrapper}; implemented by {@link BeanWrapperImpl}
  * and {@link org.springframework.validation.DataBinder}.
  *

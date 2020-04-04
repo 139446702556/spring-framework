@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
  * Interface that encapsulates configuration methods for a PropertyAccessor.
  * Also extends the PropertyEditorRegistry interface, which defines methods
  * for PropertyEditor management.
- *
+ * 此接口除了实现下面三个接口外，还集成了ConversionService类型转换体系
  * <p>Serves as base interface for {@link BeanWrapper}.
  *
  * @author Juergen Hoeller
@@ -36,11 +36,13 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
 	/**
 	 * Specify a Spring 3.0 ConversionService to use for converting
 	 * property values, as an alternative to JavaBeans PropertyEditors.
+	 * 指定一个ConversionService来适用于转换属性值，代替propertyEditor
 	 */
 	void setConversionService(@Nullable ConversionService conversionService);
 
 	/**
 	 * Return the associated ConversionService, if any.
+	 * 返回相关的ConversionService对象
 	 */
 	@Nullable
 	ConversionService getConversionService();
