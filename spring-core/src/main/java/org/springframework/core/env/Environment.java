@@ -67,6 +67,10 @@ package org.springframework.core.env;
  * @see org.springframework.context.ConfigurableApplicationContext#getEnvironment
  * @see org.springframework.context.ConfigurableApplicationContext#setEnvironment
  * @see org.springframework.context.support.AbstractApplicationContext#createEnvironment
+ * 环境，Profile和PropertyResolver的组合
+ * Profile：剖面，只有激活的剖面组件/配置才会注册到springr容器，类似于spring boot 中的profile
+ * 表示当前应用程序正在运行的环境
+ * 不是所有的properties都会被加载到系统中，而是其属性要与profile一致的才能够被激活加载
  */
 public interface Environment extends PropertyResolver {
 
@@ -82,12 +86,14 @@ public interface Environment extends PropertyResolver {
 	 * @see #getDefaultProfiles
 	 * @see ConfigurableEnvironment#setActiveProfiles
 	 * @see AbstractEnvironment#ACTIVE_PROFILES_PROPERTY_NAME
+	 * 获取当前环境下激活的配置文件集
 	 */
 	String[] getActiveProfiles();
 
 	/**
 	 * Return the set of profiles to be active by default when no active profiles have
 	 * been set explicitly.
+	 * 返回当前环境下激活的配置文件集，如果未设置激活配置文件，则返回默认的激活的配置文件集
 	 * @see #getActiveProfiles
 	 * @see ConfigurableEnvironment#setDefaultProfiles
 	 * @see AbstractEnvironment#DEFAULT_PROFILES_PROPERTY_NAME

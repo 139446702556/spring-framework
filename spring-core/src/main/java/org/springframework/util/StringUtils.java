@@ -242,16 +242,22 @@ public abstract class StringUtils {
 	 * @param str the {@code String} to check
 	 * @return the trimmed {@code String}
 	 * @see java.lang.Character#isWhitespace
+	 * 去除给定字符串的空白字符
 	 */
 	public static String trimAllWhitespace(String str) {
+		//给定字符串为空，则直接返回
 		if (!hasLength(str)) {
 			return str;
 		}
-
+		//获取字符串长度
 		int len = str.length();
+		//创建len长度的字符串变量
 		StringBuilder sb = new StringBuilder(str.length());
+		//遍历给定字符串的所有字符
 		for (int i = 0; i < len; i++) {
+			//获取i位置的字符
 			char c = str.charAt(i);
+			//如果当前字符不是空白字符，则添加到sb中
 			if (!Character.isWhitespace(c)) {
 				sb.append(c);
 			}
@@ -1236,6 +1242,7 @@ public abstract class StringUtils {
 	/**
 	 * Convert a comma delimited list (e.g., a row from a CSV file) into an
 	 * array of strings.
+	 * 通过逗号来切割给定字符串，得到一个字符串数组
 	 * @param str the input {@code String} (potentially {@code null} or empty)
 	 * @return an array of strings, or the empty array in case of empty input
 	 */

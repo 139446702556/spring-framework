@@ -74,11 +74,11 @@ public class PropertyPlaceholderHelper {
 
 	/**
 	 * Creates a new {@code PropertyPlaceholderHelper} that uses the supplied prefix and suffix.
-	 * @param placeholderPrefix the prefix that denotes the start of a placeholder
-	 * @param placeholderSuffix the suffix that denotes the end of a placeholder
-	 * @param valueSeparator the separating character between the placeholder variable
+	 * @param placeholderPrefix the prefix that denotes the start of a placeholder 占位符前缀
+	 * @param placeholderSuffix the suffix that denotes the end of a placeholder 占位符后缀
+	 * @param valueSeparator the separating character between the placeholder variable 占位符和默认值之间的分隔符
 	 * and the associated default value, if any
-	 * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should
+	 * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should  是否可以忽略不能解析的占位符，true忽略，false抛出异常
 	 * be ignored ({@code true}) or cause an exception ({@code false})
 	 */
 	public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
@@ -117,8 +117,8 @@ public class PropertyPlaceholderHelper {
 	/**
 	 * Replaces all placeholders of format {@code ${name}} with the value returned
 	 * from the supplied {@link PlaceholderResolver}.
-	 * @param value the value containing the placeholders to be replaced
-	 * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement
+	 * @param value the value containing the placeholders to be replaced 待解析的字符串值
+	 * @param placeholderResolver the {@code PlaceholderResolver} to use for replacement 占位符解析器（占位符解析的策略类）
 	 * @return the supplied value with placeholders replaced inline
 	 */
 	public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
@@ -205,7 +205,7 @@ public class PropertyPlaceholderHelper {
 					throw new IllegalArgumentException("Could not resolve placeholder '" +
 							placeholder + "'" + " in value \"" + value + "\"");
 				}
-				//记录解析过的占位符
+				//移除visitedPlaceholders集合中解析过的占位符
 				visitedPlaceholders.remove(originalPlaceholder);
 			}
 			//未找到与占位符开始符号匹配的结束符，则结束循环解析占位符

@@ -21,7 +21,7 @@ import org.springframework.lang.Nullable;
 /**
  * {@link PropertyResolver} implementation that resolves property values against
  * an underlying set of {@link PropertySources}.
- *
+ * 此类为PropertyResolver接口的实现者，它对一组PropertySources提供属性解析服务
  * @author Chris Beams
  * @author Juergen Hoeller
  * @since 3.1
@@ -30,7 +30,7 @@ import org.springframework.lang.Nullable;
  * @see AbstractEnvironment
  */
 public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
-
+	//该变量内部存储着一组propertySource对象
 	@Nullable
 	private final PropertySources propertySources;
 
@@ -61,7 +61,10 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	public String getProperty(String key) {
 		return getProperty(key, String.class, true);
 	}
-
+	/**
+	 * 此方法是委托给getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders)
+	 * 方法来实现的
+	 */
 	@Override
 	@Nullable
 	public <T> T getProperty(String key, Class<T> targetValueType) {
@@ -73,28 +76,43 @@ public class PropertySourcesPropertyResolver extends AbstractPropertyResolver {
 	protected String getPropertyAsRawString(String key) {
 		return getProperty(key, String.class, false);
 	}
-
+	/**
+	 * key:获取的key
+	 * targetValueType:目标value的类型
+	 * resolveNestedPlaceholders：是否解析嵌套的占位符
+	 */
 	@Nullable
 	protected <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+		//属性源数组对象不为空
 		if (this.propertySources != null) {
+			//遍历propertySource数组
 			for (PropertySource<?> propertySource : this.propertySources) {
+				//记录日志
 				if (logger.isTraceEnabled()) {
 					logger.trace("Searching for key '" + key + "' in PropertySource '" +
 							propertySource.getName() + "'");
 				}
+				//通过给定的key获取对应的属性值
 				Object value = propertySource.getProperty(key);
+				//获取到了指定key对象的value值
 				if (value != null) {
+					//如果value属性值为字符串类型，并且支持解析嵌套占位符，则调用resolveNestedPlaceholders方法解析
+					//属性值中的占位符
 					if (resolveNestedPlaceholders && value instanceof String) {
 						value = resolveNestedPlaceholders((String) value);
 					}
+					//记录key的查找日志
 					logKeyFound(key, propertySource, value);
+					//转换value值到目标类型
 					return convertValueIfNecessary(value, targetValueType);
 				}
 			}
 		}
+		//如果未找到给定key对象的属性值，则记录日志
 		if (logger.isTraceEnabled()) {
 			logger.trace("Could not find key '" + key + "' in any property source");
 		}
+		//如果找不到给定key对应的属性值，默认返回null
 		return null;
 	}
 

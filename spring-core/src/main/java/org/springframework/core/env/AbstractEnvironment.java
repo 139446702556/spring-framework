@@ -51,6 +51,7 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  * @see ConfigurableEnvironment
  * @see StandardEnvironment
+ * 此类为Environment接口的基础实现类
  */
 public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
@@ -69,6 +70,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	/**
 	 * Name of property to set to specify active profiles: {@value}. Value may be comma
 	 * delimited.
+	 * 指定当前环境下活跃的配置文件的属性名称，值可以使用逗号分隔
 	 * <p>Note that certain shell environments such as Bash disallow the use of the period
 	 * character in variable names. Assuming that Spring's {@link SystemEnvironmentPropertySource}
 	 * is in use, this property may be specified as an environment variable as
@@ -85,6 +87,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * is in use, this property may be specified as an environment variable as
 	 * {@code SPRING_PROFILES_DEFAULT}.
 	 * @see ConfigurableEnvironment#setDefaultProfiles
+	 * 指定当前环境下默认使用的profile的属性名称，其对应的值可以使用逗号隔开
 	 */
 	public static final String DEFAULT_PROFILES_PROPERTY_NAME = "spring.profiles.default";
 
@@ -118,6 +121,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * {@link #customizePropertySources(MutablePropertySources)} during construction to
 	 * allow subclasses to contribute or manipulate {@link PropertySource} instances as
 	 * appropriate.
+	 * 创建一个新的Environment实例变量，并回调customizePropertySources(MutablePropertySources)方法
+	 * 以允许子类修改或者操作PropertySource实例对象
 	 * @see #customizePropertySources(MutablePropertySources)
 	 */
 	public AbstractEnvironment() {
@@ -199,6 +204,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * @see MutablePropertySources
 	 * @see PropertySourcesPropertyResolver
 	 * @see org.springframework.context.ApplicationContextInitializer
+	 * AbstractEnvironment抽象类为子类提供的钩子，使子类可以通过实现该方法，从而达到提供或者操作属性源
 	 */
 	protected void customizePropertySources(MutablePropertySources propertySources) {
 	}
@@ -218,7 +224,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	//---------------------------------------------------------------------
 	// Implementation of ConfigurableEnvironment interface
 	//---------------------------------------------------------------------
-
+	//当前方法将操作委托给doGetActiveProfiles()方法实现，如果此方法返回的活跃配置文件不为空，则直接返回；为空，则返回一个空数组
 	@Override
 	public String[] getActiveProfiles() {
 		return StringUtils.toStringArray(doGetActiveProfiles());
@@ -234,10 +240,15 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * 获取指定的spring.profiles.active属性的内容，并生成activeProfiles集合
 	 */
 	protected Set<String> doGetActiveProfiles() {
+		//锁住全局变量activeProfiles
 		synchronized (this.activeProfiles) {
+			//如果activeProfiles中不为空，则直接返回，否则进行初始化
 			if (this.activeProfiles.isEmpty()) {
+				//获取ACTIVE_PROFILES_PROPERTY_NAME值对应的profiles属性值（从当前解析器中注入的全部属性源中获取）
 				String profiles = getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
+				//如果获取到了profiles属性值
 				if (StringUtils.hasText(profiles)) {
+					//将获取到的profiles属性值设置到activeProfiles中
 					setActiveProfiles(StringUtils.commaDelimitedListToStringArray(
 							StringUtils.trimAllWhitespace(profiles)));
 				}
@@ -248,14 +259,21 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public void setActiveProfiles(String... profiles) {
+		//判断给定的profile数组必须不是null
 		Assert.notNull(profiles, "Profile array must not be null");
+		//记录操作日志
 		if (logger.isDebugEnabled()) {
 			logger.debug("Activating profiles " + Arrays.asList(profiles));
 		}
+		//因为存储活跃的profile的集合不是线程安全的，所以需要使用同步锁加锁
 		synchronized (this.activeProfiles) {
+			//清除掉集合中原有的老数据
 			this.activeProfiles.clear();
+			//遍历当前给定的profile数组
 			for (String profile : profiles) {
+				//校验profile
 				validateProfile(profile);
+				//将给定profile添加到activeProfiles中
 				this.activeProfiles.add(profile);
 			}
 		}
@@ -370,11 +388,15 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * @see #acceptsProfiles
 	 * @see #addActiveProfile
 	 * @see #setDefaultProfiles
+	 * 验证给定的配置文件
+	 * 当前类给定的校验profile的规则比较弱，子类继承之后可以提供更加严格的校验过程
 	 */
 	protected void validateProfile(String profile) {
+		//校验给定的profile不为空
 		if (!StringUtils.hasText(profile)) {
 			throw new IllegalArgumentException("Invalid profile [" + profile + "]: must contain text");
 		}
+		//校验给定的profile字符串不为！开头
 		if (profile.charAt(0) == '!') {
 			throw new IllegalArgumentException("Invalid profile [" + profile + "]: must not begin with ! operator");
 		}

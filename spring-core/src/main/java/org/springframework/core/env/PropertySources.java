@@ -23,7 +23,7 @@ import org.springframework.lang.Nullable;
 
 /**
  * Holder containing one or more {@link PropertySource} objects.
- *
+ * 该接口表示存储着一组PropertySource对象
  * @author Chris Beams
  * @author Juergen Hoeller
  * @since 3.1
