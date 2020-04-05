@@ -87,7 +87,10 @@ import org.springframework.util.StringUtils;
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.
- *
+ * 此类就是ConfigurableListableBeanFactory接口（其实就是BeanFactory）和BeanDefinitionRegistry接口的一个默认实现类
+ * 它是一个基于BeanDefinition元数据的完整Bean工厂
+ * 它相对SimpleBeanDefinitionRegistry来说，是一个具有注册功能的完整bean工厂
+ * 它同样也是一个基于ConcurrentHashMap数据结构来存储注册的BeanDefinition
  * <p>Typical usage is registering all bean definitions first (possibly read
  * from a bean definition file), before accessing beans. Bean lookup by name
  * is therefore an inexpensive operation in a local bean definition table,
@@ -164,7 +167,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/**
 	 * Map of bean definition objects, keyed by bean name.
-	 * BeanDefinition对象关系映射表
+	 * BeanDefinition对象关系映射表（注册表）
 	 * key：beanName
 	 * value：beanDefinition
 	 */
@@ -924,7 +927,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		//这是注册前的最后一次校验，主要是对methodOverrides属性进行校验
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
-				//校验此beanDefinition的methodOverrides属性是否有效
+				//校验此beanDefinition的methodOverrides属性是否有效，并设置方法对象中的重写/覆盖标识
 				((AbstractBeanDefinition) beanDefinition).validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -1007,30 +1010,37 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Override
 	public void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+		//判断给定beanName不为空
 		Assert.hasText(beanName, "'beanName' must not be empty");
-
+		//从注册表中移除beanName对应的数据
 		BeanDefinition bd = this.beanDefinitionMap.remove(beanName);
+		//移除失败（即当前注册表中不存在名称为beanName的BeanDefinition实例），则记录日志，抛出异常
 		if (bd == null) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("No bean named '" + beanName + "' found in " + this);
 			}
 			throw new NoSuchBeanDefinitionException(beanName);
 		}
-
+		//工厂是否已经开始创建bean对象了（即alreadyCreated缓存中是否已经有创建就绪的bean名称）
 		if (hasBeanCreationStarted()) {
 			// Cannot modify startup-time collection elements anymore (for stable iteration)
+			//如果此bean工厂开始创建了，则锁住全局注册表beanDefinitionMap对象
 			synchronized (this.beanDefinitionMap) {
+				//拷贝原有的beanName集合，移除给定的beanName，并重新赋值
 				List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames);
 				updatedDefinitions.remove(beanName);
 				this.beanDefinitionNames = updatedDefinitions;
 			}
 		}
+		//未开始创建
 		else {
 			// Still in startup registration phase
+			//直接移除beanDefinitionNames缓存中的给定beanName
 			this.beanDefinitionNames.remove(beanName);
 		}
+		//清空
 		this.frozenBeanDefinitionNames = null;
-
+		//重新设置beanName对应的缓存
 		resetBeanDefinition(beanName);
 	}
 
