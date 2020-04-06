@@ -54,6 +54,11 @@ import org.springframework.lang.Nullable;
  * @see ConfigurableApplicationContext
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.core.io.ResourceLoader
+ * 当前接口较BeanFactory相比：
+ * 1、继承了MessageSource，提供国际化的标准访问策略
+ * 2、继承了ApplicationEventPublisher，提供了强大的的事件机制
+ * 3、扩展了ResourceLoader，可以用来加载多个Resource，可以灵活访问不同的资源
+ * 4、对web应用的扩展
  */
 public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,
 		MessageSource, ApplicationEventPublisher, ResourcePatternResolver {

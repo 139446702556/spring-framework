@@ -48,6 +48,17 @@ import org.springframework.util.Assert;
  * @see #getResource
  * @see #getResourceByPath
  * @see GenericApplicationContext
+ * 此类相当于一个高级spring ioc容器，主要用于加载类路径下的指定xml资源文件，解析文件中的bean，将其加载并创建好放入容器中，等待后续使用
+ * 此类主要设计到的顶级接口：
+ * BeanFactory：spring 容器Bean的管理
+ * MessageSource：管理message，实现国际化等功能
+ * ApplicationEventPublisher：事件发布
+ * ResourcePatternResolver：资源加载
+ * EnvironmentCapable：系统Environment（profile+Properties）相关
+ * Lifecycle：管理声明周期
+ * Closeable：关闭，释放资源
+ * InitializingBean：自定义初始化
+ * BeanNameAware：设置BeanName的Aware接口
  */
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
 

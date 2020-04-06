@@ -37,6 +37,7 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
 
 	/**
 	 * Create a new PayloadApplicationEvent.
+	 * 创建一个新的PayloadApplicationEvent对象
 	 * @param source the object on which the event initially occurred (never {@code null})
 	 * @param payload the payload object (never {@code null})
 	 */

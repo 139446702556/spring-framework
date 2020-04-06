@@ -28,6 +28,7 @@ public interface Phased {
 
 	/**
 	 * Return the phase value of this object.
+	 * 返回该对象的相位值
 	 */
 	int getPhase();
 

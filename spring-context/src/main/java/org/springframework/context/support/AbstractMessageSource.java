@@ -69,7 +69,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 
 	@Nullable
 	private Properties commonMessages;
-
+	/**是否使用Code作为默认的信息*/
 	private boolean useCodeAsDefaultMessage = false;
 
 
@@ -127,6 +127,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 	 * Return whether to use the message code as default message instead of
 	 * throwing a NoSuchMessageException. Useful for development and debugging.
 	 * Default is "false".
+	 * 返回是否使用Code作为默认的信息
 	 * <p>Alternatively, consider overriding the {@link #getDefaultMessage}
 	 * method to return a custom fallback message for an unresolvable code.
 	 * @see #getDefaultMessage(String)
@@ -138,13 +139,17 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 
 	@Override
 	public final String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
+		//通过给定的代码和参数获取给定地区的内部信息
 		String msg = getMessageInternal(code, args, locale);
+		//如果获取成功，则直接返回
 		if (msg != null) {
 			return msg;
 		}
+		//如果给定的defaultMessage为null，则通过code获取默认信息并返回
 		if (defaultMessage == null) {
 			return getDefaultMessage(code);
 		}
+		//根据给定的args和locale对给定的默认信息进行区域性信息格式化，并返回
 		return renderDefaultMessage(defaultMessage, args, locale);
 	}
 
@@ -181,6 +186,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 
 
 	/**
+	 * 将给定的代码和参数解析为给定地区中的消息，如果没有找到的话，则返回null
 	 * Resolve the given code and arguments as message in the given Locale,
 	 * returning {@code null} if not found. Does <i>not</i> fall back to
 	 * the code as default message. Invoked by {@code getMessage} methods.
@@ -303,6 +309,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 	}
 
 	/**
+	 * 获取默认信息
 	 * Return a fallback default message for the given code, if any.
 	 * <p>Default is to return the code itself if "useCodeAsDefaultMessage" is activated,
 	 * or return no fallback else. In case of no fallback, the caller will usually
@@ -314,6 +321,7 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 	 */
 	@Nullable
 	protected String getDefaultMessage(String code) {
+		//如果使用Code作为默认信息，则直接返回给定code，否则返回null
 		if (isUseCodeAsDefaultMessage()) {
 			return code;
 		}

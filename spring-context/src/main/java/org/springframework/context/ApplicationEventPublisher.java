@@ -29,6 +29,7 @@ package org.springframework.context;
  * @see org.springframework.context.ApplicationEvent
  * @see org.springframework.context.event.ApplicationEventMulticaster
  * @see org.springframework.context.event.EventPublicationInterceptor
+ * 用于封装事件发布功能的接口，向事件监听器发送事件消息
  */
 @FunctionalInterface
 public interface ApplicationEventPublisher {

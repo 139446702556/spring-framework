@@ -171,7 +171,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Nullable
 	private ApplicationContext parent;
 
-	/** Environment used by this context. */
+	/** Environment used by this context. 在这个上下文中使用的环境变量 */
 	@Nullable
 	private ConfigurableEnvironment environment;
 
@@ -181,10 +181,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/** System time in milliseconds when this context started. */
 	private long startupDate;
 
-	/** Flag that indicates whether this context is currently active. */
+	/** Flag that indicates whether this context is currently active. 标记，指示此上下文当前是否处于活动状态 */
 	private final AtomicBoolean active = new AtomicBoolean();
 
-	/** Flag that indicates whether this context has been closed already. */
+	/** Flag that indicates whether this context has been closed already. 标记，指示当前上下文是否已经关闭  */
 	private final AtomicBoolean closed = new AtomicBoolean();
 
 	/** Synchronization monitor for the "refresh" and "destroy". */
@@ -199,25 +199,27 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	private ResourcePatternResolver resourcePatternResolver;
 
 	/** LifecycleProcessor for managing the lifecycle of beans within this context. */
+	/**用于在此上下文中管理bean的生命周期的生命周期处理器*/
 	@Nullable
 	private LifecycleProcessor lifecycleProcessor;
 
 	/** MessageSource we delegate our implementation of this interface to. */
+	/**我们将这个接口的实现委托给MessageSource，此属性主要用于管理信息，实现国际化等功能*/
 	@Nullable
 	private MessageSource messageSource;
 
-	/** Helper class used in event publishing. */
+	/** Helper class used in event publishing. 事件发布中使用的助手类 */
 	@Nullable
 	private ApplicationEventMulticaster applicationEventMulticaster;
 
-	/** Statically specified listeners. */
+	/** Statically specified listeners. 上下文中指定的监听器 */
 	private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
-	/** Local listeners registered before refresh. */
+	/** Local listeners registered before refresh.本地监听器在刷新之前注册 */
 	@Nullable
 	private Set<ApplicationListener<?>> earlyApplicationListeners;
 
-	/** ApplicationEvents published before the multicaster setup. */
+	/** ApplicationEvents published before the multicaster setup. ApplicationEvents在多播设置之前发布 */
 	@Nullable
 	private Set<ApplicationEvent> earlyApplicationEvents;
 
@@ -268,6 +270,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Set a friendly name for this context.
+	 * 为这个上下文设置一个友好的名称
 	 * Typically done during initialization of concrete context implementations.
 	 * <p>Default is the object id of the context instance.
 	 */
@@ -316,6 +319,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
+		//当前上下文对象中的环境变量为null，则创建一个StandarEnvironment对象
 		if (this.environment == null) {
 			this.environment = createEnvironment();
 		}
@@ -324,6 +328,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Create and return a new {@link StandardEnvironment}.
+	 * 创建并返回一个新的StandarEnvironment变量（适用于非web应用）
 	 * <p>Subclasses may override this method in order to supply
 	 * a custom {@link ConfigurableEnvironment} implementation.
 	 */
@@ -351,6 +356,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Publish the given event to all listeners.
+	 * 发布给定的事件到全部监听者
 	 * <p>Note: Listeners get initialized after the MessageSource, to be able
 	 * to access it within listener implementations. Thus, MessageSource
 	 * implementations cannot publish events.
@@ -364,6 +370,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Publish the given event to all listeners.
+	 * 发布给定的事件到全部监听者
 	 * <p>Note: Listeners get initialized after the MessageSource, to be able
 	 * to access it within listener implementations. Thus, MessageSource
 	 * implementations cannot publish events.
@@ -377,35 +384,47 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Publish the given event to all listeners.
+	 * 发布给定的事件到全部监听者
 	 * @param event the event to publish (may be an {@link ApplicationEvent}
 	 * or a payload object to be turned into a {@link PayloadApplicationEvent})
 	 * @param eventType the resolved event type, if known
 	 * @since 4.2
 	 */
 	protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
+		//断言给定的事件不能为空
 		Assert.notNull(event, "Event must not be null");
 
 		// Decorate event as an ApplicationEvent if necessary
+		//必要时将事件装饰未ApplicationEvent
 		ApplicationEvent applicationEvent;
+		//如果给定event事件为ApplicationEvent类型
 		if (event instanceof ApplicationEvent) {
+			//强转赋值给applicationEvent变量
 			applicationEvent = (ApplicationEvent) event;
 		}
 		else {
+			//创建一个新的PayloadApplicationEvent对象
 			applicationEvent = new PayloadApplicationEvent<>(this, event);
+			//如果给定的事件类型为null
 			if (eventType == null) {
+				//获取当前的applicationEvent的事件类型
 				eventType = ((PayloadApplicationEvent<?>) applicationEvent).getResolvableType();
 			}
 		}
 
 		// Multicast right now if possible - or lazily once the multicaster is initialized
+		//如果可以的话现在就多播，或者在初始化多播之后延迟多播
 		if (this.earlyApplicationEvents != null) {
+			//将applicationEvent添加到earlyApplicationEvents中
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+			//多播给定的应用程序事件到全部监听者
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
 		// Publish event via parent context as well...
+		//如果当前的上下文存在父类上下文，则要将当前给定event事件发布给父类上下文的所有的监听者
 		if (this.parent != null) {
 			if (this.parent instanceof AbstractApplicationContext) {
 				((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
@@ -418,6 +437,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Return the internal ApplicationEventMulticaster used by the context.
+	 * 返回上下文内部使用的ApplicationEventMulticaster对象
 	 * @return the internal ApplicationEventMulticaster (never {@code null})
 	 * @throws IllegalStateException if the context has not been initialized yet
 	 */
@@ -970,6 +990,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Close this application context, destroying all beans in its bean factory.
+	 * 关闭当前的applicationContext，同时销毁beanFactory中全部的bean对象
+	 * 如果注册了jvm shutdown hook，则也要移除这个关闭钩子
 	 * <p>Delegates to {@code doClose()} for the actual closing procedure.
 	 * Also removes a JVM shutdown hook, if registered, as it's not needed anymore.
 	 * @see #doClose()
@@ -977,12 +999,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	@Override
 	public void close() {
+		//全局加锁
 		synchronized (this.startupShutdownMonitor) {
+			//关闭应用程序上下文，同时销毁所有的bean对象
 			doClose();
 			// If we registered a JVM shutdown hook, we don't need it anymore now:
 			// We've already explicitly closed the context.
+			//如果注册了jvm shutdown hook
 			if (this.shutdownHook != null) {
 				try {
+					//移除掉注册的jvm shutdown hook（其实就是从运行时当中记录钩子的容器中，将当前钩子移除）
 					Runtime.getRuntime().removeShutdownHook(this.shutdownHook);
 				}
 				catch (IllegalStateException ex) {
@@ -1003,15 +1029,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void doClose() {
 		// Check whether an actual close attempt is necessary...
+		//如果当前上下文处于活跃状态，并且通过cas设置关闭状态值成功
 		if (this.active.get() && this.closed.compareAndSet(false, true)) {
+			//记录执行日志
 			if (logger.isDebugEnabled()) {
 				logger.debug("Closing " + this);
 			}
-
+			//注销当前应用程序上下文对象
 			LiveBeansView.unregisterApplicationContext(this);
 
 			try {
 				// Publish shutdown event.
+				//发布上下文关闭事件给全部监听器
 				publishEvent(new ContextClosedEvent(this));
 			}
 			catch (Throwable ex) {
@@ -1019,6 +1048,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			// Stop all Lifecycle beans, to avoid delays during individual destruction.
+			//如果lifecycleProcessor不为null，则停止全部Lifecycle bean对象
 			if (this.lifecycleProcessor != null) {
 				try {
 					this.lifecycleProcessor.onClose();
@@ -1029,21 +1059,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 
 			// Destroy all cached singletons in the context's BeanFactory.
+			//从当前上下文的beanFactory中销毁全部的单例缓存对象
 			destroyBeans();
 
 			// Close the state of this context itself.
+			// 关闭上下文本身的状态（关闭当前上下文中的bean工厂）
 			closeBeanFactory();
 
 			// Let subclasses do some final clean-up if they wish...
+			//让子类做一些最后的清理工作，此方法为模板方法，当前类未实现，交由子类实现
 			onClose();
 
 			// Reset local application listeners to pre-refresh state.
+			//将本地应用程序监听器重置为预刷新状态
+			//如果早期应用程序监听器存在监听器
 			if (this.earlyApplicationListeners != null) {
+				//清除当前所有的本地监听器
 				this.applicationListeners.clear();
+				//将预刷新监听器添加到applicationListeners中
 				this.applicationListeners.addAll(this.earlyApplicationListeners);
 			}
 
 			// Switch to inactive.
+			//将上下文的活跃状态设置为false
 			this.active.set(false);
 		}
 	}
@@ -1294,7 +1332,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	//---------------------------------------------------------------------
 	// Implementation of MessageSource interface
 	//---------------------------------------------------------------------
-
+	/**该类的getMessage方法实际是委托给MessageSource对象中的getMessage方法来实现（其具体的实现在AbstractMessageSource类中）*/
 	@Override
 	public String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale) {
 		return getMessageSource().getMessage(code, args, defaultMessage, locale);
@@ -1312,10 +1350,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/**
 	 * Return the internal MessageSource used by the context.
+	 * 返回当前上下文内部的messageSource对象
 	 * @return the internal MessageSource (never {@code null})
 	 * @throws IllegalStateException if the context has not been initialized yet
 	 */
 	private MessageSource getMessageSource() throws IllegalStateException {
+		//判断如果messageSource对象为空，则抛出异常，否则返回
 		if (this.messageSource == null) {
 			throw new IllegalStateException("MessageSource not initialized - " +
 					"call 'refresh' before accessing messages via the context: " + this);
@@ -1337,7 +1377,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	//---------------------------------------------------------------------
 	// Implementation of ResourcePatternResolver interface
 	//---------------------------------------------------------------------
-
+	/**AbstractApplicationContext的getResources方法委托给了resourcePatternResolver（该对象实现类为PathMatchingResourcePatternResolver）对象来实现*/
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		return this.resourcePatternResolver.getResources(locationPattern);
@@ -1347,16 +1387,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	//---------------------------------------------------------------------
 	// Implementation of Lifecycle interface
 	//---------------------------------------------------------------------
-
+	/**AbstractApplicationContext的Lifecycle接口的相关方法的实现是委托lifecycleProcessor来进行处理的*/
 	@Override
 	public void start() {
+		//委托lifecycleProcessor对象开启组件
 		getLifecycleProcessor().start();
+		//发送上下文开启事件给全部的监听者
 		publishEvent(new ContextStartedEvent(this));
 	}
 
 	@Override
 	public void stop() {
+		//委托lifecycleProcessor对象来暂停组件
 		getLifecycleProcessor().stop();
+		//发送上下文停止事件给全部的监听者
 		publishEvent(new ContextStoppedEvent(this));
 	}
 

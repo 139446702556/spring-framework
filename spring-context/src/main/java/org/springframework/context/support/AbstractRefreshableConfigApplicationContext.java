@@ -135,11 +135,15 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	/**
 	 * Sets the id of this context to the bean name by default,
 	 * for cases where the context instance is itself defined as a bean.
+	 * 默认情况下，将此上下文的id设置为beanName，用于上下文实例本身定义为bean的情况
 	 */
 	@Override
 	public void setBeanName(String name) {
+		//如果当前上下文本身定义为bean，并且没有设置id
 		if (!this.setIdCalled) {
+			//将当前的上下文id设置为beanName
 			super.setId(name);
+			//设置当前上下文显示的名称为ApplicationContext+BeanName
 			setDisplayName("ApplicationContext '" + name + "'");
 		}
 	}
@@ -147,9 +151,11 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	/**
 	 * Triggers {@link #refresh()} if not refreshed in the concrete context's
 	 * constructor already.
+	 * 如果尚未在具体上下文的构造函数中刷新，则在此处触发refresh方法，执行spring ioc容器的初始化过程
 	 */
 	@Override
 	public void afterPropertiesSet() {
+		//判断当前应用程序上下文是否活跃，如果未激活，则调用refresh方法来激活当前上下文
 		if (!isActive()) {
 			refresh();
 		}

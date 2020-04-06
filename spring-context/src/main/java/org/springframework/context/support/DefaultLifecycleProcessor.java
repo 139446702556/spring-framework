@@ -138,19 +138,27 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	// Internal helpers
 
 	private void startBeans(boolean autoStartupOnly) {
+		//获取实现了Lifecycle接口的类的实例化bean对象
 		Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
 		Map<Integer, LifecycleGroup> phases = new HashMap<>();
+		//迭代lifecycleBeans
 		lifecycleBeans.forEach((beanName, bean) -> {
+			//如果给定参数不是自动开启或者当前bean是SmartLifecycle类的实例并且当前bean是自动开启的
 			if (!autoStartupOnly || (bean instanceof SmartLifecycle && ((SmartLifecycle) bean).isAutoStartup())) {
+				//获取当前bean声明周期的阶段值
 				int phase = getPhase(bean);
+				//获取对应的生命周期组
 				LifecycleGroup group = phases.get(phase);
+				//如果为null，则实例化，并将其和phase的对应关系添加到phases中
 				if (group == null) {
 					group = new LifecycleGroup(phase, this.timeoutPerShutdownPhase, lifecycleBeans, autoStartupOnly);
 					phases.put(phase, group);
 				}
+				//将当前bean添加到对应组中
 				group.add(beanName, bean);
 			}
 		});
+		//如果phases不为空，则按照phases中数据的阶段值给其进行排序，然后迭代开启每个生命周期组中的所有bean对象
 		if (!phases.isEmpty()) {
 			List<Integer> keys = new ArrayList<>(phases.keySet());
 			Collections.sort(keys);
@@ -276,17 +284,27 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	 * @return the Map of applicable beans, with bean names as keys and bean instances as values
 	 */
 	protected Map<String, Lifecycle> getLifecycleBeans() {
+		//获取当前上下文的beanFactory
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+		//用于存储表示生命周期的bean（即实现了Lifecycle接口的类实例对象）
 		Map<String, Lifecycle> beans = new LinkedHashMap<>();
+		//从beanFactory中获取Lifecycle类型的bean对象的名称
 		String[] beanNames = beanFactory.getBeanNamesForType(Lifecycle.class, false, false);
+		//迭代beanNames
 		for (String beanName : beanNames) {
+			//转换给定的beanName为标准的bean名称
 			String beanNameToRegister = BeanFactoryUtils.transformedBeanName(beanName);
+			//判断当前beanName对应的bean对象是否为FactoryBean
 			boolean isFactoryBean = beanFactory.isFactoryBean(beanNameToRegister);
+			//根据是否为FactoryBean来组装beanName
 			String beanNameToCheck = (isFactoryBean ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);
+			//判断当前bean类型是否与Lifecycle匹配
 			if ((beanFactory.containsSingleton(beanNameToRegister) &&
 					(!isFactoryBean || matchesBeanType(Lifecycle.class, beanNameToCheck, beanFactory))) ||
 					matchesBeanType(SmartLifecycle.class, beanNameToCheck, beanFactory)) {
+				//获取beanName对应的bean对象
 				Object bean = beanFactory.getBean(beanNameToCheck);
+				//如果此bean不是当前对象，并且为Lifecycle类型实例，则将其添加到beans中
 				if (bean != this && bean instanceof Lifecycle) {
 					beans.put(beanNameToRegister, (Lifecycle) bean);
 				}
@@ -302,6 +320,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
 	/**
 	 * Determine the lifecycle phase of the given bean.
+	 * 确定给定bean的声明周期的阶段
 	 * <p>The default implementation checks for the {@link Phased} interface, using
 	 * a default of 0 otherwise. Can be overridden to apply other/further policies.
 	 * @param bean the bean to introspect
@@ -310,6 +329,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 	 * @see SmartLifecycle
 	 */
 	protected int getPhase(Lifecycle bean) {
+		//如果bean为Phased的实例，则返回相位值，否则返回0
 		return (bean instanceof Phased ? ((Phased) bean).getPhase() : 0);
 	}
 

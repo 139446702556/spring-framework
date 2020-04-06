@@ -52,6 +52,9 @@ public abstract class MessageSourceSupport {
 	 * Cache to hold already generated MessageFormats per message.
 	 * Used for passed-in default messages. MessageFormats for resolved
 	 * codes are cached on a specific basis in subclasses.
+	 * 缓存保存已生成的每个信息的消息格式
+	 * key：某个需要格式化的信息
+	 * value：是一个map格式，其中key：用于格式化的区域设置 value:信息格式
 	 */
 	private final Map<String, Map<Locale, MessageFormat>> messageFormatsPerMessage = new HashMap<>();
 
@@ -77,6 +80,7 @@ public abstract class MessageSourceSupport {
 	/**
 	 * Return whether to always apply the MessageFormat rules, parsing even
 	 * messages without arguments.
+	 * 返回是否总是应用MessageFormat规则，甚至在没有参数的情况下解析消息
 	 */
 	protected boolean isAlwaysUseMessageFormat() {
 		return this.alwaysUseMessageFormat;
@@ -105,28 +109,39 @@ public abstract class MessageSourceSupport {
 	 * Format the given message String, using cached MessageFormats.
 	 * By default invoked for passed-in default messages, to resolve
 	 * any argument placeholders found in them.
-	 * @param msg the message to format
+	 * @param msg the message to format 要格式化的信息
 	 * @param args array of arguments that will be filled in for params within
 	 * the message, or {@code null} if none
-	 * @param locale the Locale used for formatting
-	 * @return the formatted message (with resolved arguments)
+	 * 将在消息中为参数填充的参数数组，如果没有参数则为null
+	 * @param locale the Locale used for formatting 用于格式化的区域设置
+	 * @return the formatted message (with resolved arguments) 格式话之后的信息
 	 */
 	protected String formatMessage(String msg, @Nullable Object[] args, Locale locale) {
+		//如果不只使用MessageFormat规则解析，并且给定参数为空，则直接返回给定msg信息
 		if (!isAlwaysUseMessageFormat() && ObjectUtils.isEmpty(args)) {
 			return msg;
 		}
 		MessageFormat messageFormat = null;
+		//全局锁
 		synchronized (this.messageFormatsPerMessage) {
+			//从缓存中获取当前信息对应的map
 			Map<Locale, MessageFormat> messageFormatsPerLocale = this.messageFormatsPerMessage.get(msg);
+			//如果获取的map不为空
 			if (messageFormatsPerLocale != null) {
+				//则获取当前信息对应的给定区域的信息格式
 				messageFormat = messageFormatsPerLocale.get(locale);
 			}
+			//如果未获取到给定信息对应的map
 			else {
+				//初始化
 				messageFormatsPerLocale = new HashMap<>();
+				//将给定信息和map添加到缓存中
 				this.messageFormatsPerMessage.put(msg, messageFormatsPerLocale);
 			}
+			//如果未获取到当前信息和给定区域对应的信息格式
 			if (messageFormat == null) {
 				try {
+					//根据给定信息和给定区域对象创建一个新的MessageFormat对象
 					messageFormat = createMessageFormat(msg, locale);
 				}
 				catch (IllegalArgumentException ex) {
@@ -136,15 +151,20 @@ public abstract class MessageSourceSupport {
 						throw ex;
 					}
 					// Silently proceed with raw message if format not enforced...
+					//如果创建MessageFormat时抛出异常，则使用默认的信息格式
 					messageFormat = INVALID_MESSAGE_FORMAT;
 				}
+				//将区域对象和信息格式的关系添加到缓存中
 				messageFormatsPerLocale.put(locale, messageFormat);
 			}
 		}
+		//如果messageFormat等于默认的信息格式，则说明创建时发生了异常，则直接返回原给定信息msg
 		if (messageFormat == INVALID_MESSAGE_FORMAT) {
 			return msg;
 		}
+		//如果存在messageFormat对象，则同步锁锁住该对象
 		synchronized (messageFormat) {
+			//使用messageFormat对给定的msg信息进行格式化，并返回
 			return messageFormat.format(resolveArguments(args, locale));
 		}
 	}
@@ -161,6 +181,7 @@ public abstract class MessageSourceSupport {
 
 	/**
 	 * Template method for resolving argument objects.
+	 * 用于解析参数对象的模板方法
 	 * <p>The default implementation simply returns the given argument array as-is.
 	 * Can be overridden in subclasses in order to resolve special argument types.
 	 * @param args the original argument array

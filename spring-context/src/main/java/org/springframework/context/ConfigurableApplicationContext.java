@@ -36,6 +36,9 @@ import org.springframework.lang.Nullable;
  * making them obvious to ApplicationContext client code. The present
  * methods should only be used by startup and shutdown code.
  *
+ * 此接口定义的操作皆是对ApplicationContext进行配置的
+ *
+ *  Closeable接口：它是jdk提供的一个接口，用于最后关闭组件释放资源等
  * @author Juergen Hoeller
  * @author Chris Beams
  * @since 03.11.2003
@@ -89,12 +92,15 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 
 	/**
 	 * Set the unique id of this application context.
+	 * 为ApplicationContext设置唯一id
 	 * @since 3.0
 	 */
 	void setId(String id);
 
 	/**
 	 * Set the parent of this application context.
+	 * 为ApplicationContext设置parent的应用程序上下文
+	 * 父类不应该被修改：如果创建的对象不可用时，则应该在构造函数外部设置它
 	 * <p>Note that the parent shouldn't be changed: It should only be set outside
 	 * a constructor if it isn't available when an object of this class is created,
 	 * for example in case of WebApplicationContext setup.
@@ -105,6 +111,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 
 	/**
 	 * Set the {@code Environment} for this application context.
+	 * 为ApplicationContext设置Environment
 	 * @param environment the new environment
 	 * @since 3.1
 	 */
@@ -113,6 +120,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	/**
 	 * Return the {@code Environment} for this application context in configurable
 	 * form, allowing for further customization.
+	 * 从ApplicationContext中获取配置的Environment
 	 * @since 3.1
 	 */
 	@Override
@@ -122,6 +130,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * Add a new BeanFactoryPostProcessor that will get applied to the internal
 	 * bean factory of this application context on refresh, before any of the
 	 * bean definitions get evaluated. To be invoked during context configuration.
+	 * 添加BeanFactoryPostProcessor
 	 * @param postProcessor the factory processor to register
 	 */
 	void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor);
@@ -132,6 +141,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * <p>Note that any ApplicationListener registered here will be applied
 	 * on refresh if the context is not active yet, or on the fly with the
 	 * current event multicaster in case of a context that is already active.
+	 * 添加ApplicationListener
 	 * @param listener the ApplicationListener to register
 	 * @see org.springframework.context.event.ContextRefreshedEvent
 	 * @see org.springframework.context.event.ContextClosedEvent
@@ -143,6 +153,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * allowing for additional resource protocols to be handled.
 	 * <p>Any such resolver will be invoked ahead of this context's standard
 	 * resolution rules. It may therefore also override any default rules.
+	 * 添加ProtocolResolver
 	 * @since 4.3
 	 */
 	void addProtocolResolver(ProtocolResolver resolver);
@@ -153,6 +164,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * <p>As this is a startup method, it should destroy already created singletons
 	 * if it fails, to avoid dangling resources. In other words, after invocation
 	 * of that method, either all or no singletons at all should be instantiated.
+	 * 加载或者刷新配置
+	 * 这个是一个非常重要的方法，此方法为初始化ApplicationContext时主要的方法，此方法用来设置上下文相关信息，
+	 * 扫描并自动添加各种处理器，初始化bean对象等操作
 	 * @throws BeansException if the bean factory could not be initialized
 	 * @throws IllegalStateException if already initialized and multiple refresh
 	 * attempts are not supported
@@ -162,10 +176,13 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	/**
 	 * Register a shutdown hook with the JVM runtime, closing this context
 	 * on JVM shutdown unless it has already been closed at that time.
+	 * 向jvm运行时注册一个关闭钩子，在jvm关闭时使用这个钩子关闭这个上下文，除非此上下文已经关闭了
 	 * <p>This method can be called multiple times. Only one shutdown hook
 	 * (at max) will be registered for each context instance.
+	 *
 	 * @see java.lang.Runtime#addShutdownHook
 	 * @see #close()
+	 * 注册 shutdown hook（关闭钩子）
 	 */
 	void registerShutdownHook();
 
@@ -176,6 +193,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * parent contexts have their own, independent lifecycle.
 	 * <p>This method can be called multiple times without side effects: Subsequent
 	 * {@code close} calls on an already closed context will be ignored.
+	 * 关闭ApplicationContext
 	 */
 	@Override
 	void close();
@@ -183,6 +201,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	/**
 	 * Determine whether this application context is active, that is,
 	 * whether it has been refreshed at least once and has not been closed yet.
+	 * 判断当前ApplicationContext是否处于活跃状态
 	 * @return whether the context is still active
 	 * @see #refresh()
 	 * @see #close()
@@ -200,6 +219,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * is active, that is, in-between {@link #refresh()} and {@link #close()}.
 	 * The {@link #isActive()} flag can be used to check whether the context
 	 * is in an appropriate state.
+	 * 获取当前应用程序上下文的BeanFactory
 	 * @return the underlying bean factory
 	 * @throws IllegalStateException if the context does not hold an internal
 	 * bean factory (usually if {@link #refresh()} hasn't been called yet or

@@ -36,10 +36,12 @@ public abstract class ApplicationEvent extends EventObject {
 
 	/**
 	 * Create a new ApplicationEvent.
+	 * 创建一个新的ApplicationEvent对象
 	 * @param source the object on which the event initially occurred (never {@code null})
 	 */
 	public ApplicationEvent(Object source) {
 		super(source);
+		//记录当前创建的时间戳
 		this.timestamp = System.currentTimeMillis();
 	}
 

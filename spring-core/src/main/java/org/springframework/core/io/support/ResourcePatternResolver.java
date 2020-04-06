@@ -50,6 +50,7 @@ import org.springframework.core.io.ResourceLoader;
  * @see org.springframework.core.io.ResourceLoader
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ * 将给定的location（资源地址）解析为Resource对象的策略接口
  */
 public interface ResourcePatternResolver extends ResourceLoader {
 

@@ -88,13 +88,18 @@ public class LiveBeansView implements LiveBeansViewMBean, ApplicationContextAwar
 			}
 		}
 	}
-
+	/**注销应用程序上下文*/
 	static void unregisterApplicationContext(ConfigurableApplicationContext applicationContext) {
+		//锁住当前全部存活的应用程序上下文集合对象
 		synchronized (applicationContexts) {
+			//从applicationContexts中移除当前上下文，并且判断当前applicationContexts是否为空集合
 			if (applicationContexts.remove(applicationContext) && applicationContexts.isEmpty()) {
 				try {
+					//获取平台的MBean服务器
 					MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+					//从当前上下文环境中获取MBEAN_DOMAIN_PROPERTY_NAME属性值（mbean的域）
 					String mbeanDomain = applicationContext.getEnvironment().getProperty(MBEAN_DOMAIN_PROPERTY_NAME);
+					//如果mbeanDomain不为空，则从MBean服务器中注销当前域指定的MBean
 					if (mbeanDomain != null) {
 						server.unregisterMBean(new ObjectName(mbeanDomain, MBEAN_APPLICATION_KEY, applicationName));
 					}
@@ -103,6 +108,7 @@ public class LiveBeansView implements LiveBeansViewMBean, ApplicationContextAwar
 					throw new ApplicationContextException("Failed to unregister LiveBeansView MBean", ex);
 				}
 				finally {
+					//清空缓存记录的应用程序名称
 					applicationName = null;
 				}
 			}

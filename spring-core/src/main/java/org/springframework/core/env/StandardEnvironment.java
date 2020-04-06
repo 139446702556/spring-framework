@@ -50,6 +50,7 @@ package org.springframework.core.env;
  * @see ConfigurableEnvironment
  * @see SystemEnvironmentPropertySource
  * @see org.springframework.web.context.support.StandardServletEnvironment
+ * 是一个适用于非web应用的Environment
  */
 public class StandardEnvironment extends AbstractEnvironment {
 

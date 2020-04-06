@@ -112,6 +112,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
+ * spring管理Bean的顶层接口，可以认为其是一个简易版的spring容器，ApplicationContext继承了其的两个子接口
  */
 public interface BeanFactory {
 

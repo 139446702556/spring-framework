@@ -31,7 +31,8 @@ import org.springframework.lang.Nullable;
  * invocation of the {@link #refresh} method inherited from
  * {@link org.springframework.context.ConfigurableApplicationContext}.
  * They do not cause an initialization of the context on their own.
- *
+ * 该接口合并了下面两个接口，提供了一个可配置、可管理、可关闭的WebApplicationContext
+ * 同时还增加了一些方法，用于装配WebApplicationContext
  * @author Juergen Hoeller
  * @since 05.12.2003
  * @see #refresh
@@ -57,6 +58,7 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
 	 * <p>Does not cause an initialization of the context: refresh needs to be
 	 * called after the setting of all configuration properties.
 	 * @see #refresh()
+	 * 设置ServletContext对象
 	 */
 	void setServletContext(@Nullable ServletContext servletContext);
 
@@ -64,11 +66,13 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
 	 * Set the ServletConfig for this web application context.
 	 * Only called for a WebApplicationContext that belongs to a specific Servlet.
 	 * @see #refresh()
+	 * 设置ServletConfig对象
 	 */
 	void setServletConfig(@Nullable ServletConfig servletConfig);
 
 	/**
 	 * Return the ServletConfig for this web application context, if any.
+	 * 从当前WebApplicationContext中获取ServletConfig对象
 	 */
 	@Nullable
 	ServletConfig getServletConfig();
@@ -77,11 +81,13 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
 	 * Set the namespace for this web application context,
 	 * to be used for building a default context config location.
 	 * The root web application context does not have a namespace.
+	 * 设置NameSpace
 	 */
 	void setNamespace(@Nullable String namespace);
 
 	/**
 	 * Return the namespace for this web application context, if any.
+	 * 获取当前web应用程序上下文的namespace
 	 */
 	@Nullable
 	String getNamespace();
@@ -91,6 +97,7 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
 	 * i.e. with distinct locations separated by commas, semicolons or whitespace.
 	 * <p>If not set, the implementation is supposed to use a default for the
 	 * given namespace or the root web application context, as appropriate.
+	 * 设置单条ConfigLocation
 	 */
 	void setConfigLocation(String configLocation);
 
@@ -98,12 +105,14 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
 	 * Set the config locations for this web application context.
 	 * <p>If not set, the implementation is supposed to use a default for the
 	 * given namespace or the root web application context, as appropriate.
+	 * 批量设置配置路径
 	 */
 	void setConfigLocations(String... configLocations);
 
 	/**
 	 * Return the config locations for this web application context,
 	 * or {@code null} if none specified.
+	 * 获取web上下文对象中的配置路径，如果没有则返回null
 	 */
 	@Nullable
 	String[] getConfigLocations();

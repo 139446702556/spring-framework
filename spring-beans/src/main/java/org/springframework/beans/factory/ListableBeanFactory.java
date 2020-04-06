@@ -48,7 +48,7 @@ import org.springframework.lang.Nullable;
  * <p><b>NOTE:</b> With the exception of {@code getBeanDefinitionCount}
  * and {@code containsBeanDefinition}, the methods in this interface
  * are not designed for frequent invocation. Implementations may be slow.
- *
+ * 此接口实现了枚举的方法，可以列举出当前beanFactory中所有的bean对象，而不必根据name一个一个的获取
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @since 16 April 2001

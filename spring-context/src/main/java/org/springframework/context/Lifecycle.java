@@ -39,7 +39,7 @@ package org.springframework.context;
  * interface will remain undetected and hence ignored. Also, note that the extended
  * {@link SmartLifecycle} interface provides sophisticated integration with the
  * application context's startup and shutdown phases.
- *
+ * 此接口定义为对Context生命周期的管理，它提供的start和stop方法用来启动和暂停组件
  * @author Juergen Hoeller
  * @since 2.0
  * @see SmartLifecycle
