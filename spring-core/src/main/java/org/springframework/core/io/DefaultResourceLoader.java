@@ -135,6 +135,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 	/**
 	 * Clear all resource caches in this resource loader.
+	 * 清除此资源加载程序中的所有资源缓存
 	 * @since 5.0
 	 * @see #getResourceCache
 	 */

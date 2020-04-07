@@ -993,7 +993,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected boolean hasDestructionAwareBeanPostProcessors() {
 		return this.hasDestructionAwareBeanPostProcessors;
 	}
-
+	/**将给定的作用域对象注册到当前容器的缓存中scopes，除了单例模式和原型模式*/
 	@Override
 	public void registerScope(String scopeName, Scope scope) {
 		Assert.notNull(scopeName, "Scope identifier must not be null");

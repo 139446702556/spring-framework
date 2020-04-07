@@ -87,6 +87,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 	/**
 	 * Return the current task executor for this multicaster.
+	 * 返回此广播器的当前任务执行器
 	 */
 	@Nullable
 	protected Executor getTaskExecutor() {

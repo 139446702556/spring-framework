@@ -193,6 +193,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
 	 * Set whether or not the XML parser should be XML namespace aware.
+	 * 设置xml解析器是否应该支持xml命名空间，默认为false
 	 * Default is "false".
 	 * <p>This is typically not needed when schema validation is active.
 	 * However, without validation, this has to be switched to "true"
@@ -259,6 +260,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
 	 * Set a SAX entity resolver to be used for parsing.
+	 * 设置一个用于解析的SAX实体解析器
 	 * <p>By default, {@link ResourceEntityResolver} will be used. Can be overridden
 	 * for custom entity resolution, for example relative to some specific base path.
 	 */

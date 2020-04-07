@@ -167,6 +167,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	 * 加载或者刷新配置
 	 * 这个是一个非常重要的方法，此方法为初始化ApplicationContext时主要的方法，此方法用来设置上下文相关信息，
 	 * 扫描并自动添加各种处理器，初始化bean对象等操作
+	 * 此方法的作用：刷新spring的应用上下文
 	 * @throws BeansException if the bean factory could not be initialized
 	 * @throws IllegalStateException if already initialized and multiple refresh
 	 * attempts are not supported

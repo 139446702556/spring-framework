@@ -122,15 +122,23 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		//判断当前上下文中是否有beanaFactory，如果有，则销毁它的bean们，并关闭beanFactory
 		if (hasBeanFactory()) {
+			//销毁bean对象们（从单例缓存、依赖缓存等bean的缓存清除所有上下文相关bean）
 			destroyBeans();
+			//关闭beanFactory
 			closeBeanFactory();
 		}
 		try {
+			//创建BeanFactory对象
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
+			//使用上下文的id来设置beanFactory的序列化编号
 			beanFactory.setSerializationId(getId());
+			//自定义beanFactory设置相关属性
 			customizeBeanFactory(beanFactory);
+			//加载BeanDefinition们
 			loadBeanDefinitions(beanFactory);
+			//锁住beanFactory的监视器，设置当前Context上下文的beanFactory
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
 			}
@@ -152,6 +160,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 	@Override
 	protected final void closeBeanFactory() {
+		//增加全局锁，清空当前上下文中的BeanFactory以及相关参数
 		synchronized (this.beanFactoryMonitor) {
 			if (this.beanFactory != null) {
 				this.beanFactory.setSerializationId(null);
@@ -165,6 +174,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * i.e. has been refreshed at least once and not been closed yet.
 	 */
 	protected final boolean hasBeanFactory() {
+		//锁住beanFactory的监控器，并判断当前上下文中的beanFactory是否为null
 		synchronized (this.beanFactoryMonitor) {
 			return (this.beanFactory != null);
 		}
@@ -172,7 +182,9 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 	@Override
 	public final ConfigurableListableBeanFactory getBeanFactory() {
+		//锁住全局bean工厂监视器
 		synchronized (this.beanFactoryMonitor) {
+			//如果当前应用程序上下文中无beanFactory，则抛出异常，否则直接返回
 			if (this.beanFactory == null) {
 				throw new IllegalStateException("BeanFactory not initialized or already closed - " +
 						"call 'refresh' before accessing beans via the ApplicationContext");

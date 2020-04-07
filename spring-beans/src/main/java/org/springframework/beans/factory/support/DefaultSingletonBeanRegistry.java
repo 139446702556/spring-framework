@@ -585,6 +585,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 	/**
 	 * Clear all cached singleton instances in this registry.
+	 * 清除所有已经注册的单例实例缓存对象，线程安全的
 	 * @since 4.3.15
 	 */
 	protected void clearSingletonCache() {
