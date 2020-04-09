@@ -103,20 +103,24 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@Override
 	public void validate(Class<?> aspectClass) throws AopConfigException {
 		// If the parent has the annotation and isn't abstract it's an error
+		//如果给定类型的父类标有Aspect注解，并且其父类不是抽象的，则抛出异常，实现一个具体的切面类是不符合规定的
 		if (aspectClass.getSuperclass().getAnnotation(Aspect.class) != null &&
 				!Modifier.isAbstract(aspectClass.getSuperclass().getModifiers())) {
 			throw new AopConfigException("[" + aspectClass.getName() + "] cannot extend concrete aspect [" +
 					aspectClass.getSuperclass().getName() + "]");
 		}
-
+		//获取给定类型对应的Aj类型
 		AjType<?> ajType = AjTypeSystem.getAjType(aspectClass);
+		//如果ajType类型上无Aspect注解，则抛出异常
 		if (!ajType.isAspect()) {
 			throw new NotAnAtAspectException(aspectClass);
 		}
+		//spring的aop模式中不支持PerClauseKind.PERCFLOW模式
 		if (ajType.getPerClause().getKind() == PerClauseKind.PERCFLOW) {
 			throw new AopConfigException(aspectClass.getName() + " uses percflow instantiation model: " +
 					"This is not supported in Spring AOP.");
 		}
+		//spring AOP中不支持PERCFLOWBELOW类型的实例化模型
 		if (ajType.getPerClause().getKind() == PerClauseKind.PERCFLOWBELOW) {
 			throw new AopConfigException(aspectClass.getName() + " uses percflowbelow instantiation model: " +
 					"This is not supported in Spring AOP.");
@@ -130,12 +134,16 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected static AspectJAnnotation<?> findAspectJAnnotationOnMethod(Method method) {
+		//从给定方法中找到存在的给定的ASPECTJ_ANNOTATION_CLASSES数组中的注解的第一个，并返回
 		for (Class<?> clazz : ASPECTJ_ANNOTATION_CLASSES) {
+			//从给定方法上查找注解
 			AspectJAnnotation<?> foundAnnotation = findAnnotation(method, (Class<Annotation>) clazz);
+			//查找到则返回
 			if (foundAnnotation != null) {
 				return foundAnnotation;
 			}
 		}
+		//如果在给定方法上未查找到任何注解，则返回null
 		return null;
 	}
 
@@ -153,6 +161,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 
 	/**
 	 * Enum for AspectJ annotation types.
+	 * AspectJ注解类型枚举
 	 * @see AspectJAnnotation#getAnnotationType()
 	 */
 	protected enum AspectJAnnotationType {

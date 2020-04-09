@@ -110,6 +110,7 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 			// A singleton aspect.
 			this.pointcut = this.declaredPointcut;
 			this.lazy = false;
+			//如果当前切面工厂中的切面元数据信息不为懒加载的，则实例化创建通知对象
 			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
 		}
 	}
@@ -146,8 +147,10 @@ final class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+		//从aspectJAdvisorFactory中获取通知对象
 		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
 				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
+		//如果获取到了advice，则返回，否则返回通知的空对象
 		return (advice != null ? advice : EMPTY_ADVICE);
 	}
 

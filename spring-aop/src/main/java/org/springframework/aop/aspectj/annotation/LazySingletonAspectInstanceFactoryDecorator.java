@@ -39,6 +39,7 @@ public class LazySingletonAspectInstanceFactoryDecorator implements MetadataAwar
 
 	/**
 	 * Create a new lazily initializing decorator for the given AspectInstanceFactory.
+	 * 为给定的AspectInstanceFactory创建一个新的惰性初始化装饰器
 	 * @param maaif the MetadataAwareAspectInstanceFactory to decorate
 	 */
 	public LazySingletonAspectInstanceFactoryDecorator(MetadataAwareAspectInstanceFactory maaif) {

@@ -36,7 +36,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
 	private final List<AdvisedSupportListener> listeners = new LinkedList<>();
 
-	/** Set to true when the first AOP proxy has been created. */
+	/** Set to true when the first AOP proxy has been created. 在创建第一个AOP代理时将其设置为true */
 	private boolean active = false;
 
 
@@ -99,6 +99,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	 * create an AOP proxy with {@code this} as an argument.
 	 */
 	protected final synchronized AopProxy createAopProxy() {
+		//如果还有没有创建过AOP代理，即AOPdialing处于非活跃状态，则激活（创建AOP代理）
 		if (!this.active) {
 			activate();
 		}
@@ -107,10 +108,13 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 
 	/**
 	 * Activate this proxy configuration.
+	 * 激活这个代理的配置
 	 * @see AdvisedSupportListener#activated
 	 */
 	private void activate() {
+		//设置创建标识
 		this.active = true;
+		//激活全部的监听器
 		for (AdvisedSupportListener listener : this.listeners) {
 			listener.activated(this);
 		}

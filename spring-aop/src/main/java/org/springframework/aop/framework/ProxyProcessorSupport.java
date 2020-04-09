@@ -79,6 +79,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 
 	/**
 	 * Return the configured proxy ClassLoader for this processor.
+	 * 返回给这个处理器配置的代理类加载器
 	 */
 	@Nullable
 	protected ClassLoader getProxyClassLoader() {
@@ -102,15 +103,21 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	 * @param proxyFactory the ProxyFactory for the bean
 	 */
 	protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
+		//获取给定beanClass以及祖先类中实现的所有接口类型
 		Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
+		//表示当前给定类是否有可以使用创建代理的接口对象
 		boolean hasReasonableProxyInterface = false;
+		//迭代全部接口
 		for (Class<?> ifc : targetInterfaces) {
+			//如果当前接口不是回调接口也不是内部语言自己的接口，并且其中有方法，则有可用创建代理的接口
+			//则将hasReasonableProxyInterface标识设置为true，结束循环
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
 					ifc.getMethods().length > 0) {
 				hasReasonableProxyInterface = true;
 				break;
 			}
 		}
+		//如果有可以创建代理对象的接口，则迭代把这些接口加入到proxyFactory中
 		if (hasReasonableProxyInterface) {
 			// Must allow for introductions; can't just set interfaces to the target's interfaces only.
 			for (Class<?> ifc : targetInterfaces) {
@@ -118,6 +125,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 			}
 		}
 		else {
+			//如果无代理可以使用的接口，则使用目标类来创建代理类，将proxyTargetClass标识设置为true
 			proxyFactory.setProxyTargetClass(true);
 		}
 	}

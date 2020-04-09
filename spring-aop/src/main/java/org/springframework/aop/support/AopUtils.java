@@ -221,31 +221,41 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
+		//给定切点pc不可为空
 		Assert.notNull(pc, "Pointcut must not be null");
+		//通过获取给定切点pc的类型过滤器来对给定的目标类型来进行匹配，如果不匹配，直接返回false
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
-
+		//获取给定切点的方法匹配器
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
+		//如果给定切点包含的方法匹配器为TrueMethodMatcher（匹配所有类型的方法），则直接返回true
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
 		}
 
 		IntroductionAwareMethodMatcher introductionAwareMethodMatcher = null;
+		//methodMatcher是IntroductionAwareMethodMatcher类型的，则直接强转赋值
 		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		//给定目标类型是否为代理类
 		if (!Proxy.isProxyClass(targetClass)) {
+			//则将此目标类型对应的原始类加入到classes中（此类可能是目标类型也可能是它的父类）
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
+		//获取当前给定目标类实现的全部接口添加到classes集合中
 		classes.addAll(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
-
+		//迭代classes集合
 		for (Class<?> clazz : classes) {
+			//通过反射获取clazz类型的全部方法
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
+			//迭代全部方法
 			for (Method method : methods) {
+				//使用methodMatcher（方法匹配器）来匹配方法，匹配成功则立即返回（因为一个类中有一个匹配成功的方法，则此类就要生成代理类）
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) :
 						methodMatcher.matches(method, targetClass)) {
@@ -271,6 +281,7 @@ public abstract class AopUtils {
 
 	/**
 	 * Can the given advisor apply at all on the given class?
+	 * 给定的通知器是否可以应用于给定的类型上
 	 * <p>This is an important test as it can be used to optimize out a advisor for a class.
 	 * This version also takes into account introductions (for IntroductionAwareMethodMatchers).
 	 * @param advisor the advisor to check
@@ -280,15 +291,20 @@ public abstract class AopUtils {
 	 * @return whether the pointcut can apply on any method
 	 */
 	public static boolean canApply(Advisor advisor, Class<?> targetClass, boolean hasIntroductions) {
+		//如果给定的advisor是IntroductionAdvisor类型的
 		if (advisor instanceof IntroductionAdvisor) {
+			//从通知器中获取类型过滤器ClassFilter，并调用其的matches方法进行匹配
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		//如果给定的advisor为PointcutAdvisor类型
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
+			//对于普通的PointcutAdvisor通知器，这里继续调用重载方法进行筛选
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
 			// It doesn't have a pointcut so we assume it applies.
+			//对于没有切入点的，我们假设它适用，直接返回true
 			return true;
 		}
 	}
@@ -302,21 +318,28 @@ public abstract class AopUtils {
 	 * (may be the incoming List as-is)
 	 */
 	public static List<Advisor> findAdvisorsThatCanApply(List<Advisor> candidateAdvisors, Class<?> clazz) {
+		//如果给定的通知器集合为空，则直接返回
 		if (candidateAdvisors.isEmpty()) {
 			return candidateAdvisors;
 		}
+		//存储当前给定bean可以使用的通知器
 		List<Advisor> eligibleAdvisors = new ArrayList<>();
+		//遍历给定的通知器集合
 		for (Advisor candidate : candidateAdvisors) {
+			//筛选IntroductionAdvisor类型的通知器并且当前bean可以使用的（与切点匹配），则将其添加到eligibleAdvisors中
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
+		//遍历给定的通知器集合
 		for (Advisor candidate : candidateAdvisors) {
+			//如果通知器为IntroductionAdvisor类型，则跳过
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
 			}
+			//筛选普通类型的可以应用于当前bean类型的通知器，匹配的添加到eligibleAdvisors中
 			if (canApply(candidate, clazz, hasIntroductions)) {
 				eligibleAdvisors.add(candidate);
 			}

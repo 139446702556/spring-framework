@@ -61,6 +61,8 @@ public abstract class AutoProxyUtils {
 	 * class rather than its interfaces. Checks the
 	 * {@link #PRESERVE_TARGET_CLASS_ATTRIBUTE "preserveTargetClass" attribute}
 	 * of the corresponding bean definition.
+	 * 此方法用于确定给定的bean是否应该使用目标类而不是接口进行代理
+	 * 在beanDefinition中的preserveTargetClass属性中存储了结果缓存
 	 * @param beanFactory the containing ConfigurableListableBeanFactory
 	 * @param beanName the name of the bean
 	 * @return whether the given bean should be proxied with its target class
@@ -103,6 +105,7 @@ public abstract class AutoProxyUtils {
 
 	/**
 	 * Expose the given target class for the specified bean, if possible.
+	 * 如果可以的话，为指定的bean暴露给定的目标类
 	 * @param beanFactory the containing ConfigurableListableBeanFactory
 	 * @param beanName the name of the bean
 	 * @param targetClass the corresponding target class
@@ -110,7 +113,8 @@ public abstract class AutoProxyUtils {
 	 */
 	static void exposeTargetClass(
 			ConfigurableListableBeanFactory beanFactory, @Nullable String beanName, Class<?> targetClass) {
-
+		//暴露当前给定的目标类对象；如果给定bean名称不为空，并且包含在给定的beanFactory容器中，则将给定的targetClass设置到当前
+		//对应的beanDefinition中的originalTargetClass属性中
 		if (beanName != null && beanFactory.containsBeanDefinition(beanName)) {
 			beanFactory.getMergedBeanDefinition(beanName).setAttribute(ORIGINAL_TARGET_CLASS_ATTRIBUTE, targetClass);
 		}
@@ -120,6 +124,7 @@ public abstract class AutoProxyUtils {
 	 * Determine whether the given bean name indicates an "original instance"
 	 * according to {@link AutowireCapableBeanFactory#ORIGINAL_INSTANCE_SUFFIX},
 	 * skipping any proxy attempts for it.
+	 * 确定给定的bean名称是否表示原始实例，跳过对它d的任何代理尝试
 	 * @param beanName the name of the bean
 	 * @param beanClass the corresponding bean class
 	 * @since 5.1

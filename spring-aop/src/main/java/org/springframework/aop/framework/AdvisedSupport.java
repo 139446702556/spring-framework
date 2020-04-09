@@ -75,6 +75,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	TargetSource targetSource = EMPTY_TARGET_SOURCE;
 
 	/** Whether the Advisors are already filtered for the specific target class. */
+	/**是否已经为特定的目标类过滤了通知器*/
 	private boolean preFiltered = false;
 
 	/** The AdvisorChainFactory to use. */
@@ -202,6 +203,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	/**
 	 * Add a new proxied interface.
+	 * 添加一个新的代理接口
 	 * @param intf the additional interface to proxy
 	 */
 	public void addInterface(Class<?> intf) {
@@ -472,16 +474,22 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	/**
 	 * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
 	 * for the given method, based on this configuration.
-	 * @param method the proxied method
-	 * @param targetClass the target class
+	 * 从当前配置中获取适合给定方法的方法拦截器链
+	 * @param method the proxied method 要代理的方法
+	 * @param targetClass the target class 目标类对象
 	 * @return a List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class<?> targetClass) {
+		//创建一个MethodCacheKey对象
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
+		//从缓存中获取适合给定方法的拦截器集合
 		List<Object> cached = this.methodCache.get(cacheKey);
+		//如果缓存未命中，则进行下一步获取操作
 		if (cached == null) {
+			//获取所有适合当前方法的拦截器
 			cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(
 					this, method, targetClass);
+			//将其存入缓存中
 			this.methodCache.put(cacheKey, cached);
 		}
 		return cached;

@@ -32,6 +32,7 @@ public final class GlobalAdvisorAdapterRegistry {
 
 	/**
 	 * Keep track of a single instance so we can return it to classes that request it.
+	 * 跟踪单个实例，这样我们就可以将它返回给请求它的类。
 	 */
 	private static AdvisorAdapterRegistry instance = new DefaultAdvisorAdapterRegistry();
 

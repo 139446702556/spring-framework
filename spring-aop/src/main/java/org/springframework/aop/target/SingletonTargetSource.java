@@ -47,6 +47,7 @@ public class SingletonTargetSource implements TargetSource, Serializable {
 
 	/**
 	 * Create a new SingletonTargetSource for the given target.
+	 * 使用给定的目标对象创建一个新的SingletonTargetSource对象
 	 * @param target the target object
 	 */
 	public SingletonTargetSource(Object target) {

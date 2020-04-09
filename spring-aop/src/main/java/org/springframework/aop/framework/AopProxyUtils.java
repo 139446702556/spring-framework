@@ -105,11 +105,12 @@ public abstract class AopProxyUtils {
 
 	/**
 	 * Determine the complete set of interfaces to proxy for the given AOP configuration.
+	 * 通过给定AOP配置类来来确定要代理的完整接口集
 	 * <p>This will always add the {@link Advised} interface unless the AdvisedSupport's
 	 * {@link AdvisedSupport#setOpaque "opaque"} flag is on. Always adds the
 	 * {@link org.springframework.aop.SpringProxy} marker interface.
-	 * @param advised the proxy config
-	 * @param decoratingProxy whether to expose the {@link DecoratingProxy} interface
+	 * @param advised the proxy config 代理的配置类对象
+	 * @param decoratingProxy whether to expose the {@link DecoratingProxy} interface 是否公开DecoratingProxy接口
 	 * @return the complete set of interfaces to proxy
 	 * @since 4.3
 	 * @see SpringProxy

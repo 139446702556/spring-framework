@@ -44,16 +44,22 @@ public abstract class AspectJProxyUtils {
 	 */
 	public static boolean makeAdvisorChainAspectJCapableIfNecessary(List<Advisor> advisors) {
 		// Don't add advisors to an empty list; may indicate that proxying is just not required
+		//如果通知器集合是空列表，则啥也不做，否则执行下述逻辑
 		if (!advisors.isEmpty()) {
+			//表示给定的通知器集合中是否包含AspectJ类型的Advice
 			boolean foundAspectJAdvice = false;
+			//迭代给定的通知器集合
 			for (Advisor advisor : advisors) {
 				// Be careful not to get the Advice without a guard, as this might eagerly
 				// instantiate a non-singleton AspectJ aspect...
+				//检测当前通知器是否包含AspectJ类型的Advice，包含则修改标识，结束循环
 				if (isAspectJAdvice(advisor)) {
 					foundAspectJAdvice = true;
 					break;
 				}
 			}
+			//如果给定的通知器集合中包含AspectJ类型的Advisor或Advice，并且当前advisors中不包含指定的DefaultPointcutAdvisor通知器
+			//则在该通知器集合头部添加DefaultPointcutAdvisor通知器
 			if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
 				advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
 				return true;
@@ -64,6 +70,7 @@ public abstract class AspectJProxyUtils {
 
 	/**
 	 * Determine whether the given Advisor contains an AspectJ advice.
+	 * 确定给定的Advisor中是否包含AspectJ类型的通知advice
 	 * @param advisor the Advisor to check
 	 */
 	private static boolean isAspectJAdvice(Advisor advisor) {

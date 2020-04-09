@@ -61,33 +61,45 @@ public class BeanFactoryAdvisorRetrievalHelper {
 	/**
 	 * Find all eligible Advisor beans in the current bean factory,
 	 * ignoring FactoryBeans and excluding beans that are currently in creation.
+	 * 从当前的beanFactory容器中查找全部的Advisor类型的bean对象（忽略FactoryBean和当前正在创建的bean）
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
 	public List<Advisor> findAdvisorBeans() {
 		// Determine list of advisor bean names, if not cached already.
+		//从缓存中获取当前容器中advisor类型的bean对象的beanName集合（cachedAdvisorBeanNames则为advisor类型bean名称的缓存）
 		String[] advisorNames = this.cachedAdvisorBeanNames;
+		//如果缓存中为空
 		if (advisorNames == null) {
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the auto-proxy creator apply to them!
+			//从当前的容器中查找Advisor类型的bean的名称
 			advisorNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 					this.beanFactory, Advisor.class, true, false);
+			//并将其设置到缓存中
 			this.cachedAdvisorBeanNames = advisorNames;
 		}
+		//如果从当前上下文容器中未找到通知器的beanName，则返回空集合
 		if (advisorNames.length == 0) {
 			return new ArrayList<>();
 		}
-
+		//用来存储通知器对象集合
 		List<Advisor> advisors = new ArrayList<>();
+		//迭代advisorNames
 		for (String name : advisorNames) {
+			//检查当前name对应的bean是否合格，此方法默认实现直接返回true，具体的交由其子类实现
 			if (isEligibleBean(name)) {
+				//判断当前beanName对应的bean是否正在创建中（忽略掉正在创建的Advisor bean）
 				if (this.beanFactory.isCurrentlyInCreation(name)) {
+					//记录运行日志
 					if (logger.isTraceEnabled()) {
 						logger.trace("Skipping currently created advisor '" + name + "'");
 					}
 				}
 				else {
 					try {
+						//从当前beanFactory容器中通过getBean方法来获取名称为name的bean
+						//并将其添加到advisors中
 						advisors.add(this.beanFactory.getBean(name, Advisor.class));
 					}
 					catch (BeanCreationException ex) {

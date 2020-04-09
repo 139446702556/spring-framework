@@ -49,6 +49,7 @@ public final class ProxyCreationContext {
 
 	/**
 	 * Set the name of the currently proxied bean instance.
+	 * 设置当前正在代理的bean实例的名称
 	 * @param beanName the name of the bean, or {@code null} to reset it
 	 */
 	static void setCurrentProxiedBeanName(@Nullable String beanName) {

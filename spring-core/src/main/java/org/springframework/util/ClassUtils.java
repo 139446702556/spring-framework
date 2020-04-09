@@ -372,10 +372,12 @@ public abstract class ClassUtils {
 	 * (may be {@code null} in which case this method will always return {@code true})
 	 */
 	public static boolean isVisible(Class<?> clazz, @Nullable ClassLoader classLoader) {
+		//给定classLoader为null，直接返回true
 		if (classLoader == null) {
 			return true;
 		}
 		try {
+			//如果给定classLoader与给定clazz对象的类加载器相同，即同一个类加载器，则直接返回true（相同的类名相同类加载器得到的肯定是一个类）
 			if (clazz.getClassLoader() == classLoader) {
 				return true;
 			}
@@ -385,6 +387,7 @@ public abstract class ClassUtils {
 		}
 
 		// Visible if same Class can be loaded from given ClassLoader
+		//比较两个类加载器加载的类对象是否相同（是否存在相同类名的两个类对象）
 		return isLoadable(clazz, classLoader);
 	}
 
@@ -433,12 +436,14 @@ public abstract class ClassUtils {
 
 	/**
 	 * Check whether the given class is loadable in the given ClassLoader.
+	 * 检查给定的类在给定的类装入器中是否可装入。
 	 * @param clazz the class to check (typically an interface)
 	 * @param classLoader the ClassLoader to check against
 	 * @since 5.0.6
 	 */
 	private static boolean isLoadable(Class<?> clazz, ClassLoader classLoader) {
 		try {
+			//返回给定类对象与给定类对象名称通过给定classLoader加载得到的类对象是否相等（判断是否存在相同的类名称，不同的类文件）
 			return (clazz == classLoader.loadClass(clazz.getName()));
 			// Else: different class with same name found
 		}
@@ -763,19 +768,26 @@ public abstract class ClassUtils {
 	 * @return all interfaces that the given object implements as a Set
 	 */
 	public static Set<Class<?>> getAllInterfacesForClassAsSet(Class<?> clazz, @Nullable ClassLoader classLoader) {
+		//给定类对象不为空
 		Assert.notNull(clazz, "Class must not be null");
+		//clazz是接口并且有效（唯一存在），则直接返回当前给定接口
 		if (clazz.isInterface() && isVisible(clazz, classLoader)) {
 			return Collections.singleton(clazz);
 		}
+		//存储接口结果
 		Set<Class<?>> interfaces = new LinkedHashSet<>();
 		Class<?> current = clazz;
+		//循环查找当前类及其祖先类实现的全部接口
 		while (current != null) {
+			//获取当前类实现的接口集合
 			Class<?>[] ifcs = current.getInterfaces();
 			for (Class<?> ifc : ifcs) {
+				//如果有效（唯一），则添加到interfaces中
 				if (isVisible(ifc, classLoader)) {
 					interfaces.add(ifc);
 				}
 			}
+			//继续查找当前类的父类对象实现的接口
 			current = current.getSuperclass();
 		}
 		return interfaces;

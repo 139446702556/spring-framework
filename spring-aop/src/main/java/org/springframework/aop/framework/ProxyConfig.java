@@ -63,6 +63,8 @@ public class ProxyConfig implements Serializable {
 
 	/**
 	 * Return whether to proxy the target class directly as well as any interfaces.
+	 * 此字段为AOP相关标签的proxy-target-class属性设置的值，默认为false
+	 * 此字段为true时，则表示强制让aop使用cglib代理来生成代理对象
 	 */
 	public boolean isProxyTargetClass() {
 		return this.proxyTargetClass;
@@ -149,6 +151,7 @@ public class ProxyConfig implements Serializable {
 
 	/**
 	 * Copy configuration from the other config object.
+	 * 从给定的配置对象中赋值配置属性
 	 * @param other object to copy configuration from
 	 */
 	public void copyFrom(ProxyConfig other) {

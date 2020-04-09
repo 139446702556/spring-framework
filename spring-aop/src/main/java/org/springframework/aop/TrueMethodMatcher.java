@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 
 /**
  * Canonical MethodMatcher instance that matches all methods.
+ * 匹配所有方法的规范化方法匹配器的实例
  *
  * @author Rod Johnson
  */

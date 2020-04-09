@@ -44,6 +44,7 @@ public class DeclareParentsAdvisor implements IntroductionAdvisor {
 
 	/**
 	 * Create a new advisor for this DeclareParents field.
+	 * 为这个DeclareParents字段创建一个新的通知器
 	 * @param interfaceType static field defining the introduction
 	 * @param typePattern type pattern the introduction is restricted to
 	 * @param defaultImpl the default implementation class

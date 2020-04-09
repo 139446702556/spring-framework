@@ -72,11 +72,13 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	@Nullable
 	protected Object[] getAdvicesAndAdvisorsForBean(
 			Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-
+		//给指定的bean查找合适的通知器
 		List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
+		//如果没找到，则返回null
 		if (advisors.isEmpty()) {
 			return DO_NOT_PROXY;
 		}
+		//否则返回通知器数组
 		return advisors.toArray();
 	}
 
@@ -91,9 +93,13 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @see #extendAdvisors
 	 */
 	protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
+		//查找所有的通知器
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
+		//筛选可以使用在目标beanClass上的通知器，通过ClassFilter和MethodMather对目标类和方法进行匹配
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
+		//扩展操作（此类给定的模板方法，用于交由子类实现）
 		extendAdvisors(eligibleAdvisors);
+		//如果有当前beanClass合适的通知器，则对通知器集合进行排序，然后返回
 		if (!eligibleAdvisors.isEmpty()) {
 			eligibleAdvisors = sortAdvisors(eligibleAdvisors);
 		}
@@ -105,7 +111,9 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 * @return the List of candidate Advisors
 	 */
 	protected List<Advisor> findCandidateAdvisors() {
+		//断言当前advisorRetrievalHelper不为空
 		Assert.state(this.advisorRetrievalHelper != null, "No BeanFactoryAdvisorRetrievalHelper available");
+		//委托BeanFactoryAdvisorRetrievalHelper（此类为从bean容器中获取Advisor的帮助类）来从bean容器中查找出Advisor类型的bean对象
 		return this.advisorRetrievalHelper.findAdvisorBeans();
 	}
 
@@ -120,12 +128,14 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 	 */
 	protected List<Advisor> findAdvisorsThatCanApply(
 			List<Advisor> candidateAdvisors, Class<?> beanClass, String beanName) {
-
+		//设置当前正在代理的bean实例名称标识为当前给定beanName
 		ProxyCreationContext.setCurrentProxiedBeanName(beanName);
 		try {
+			//委托给此类的方法来在给定的通知器集合中过滤出当前bean可以应用的
 			return AopUtils.findAdvisorsThatCanApply(candidateAdvisors, beanClass);
 		}
 		finally {
+			//处理结束，清空当前正在代理标识中的引用
 			ProxyCreationContext.setCurrentProxiedBeanName(null);
 		}
 	}
