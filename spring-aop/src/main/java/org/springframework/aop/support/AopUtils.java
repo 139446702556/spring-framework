@@ -362,7 +362,9 @@ public abstract class AopUtils {
 
 		// Use reflection to invoke the method.
 		try {
+			//设置方法为可访问
 			ReflectionUtils.makeAccessible(method);
+			//使用反射调用目标方法
 			return method.invoke(target, args);
 		}
 		catch (InvocationTargetException ex) {

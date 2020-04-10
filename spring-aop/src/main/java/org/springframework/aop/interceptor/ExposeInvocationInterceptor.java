@@ -43,26 +43,28 @@ import org.springframework.core.PriorityOrdered;
 @SuppressWarnings("serial")
 public final class ExposeInvocationInterceptor implements MethodInterceptor, PriorityOrdered, Serializable {
 
-	/** Singleton instance of this class. */
+	/** Singleton instance of this class. 这个类的单例实例对象 */
 	public static final ExposeInvocationInterceptor INSTANCE = new ExposeInvocationInterceptor();
 
 	/**
 	 * Singleton advisor for this class. Use in preference to INSTANCE when using
 	 * Spring AOP, as it prevents the need to create a new Advisor to wrap the instance.
 	 */
+	//创建DefaultPointCutAdvisor匿名对象
 	public static final Advisor ADVISOR = new DefaultPointcutAdvisor(INSTANCE) {
 		@Override
 		public String toString() {
 			return ExposeInvocationInterceptor.class.getName() +".ADVISOR";
 		}
 	};
-
+	//用于存储当前AOP方法的调用者
 	private static final ThreadLocal<MethodInvocation> invocation =
 			new NamedThreadLocal<>("Current AOP method invocation");
 
 
 	/**
 	 * Return the AOP Alliance MethodInvocation object associated with the current invocation.
+	 * 返回与当前调用关联的AOP Aliance MethodInvocation对象
 	 * @return the invocation object associated with the current invocation
 	 * @throws IllegalStateException if there is no AOP invocation in progress,
 	 * or if the ExposeInvocationInterceptor was not added to this interceptor chain
@@ -81,18 +83,23 @@ public final class ExposeInvocationInterceptor implements MethodInterceptor, Pri
 
 	/**
 	 * Ensures that only the canonical instance can be created.
+	 * 私有构造函数，确保创建规范构造函数，只用于内部创建使用
 	 */
 	private ExposeInvocationInterceptor() {
 	}
-
+	/**此拦截器方法用于暴露当前的MethodInvocation对象，以便其他地方需要使用获取*/
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		//获取当前AOP正在使用的MethodInvocation
 		MethodInvocation oldInvocation = invocation.get();
+		//将当前调用的mi存储到ThreadLocal中
 		invocation.set(mi);
 		try {
+			//调用下一个拦截器方法
 			return mi.proceed();
 		}
 		finally {
+			//此拦截器执行结束，恢复原来的设置
 			invocation.set(oldInvocation);
 		}
 	}

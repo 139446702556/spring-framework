@@ -59,7 +59,7 @@ public abstract class AspectJProxyUtils {
 				}
 			}
 			//如果给定的通知器集合中包含AspectJ类型的Advisor或Advice，并且当前advisors中不包含指定的DefaultPointcutAdvisor通知器
-			//则在该通知器集合头部添加DefaultPointcutAdvisor通知器
+			//则在该通知器列表头部添加DefaultPointcutAdvisor通知器
 			if (foundAspectJAdvice && !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) {
 				advisors.add(0, ExposeInvocationInterceptor.ADVISOR);
 				return true;

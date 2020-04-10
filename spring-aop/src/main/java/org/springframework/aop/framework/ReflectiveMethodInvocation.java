@@ -82,12 +82,14 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	/**
 	 * List of MethodInterceptor and InterceptorAndDynamicMethodMatcher
 	 * that need dynamic checks.
+	 * 存储当前方法匹配的拦截器链
 	 */
 	protected final List<?> interceptorsAndDynamicMethodMatchers;
 
 	/**
 	 * Index from 0 of the current interceptor we're invoking.
 	 * -1 until we invoke: then the current interceptor.
+	 * 当前执行到的拦截器在链中的索引位置
 	 */
 	private int currentInterceptorIndex = -1;
 
@@ -159,37 +161,48 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	@Nullable
 	public Object proceed() throws Throwable {
 		// We start with an index of -1 and increment early.
+		//如果当前拦截器链中的最后一个拦截方法执行完，则可以执行目标方法了
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+			//使用反射调用目标方法
 			return invokeJoinpoint();
 		}
-
+		//取出当前要执行的拦截器
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
+		//如果当前拦截器为InterceptorAndDynamicMethodMatcher类型实例
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
 			InterceptorAndDynamicMethodMatcher dm =
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
+			//如果目标类不为空，则直接使用，否则从目标方法中获取当前所属类
 			Class<?> targetClass = (this.targetClass != null ? this.targetClass : this.method.getDeclaringClass());
+			//调用具有三个参数的matches方法来动态匹配目标方法
+			//两个参数的matches方法为静态匹配方法
 			if (dm.methodMatcher.matches(this.method, targetClass, this.arguments)) {
+				//如果匹配，调用当前拦截器逻辑
 				return dm.interceptor.invoke(this);
 			}
 			else {
 				// Dynamic matching failed.
 				// Skip this interceptor and invoke the next in the chain.
+				//如果动态匹配失败，则跳过当前拦截器逻辑，继续调用下一个拦截器
 				return proceed();
 			}
 		}
 		else {
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
+			//调用拦截器方法逻辑，并将ReflectiveMethodInvocation对象传递给它（此处会根据之前按照不同的通知类型，构建得到的不同的方法拦截器，来调用不同类型的拦截器，从而达到控制调用顺序）
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}
 
 	/**
 	 * Invoke the joinpoint using reflection.
+	 * 使用反射来调用连接点（目标方法）
 	 * Subclasses can override this to use custom invocation.
+	 * 子类可以重写这里，使用自定义的调用
 	 * @return the return value of the joinpoint
 	 * @throws Throwable if invoking the joinpoint resulted in an exception
 	 */
