@@ -57,17 +57,20 @@ public abstract class TransactionSynchronizationUtils {
 	/**
 	 * Unwrap the given resource handle if necessary; otherwise return
 	 * the given handle as-is.
+	 * 如果需要，打开给定的资源句柄；否则按原样返回给定的句柄
 	 * @see org.springframework.core.InfrastructureProxy#getWrappedObject()
 	 */
 	static Object unwrapResourceIfNecessary(Object resource) {
 		Assert.notNull(resource, "Resource must not be null");
 		Object resourceRef = resource;
 		// unwrap infrastructure proxy
+		//获取InfrastructureProxy包装的对象
 		if (resourceRef instanceof InfrastructureProxy) {
 			resourceRef = ((InfrastructureProxy) resourceRef).getWrappedObject();
 		}
 		if (aopAvailable) {
 			// now unwrap scoped proxy
+			//现在打开作用域代理（获取其包装类）
 			resourceRef = ScopedProxyUnwrapper.unwrapIfNecessary(resourceRef);
 		}
 		return resourceRef;
@@ -102,8 +105,10 @@ public abstract class TransactionSynchronizationUtils {
 	 * @see TransactionSynchronization#beforeCompletion()
 	 */
 	public static void triggerBeforeCompletion() {
+		//遍历当前线程中存在的全部事务同步信息对象集合
 		for (TransactionSynchronization synchronization : TransactionSynchronizationManager.getSynchronizations()) {
 			try {
+				//执行其的beforeCompletion方法
 				synchronization.beforeCompletion();
 			}
 			catch (Throwable tsex) {
@@ -164,10 +169,12 @@ public abstract class TransactionSynchronizationUtils {
 	 */
 	public static void invokeAfterCompletion(@Nullable List<TransactionSynchronization> synchronizations,
 			int completionStatus) {
-
+		//如果给定的事务同步对象集合不为空
 		if (synchronizations != null) {
+			//遍历事务同步对象集合
 			for (TransactionSynchronization synchronization : synchronizations) {
 				try {
+					//调用其afterCompletion方法，来修改其完成状态
 					synchronization.afterCompletion(completionStatus);
 				}
 				catch (Throwable tsex) {
@@ -180,10 +187,12 @@ public abstract class TransactionSynchronizationUtils {
 
 	/**
 	 * Inner class to avoid hard-coded dependency on AOP module.
+	 * 内部类，以避免对AOP模块的硬编码依赖
 	 */
 	private static class ScopedProxyUnwrapper {
 
 		public static Object unwrapIfNecessary(Object resource) {
+			//如果给定资源对象为ScopedObject，则返回其目标对象，否则直接返回给定对象
 			if (resource instanceof ScopedObject) {
 				return ((ScopedObject) resource).getTargetObject();
 			}

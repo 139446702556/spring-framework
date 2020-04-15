@@ -77,7 +77,7 @@ import org.springframework.util.Assert;
 public abstract class TransactionSynchronizationManager {
 
 	private static final Log logger = LogFactory.getLog(TransactionSynchronizationManager.class);
-
+	/**key：datasource  value：ConnectionHolder*/
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
@@ -129,15 +129,18 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Retrieve a resource for the given key that is bound to the current thread.
-	 * @param key the key to check (usually the resource factory)
+	 * @param key the key to check (usually the resource factory) 要检查的key（通常是资源工厂）
 	 * @return a value bound to the current thread (usually the active
-	 * resource object), or {@code null} if none
+	 * resource object), or {@code null} if none 绑定到当前线程的值（通常是活跃的资源对象），如果没有则返回null
 	 * @see ResourceTransactionManager#getResourceFactory()
 	 */
 	@Nullable
 	public static Object getResource(Object key) {
+		//检测给定的资源key是否为某资源的代理包装类，如果是则返回包装的资源对象，否则返回给定的原对象
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
+		//使用给定的actualKey在当前线程的事务资源表中获取对应的资源值对象
 		Object value = doGetResource(actualKey);
+		//记录日志
 		if (value != null && logger.isTraceEnabled()) {
 			logger.trace("Retrieved value [" + value + "] for key [" + actualKey + "] bound to thread [" +
 					Thread.currentThread().getName() + "]");
@@ -147,21 +150,29 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Actually check the value of the resource that is bound for the given key.
+	 * 实际检查为给定键绑定的资源的值
 	 */
 	@Nullable
 	private static Object doGetResource(Object actualKey) {
+		//从ThreadLocal中获取当前线程的事务资源信息表
 		Map<Object, Object> map = resources.get();
+		//如果资源信息表为null，则表示当前线程没有任何事务，则返回null
 		if (map == null) {
 			return null;
 		}
+		//使用给定的实际key在当前线程中的资源信息表中获取对应的资源的值
 		Object value = map.get(actualKey);
 		// Transparently remove ResourceHolder that was marked as void...
+		//透明地删除被标记为无效的ResourceHolder
 		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
+			//从当前线程缓存中删除掉给定actualKey对应的资源
 			map.remove(actualKey);
 			// Remove entire ThreadLocal if empty...
+			//如果当前ThreadLocal为空，则直接删除掉ThreadLocal
 			if (map.isEmpty()) {
 				resources.remove();
 			}
+			//清除要返回的资源值
 			value = null;
 		}
 		return value;
@@ -169,25 +180,33 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Bind the given resource for the given key to the current thread.
+	 * 将给定key的给定资源绑定到当前线程上
 	 * @param key the key to bind the value to (usually the resource factory)
 	 * @param value the value to bind (usually the active resource object)
 	 * @throws IllegalStateException if there is already a value bound to the thread
 	 * @see ResourceTransactionManager#getResourceFactory()
 	 */
 	public static void bindResource(Object key, Object value) throws IllegalStateException {
+		//解析给定的key资源对象，如果其是代理类，则返回其包装的资源对象（实际的key）
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
+		//判断给定资源不为空
 		Assert.notNull(value, "Value must not be null");
+		//获取当前线程持有的事务资源映射表
 		Map<Object, Object> map = resources.get();
 		// set ThreadLocal Map if none found
+		//如果当前线程没有持有事务资源映射表，则初始化创建，并添加到当前线程中
 		if (map == null) {
 			map = new HashMap<>();
 			resources.set(map);
 		}
+		//将给定的key和value值设置到资源映射表中，并返回actualKey对应的原有的connectionHolder，如果没有返回null
 		Object oldValue = map.put(actualKey, value);
 		// Transparently suppress a ResourceHolder that was marked as void...
+		//如果给定actualKey对应的资源对象为ResourceHolder类型并且已经被标记为无效的，则清空旧值
 		if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
 			oldValue = null;
 		}
+		//如果给定的actualKey值在资源映射表中已经存在对应的connectionHolder对象，并且此对象是有效的，则抛出异常（即已存在有效的对象，不可再次设置）
 		if (oldValue != null) {
 			throw new IllegalStateException("Already value [" + oldValue + "] for key [" +
 					actualKey + "] bound to thread [" + Thread.currentThread().getName() + "]");
@@ -200,6 +219,7 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Unbind a resource for the given key from the current thread.
+	 * 从当前线程中为给定键取消绑定资源
 	 * @param key the key to unbind (usually the resource factory)
 	 * @return the previously bound value (usually the active resource object)
 	 * @throws IllegalStateException if there is no value bound to the thread
@@ -267,14 +287,18 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Activate transaction synchronization for the current thread.
+	 * 激活当前线程的事务同步
 	 * Called by a transaction manager on transaction begin.
+	 * 在事务开始时，由事务管理器调用
 	 * @throws IllegalStateException if synchronization is already active
 	 */
 	public static void initSynchronization() throws IllegalStateException {
+		//如果当前事务同步已经活跃，则抛出异常（因为已经激活，所以无法激活事务同步）
 		if (isSynchronizationActive()) {
 			throw new IllegalStateException("Cannot activate transaction synchronization - already active");
 		}
 		logger.trace("Initializing transaction synchronization");
+		//初始化事务同步队列
 		synchronizations.set(new LinkedHashSet<>());
 	}
 

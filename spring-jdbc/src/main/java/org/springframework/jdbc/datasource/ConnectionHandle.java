@@ -37,6 +37,7 @@ public interface ConnectionHandle {
 
 	/**
 	 * Release the JDBC Connection that this handle refers to.
+	 * 释放此句柄引用的JDBC连接，此接口的默认实现为空的，其具体实现逻辑交由子类来实现（此处为一个模板扩展方法）
 	 * <p>The default implementation is empty, assuming that the lifecycle
 	 * of the connection is managed externally.
 	 * @param con the JDBC Connection to release

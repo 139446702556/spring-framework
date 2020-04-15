@@ -102,20 +102,25 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 
 	/**
 	 * This implementation creates a JDBC 3.0 Savepoint and returns it.
+	 * 创建一个JDBC 3.0的保存点并返回它
 	 * @see java.sql.Connection#setSavepoint
 	 */
 	@Override
 	public Object createSavepoint() throws TransactionException {
+		//获取ConnectionHolder
 		ConnectionHolder conHolder = getConnectionHolderForSavepoint();
 		try {
+			//如果此连接对象不支持保存点，则抛出异常（根据不同的驱动有不同的设置支持）
 			if (!conHolder.supportsSavepoints()) {
 				throw new NestedTransactionNotSupportedException(
 						"Cannot create a nested transaction because savepoints are not supported by your JDBC driver");
 			}
+			//如果当前连接事务支持回滚，则抛出异常
 			if (conHolder.isRollbackOnly()) {
 				throw new CannotCreateTransactionException(
 						"Cannot create savepoint for transaction which is already marked as rollback-only");
 			}
+			//使用当前连接建立保存点
 			return conHolder.createSavepoint();
 		}
 		catch (SQLException ex) {
@@ -125,13 +130,16 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 
 	/**
 	 * This implementation rolls back to the given JDBC 3.0 Savepoint.
+	 * 回滚事务到给定的jdbc保存点
 	 * @see java.sql.Connection#rollback(java.sql.Savepoint)
 	 */
 	@Override
 	public void rollbackToSavepoint(Object savepoint) throws TransactionException {
 		ConnectionHolder conHolder = getConnectionHolderForSavepoint();
 		try {
+			//通过当前连接重置当前资源事务到给定的保存点
 			conHolder.getConnection().rollback((Savepoint) savepoint);
+			//重置当前资源事务的rollbackOnly状态，设置为false
 			conHolder.resetRollbackOnly();
 		}
 		catch (Throwable ex) {
@@ -141,12 +149,15 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 
 	/**
 	 * This implementation releases the given JDBC 3.0 Savepoint.
+	 * 从当前事务对应的连接中释放给定的jdbc保存点
 	 * @see java.sql.Connection#releaseSavepoint
 	 */
 	@Override
 	public void releaseSavepoint(Object savepoint) throws TransactionException {
+		//获取当前事务对应的连接持有人ConnectionHolder对象
 		ConnectionHolder conHolder = getConnectionHolderForSavepoint();
 		try {
+			//释放掉当前连接中保存的对应保存点
 			conHolder.getConnection().releaseSavepoint((Savepoint) savepoint);
 		}
 		catch (Throwable ex) {
@@ -155,14 +166,17 @@ public abstract class JdbcTransactionObjectSupport implements SavepointManager, 
 	}
 
 	protected ConnectionHolder getConnectionHolderForSavepoint() throws TransactionException {
+		//如果不允许创建保存点，则抛出异常
 		if (!isSavepointAllowed()) {
 			throw new NestedTransactionNotSupportedException(
 					"Transaction manager does not allow nested transactions");
 		}
+		//如果没有ConnectionHolder对象，则抛出异常
 		if (!hasConnectionHolder()) {
 			throw new TransactionUsageException(
 					"Cannot create nested transaction when not exposing a JDBC transaction");
 		}
+		//否则返回当前线程中事务对应的ConnectionHolder
 		return getConnectionHolder();
 	}
 

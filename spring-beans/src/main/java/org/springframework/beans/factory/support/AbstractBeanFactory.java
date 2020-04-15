@@ -1401,7 +1401,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						String parentBeanName = transformedBeanName(bd.getParentName());
 						//如果beanName和parentBeanName不相同
 						if (!beanName.equals(parentBeanName)) {
-							//通过父类的beanName来获取其合并后的beanDefinition
+							//通过父类的beanName来获取其合并后的beanDefinition（递归）
 							pbd = getMergedBeanDefinition(parentBeanName);
 						}
 						else {

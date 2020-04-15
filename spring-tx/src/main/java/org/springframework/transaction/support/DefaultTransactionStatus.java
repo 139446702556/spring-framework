@@ -104,6 +104,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 	/**
 	 * Return whether there is an actual transaction active.
+	 * 返回是否有实际活动的事务
 	 */
 	public boolean hasTransaction() {
 		return (this.transaction != null);
@@ -117,6 +118,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	/**
 	 * Return if a new transaction synchronization has been opened
 	 * for this transaction.
+	 * 如果为该事务打开了新的事务同步，则返回
 	 */
 	public boolean isNewSynchronization() {
 		return this.newSynchronization;
@@ -141,6 +143,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	/**
 	 * Return the holder for resources that have been suspended for this transaction,
 	 * if any.
+	 * 如果有的话，则将因该事务而暂停的资源持有者返回
 	 */
 	@Nullable
 	public Object getSuspendedResources() {
@@ -185,7 +188,9 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
 	 */
 	@Override
 	protected SavepointManager getSavepointManager() {
+		//获取当前事务状态对象存储的事务对象
 		Object transaction = this.transaction;
+		//如果事务对象不为SavepointManager类型，则抛出异常，否则强转返回
 		if (!(transaction instanceof SavepointManager)) {
 			throw new NestedTransactionNotSupportedException(
 					"Transaction object [" + this.transaction + "] does not support savepoints");

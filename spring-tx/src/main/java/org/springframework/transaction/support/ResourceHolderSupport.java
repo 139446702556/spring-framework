@@ -49,6 +49,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Mark the resource as synchronized with a transaction.
+	 * 将资源标记为与事务同步
 	 */
 	public void setSynchronizedWithTransaction(boolean synchronizedWithTransaction) {
 		this.synchronizedWithTransaction = synchronizedWithTransaction;
@@ -56,6 +57,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Return whether the resource is synchronized with a transaction.
+	 * 返回资源是否与事务同步
 	 */
 	public boolean isSynchronizedWithTransaction() {
 		return this.synchronizedWithTransaction;
@@ -70,6 +72,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Reset the rollback-only status for this resource transaction.
+	 * 重置此资源事务的仅回滚的状态
 	 * <p>Only really intended to be called after custom rollback steps which
 	 * keep the original resource in action, e.g. in case of a savepoint.
 	 * @since 5.0
@@ -81,6 +84,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Return whether the resource transaction is marked as rollback-only.
+	 * 返回资源事务是否标记为仅回滚
 	 */
 	public boolean isRollbackOnly() {
 		return this.rollbackOnly;
@@ -88,6 +92,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Set the timeout for this object in seconds.
+	 * 设置此对象的超时时间，以毫秒为单位
 	 * @param seconds number of seconds until expiration
 	 */
 	public void setTimeoutInSeconds(int seconds) {
@@ -96,6 +101,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Set the timeout for this object in milliseconds.
+	 * 设置此对象的超时时间（以毫秒为单位）
 	 * @param millis number of milliseconds until expiration
 	 */
 	public void setTimeoutInMillis(long millis) {
@@ -181,6 +187,7 @@ public abstract class ResourceHolderSupport implements ResourceHolder {
 
 	/**
 	 * Clear the transactional state of this resource holder.
+	 * 清除此资源持有者的事务状态
 	 */
 	public void clear() {
 		this.synchronizedWithTransaction = false;

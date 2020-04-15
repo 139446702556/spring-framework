@@ -112,17 +112,24 @@ public final class ParserContext {
 	}
 
 	public void registerComponent(ComponentDefinition component) {
+		//获取当前解析器上下文中包含的第一个CompositeComponentDefinition对象
 		CompositeComponentDefinition containingComponent = getContainingComponent();
+		//如果上下文中存在CompositeComponentDefinition对象
 		if (containingComponent != null) {
+			//则将当前给定的组件定义（ComponentDefinition）添加到其对象的内嵌组件容器中
 			containingComponent.addNestedComponent(component);
 		}
 		else {
+			//触发组件的注册事件，将其注册到读取器上下文的ComponentDefinition容器中
 			this.readerContext.fireComponentRegistered(component);
 		}
 	}
 
 	public void registerBeanComponent(BeanComponentDefinition component) {
+		//注册当前给定的beanDefinition到BeanDefinitionRegister中（注册到上下文容器中）
+		//并且设置给定的beanName与其别名之间的关系
 		BeanDefinitionReaderUtils.registerBeanDefinition(component, getRegistry());
+		//注册组件到容器中
 		registerComponent(component);
 	}
 

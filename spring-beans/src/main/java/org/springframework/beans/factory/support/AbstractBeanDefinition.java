@@ -703,6 +703,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Return the qualifier mapped to the provided type name.
+	 * 返回映射到提供的类型名称的限定符
 	 */
 	@Nullable
 	public AutowireCandidateQualifier getQualifier(String typeName) {

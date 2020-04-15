@@ -190,6 +190,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
 
 	/**
 	 * This is a single Connection: Do not close it when returning to the "pool".
+	 * 这是一个单一的连接：当返回到池时不要关闭它
 	 */
 	@Override
 	public boolean shouldClose(Connection con) {

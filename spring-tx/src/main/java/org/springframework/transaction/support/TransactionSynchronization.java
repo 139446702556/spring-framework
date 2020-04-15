@@ -40,10 +40,10 @@ public interface TransactionSynchronization extends Flushable {
 	/** Completion status in case of proper commit. */
 	int STATUS_COMMITTED = 0;
 
-	/** Completion status in case of proper rollback. */
+	/** Completion status in case of proper rollback. 正常回滚情况下的完成状态 */
 	int STATUS_ROLLED_BACK = 1;
 
-	/** Completion status in case of heuristic mixed completion or system errors. */
+	/** Completion status in case of heuristic mixed completion or system errors. 启发式混合完成或系统错误的完成状态 */
 	int STATUS_UNKNOWN = 2;
 
 

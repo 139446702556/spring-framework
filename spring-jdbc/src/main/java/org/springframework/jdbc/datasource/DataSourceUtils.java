@@ -164,24 +164,29 @@ public abstract class DataSourceUtils {
 
 	/**
 	 * Prepare the given Connection with the given transaction semantics.
-	 * @param con the Connection to prepare
-	 * @param definition the transaction definition to apply
-	 * @return the previous isolation level, if any
+	 * 使用给定的事务语义准备给定的连接
+	 * 设置事务的隔离级别
+	 * @param con the Connection to prepare 要准备设置的连接对象
+	 * @param definition the transaction definition to apply  要应用的事务定义对象
+	 * @return the previous isolation level, if any 如果有的话，返回事务以前的隔离级别
 	 * @throws SQLException if thrown by JDBC methods
 	 * @see #resetConnectionAfterTransaction
 	 */
 	@Nullable
 	public static Integer prepareConnectionForTransaction(Connection con, @Nullable TransactionDefinition definition)
 			throws SQLException {
-
+		//给定连接对象不为空
 		Assert.notNull(con, "No Connection specified");
 
 		// Set read-only flag.
+		//如果给定的事务定义不为空，且其设置了只读的标识
 		if (definition != null && definition.isReadOnly()) {
 			try {
+				//设置流程日志记录
 				if (logger.isDebugEnabled()) {
 					logger.debug("Setting JDBC Connection [" + con + "] read-only");
 				}
+				//将当前给定连接对象设置为只读
 				con.setReadOnly(true);
 			}
 			catch (SQLException | RuntimeException ex) {
@@ -199,25 +204,34 @@ public abstract class DataSourceUtils {
 		}
 
 		// Apply specific isolation level, if any.
+		//如果有的话，应用特定的隔离级别
+		//用于存储此连接之前使用的隔离级别
 		Integer previousIsolationLevel = null;
+		//如果当前设置的事务隔离级别是自定义的隔离级别（即不是默认的事务隔离级别）
 		if (definition != null && definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+			//记录日志
 			if (logger.isDebugEnabled()) {
 				logger.debug("Changing isolation level of JDBC Connection [" + con + "] to " +
 						definition.getIsolationLevel());
 			}
+			//获取给定连接当前的事务隔离级别
 			int currentIsolation = con.getTransactionIsolation();
+			//如果设置的事务隔离级别与当前的事务隔离级别不同，则设置
 			if (currentIsolation != definition.getIsolationLevel()) {
+				//记录当前连接使用的隔离级别
 				previousIsolationLevel = currentIsolation;
+				//将当前连接的隔离级别设置为设置的事务隔离级别
 				con.setTransactionIsolation(definition.getIsolationLevel());
 			}
 		}
-
+		//返回给定连接之前使用的隔离级别
 		return previousIsolationLevel;
 	}
 
 	/**
 	 * Reset the given Connection after a transaction,
 	 * regarding read-only flag and isolation level.
+	 * 在一个事务完成之后，重置给定的连接对象的只读标识和事务隔离级别
 	 * @param con the Connection to reset
 	 * @param previousIsolationLevel the isolation level to restore, if any
 	 * @see #prepareConnectionForTransaction
@@ -226,6 +240,7 @@ public abstract class DataSourceUtils {
 		Assert.notNull(con, "No Connection specified");
 		try {
 			// Reset transaction isolation to previous value, if changed for the transaction.
+			//重置事务的隔离级别
 			if (previousIsolationLevel != null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Resetting isolation level of JDBC Connection [" +
@@ -235,6 +250,7 @@ public abstract class DataSourceUtils {
 			}
 
 			// Reset read-only flag.
+			//重置只读标识
 			if (con.isReadOnly()) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Resetting read-only flag of JDBC Connection [" + con + "]");
@@ -303,6 +319,7 @@ public abstract class DataSourceUtils {
 	/**
 	 * Close the given Connection, obtained from the given DataSource,
 	 * if it is not managed externally (that is, not bound to the thread).
+	 * 如果没有在外部管理（即没有绑定到线程），则关闭从给定数据源获得的给定连接
 	 * @param con the Connection to close if necessary
 	 * (if this is {@code null}, the call will be ignored)
 	 * @param dataSource the DataSource that the Connection was obtained from
@@ -311,6 +328,7 @@ public abstract class DataSourceUtils {
 	 */
 	public static void releaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) {
 		try {
+			//释放连接
 			doReleaseConnection(con, dataSource);
 		}
 		catch (SQLException ex) {
@@ -323,6 +341,7 @@ public abstract class DataSourceUtils {
 
 	/**
 	 * Actually close the given Connection, obtained from the given DataSource.
+	 * 实际关闭掉从给定数据源中获取到的给定连接
 	 * Same as {@link #releaseConnection}, but throwing the original SQLException.
 	 * <p>Directly accessed by {@link TransactionAwareDataSourceProxy}.
 	 * @param con the Connection to close if necessary
@@ -333,22 +352,29 @@ public abstract class DataSourceUtils {
 	 * @see #doGetConnection
 	 */
 	public static void doReleaseConnection(@Nullable Connection con, @Nullable DataSource dataSource) throws SQLException {
+		//如果没有连接，则直接返回
 		if (con == null) {
 			return;
 		}
+		//如果给定的数据源对象不为空
 		if (dataSource != null) {
+			//使用给定的数据源对象去当前事务同步管理器上下文中获取对应的ConnectionHolder对象
 			ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+			//如果连接持有人持有的连接与给定的连接相匹配
 			if (conHolder != null && connectionEquals(conHolder, con)) {
 				// It's the transactional Connection: Don't close it.
+				//释放掉其持有连接
 				conHolder.released();
 				return;
 			}
 		}
+		//关闭连接
 		doCloseConnection(con, dataSource);
 	}
 
 	/**
 	 * Close the Connection, unless a {@link SmartDataSource} doesn't want us to.
+	 * 关闭给定的连接，除非给定数据源为SmartDataSource类型，并且设置了不希望我们关闭它
 	 * @param con the Connection to close if necessary
 	 * @param dataSource the DataSource that the Connection was obtained from
 	 * @throws SQLException if thrown by JDBC methods
@@ -356,6 +382,7 @@ public abstract class DataSourceUtils {
 	 * @see SmartDataSource#shouldClose(Connection)
 	 */
 	public static void doCloseConnection(Connection con, @Nullable DataSource dataSource) throws SQLException {
+		//如果给定的数据源对象不是SmartDataSource类型或者设置了我们可以关闭它，则关闭给定连接
 		if (!(dataSource instanceof SmartDataSource) || ((SmartDataSource) dataSource).shouldClose(con)) {
 			con.close();
 		}
@@ -372,12 +399,18 @@ public abstract class DataSourceUtils {
 	 * @see #getTargetConnection
 	 */
 	private static boolean connectionEquals(ConnectionHolder conHolder, Connection passedInCon) {
+		//如果当前连接持有人不持有连接对象，则返回false
 		if (!conHolder.hasConnection()) {
 			return false;
 		}
+		//获取其持有的连接对象
 		Connection heldCon = conHolder.getConnection();
 		// Explicitly check for identity too: for Connection handles that do not implement
 		// "equals" properly, such as the ones Commons DBCP exposes).
+		//返回true的三个条件满足其一即可：
+		//1、给定连接持有人持有的连接与给定的连接是同一个连接
+		//2、给定连接持有人持有的连接与给定连接表示的是同一个连接，即连接相同的数据库且配置相同
+		//3、如果连接持有人持有的连接为一个连接代理，则判断其代理的目标连接是否与给定连接相同
 		return (heldCon == passedInCon || heldCon.equals(passedInCon) ||
 				getTargetConnection(heldCon).equals(passedInCon));
 	}
@@ -386,6 +419,7 @@ public abstract class DataSourceUtils {
 	 * Return the innermost target Connection of the given Connection. If the given
 	 * Connection is a proxy, it will be unwrapped until a non-proxy Connection is
 	 * found. Otherwise, the passed-in Connection will be returned as-is.
+	 * 返回给定连接对象最深处的目标连接，即如果给定的连接对象为代理对象，则返回其代理的目标对象，否则返回给定对象
 	 * @param con the Connection proxy to unwrap
 	 * @return the innermost target Connection, or the passed-in one if no proxy
 	 * @see ConnectionProxy#getTargetConnection()

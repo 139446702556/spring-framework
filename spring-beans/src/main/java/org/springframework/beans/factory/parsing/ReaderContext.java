@@ -163,7 +163,7 @@ public class ReaderContext {
 
 	/**
 	 * Fire an component-registered event.
-	 * 触发当前给定组件的注册时间
+	 * 触发当前给定组件的注册事件
 	 */
 	public void fireComponentRegistered(ComponentDefinition componentDefinition) {
 		this.eventListener.componentRegistered(componentDefinition);

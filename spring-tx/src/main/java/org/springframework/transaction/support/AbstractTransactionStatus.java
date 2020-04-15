@@ -102,6 +102,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 
 	/**
 	 * Mark this transaction as completed, that is, committed or rolled back.
+	 * 标记当前这个事务已经执行完成（提交或者回滚完成）
 	 */
 	public void setCompleted() {
 		this.completed = true;
@@ -140,6 +141,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 
 	/**
 	 * Create a savepoint and hold it for the transaction.
+	 * 创建一个保存点，并且为事务保存它
 	 * @throws org.springframework.transaction.NestedTransactionNotSupportedException
 	 * if the underlying transaction does not support savepoints
 	 */
@@ -150,28 +152,39 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 	/**
 	 * Roll back to the savepoint that is held for the transaction
 	 * and release the savepoint right afterwards.
+	 * 回滚到为事务保存的保存点，然后立即释放保存点
 	 */
 	public void rollbackToHeldSavepoint() throws TransactionException {
+		//获取事务保存点
 		Object savepoint = getSavepoint();
+		//如果不存在保存点，则抛出异常
 		if (savepoint == null) {
 			throw new TransactionUsageException(
 					"Cannot roll back to savepoint - no savepoint associated with current transaction");
 		}
+		//回滚到保存点
 		getSavepointManager().rollbackToSavepoint(savepoint);
+		//释放保存点
 		getSavepointManager().releaseSavepoint(savepoint);
+		//清空当前事务记录的保存点
 		setSavepoint(null);
 	}
 
 	/**
 	 * Release the savepoint that is held for the transaction.
+	 * 释放为事务保存的保存点
 	 */
 	public void releaseHeldSavepoint() throws TransactionException {
+		//获取事务的保存点
 		Object savepoint = getSavepoint();
+		//如不存在，则抛出异常
 		if (savepoint == null) {
 			throw new TransactionUsageException(
 					"Cannot release savepoint - no savepoint associated with current transaction");
 		}
+		//释放为事务保存的保存点
 		getSavepointManager().releaseSavepoint(savepoint);
+		//清空保存点的缓存
 		setSavepoint(null);
 	}
 
@@ -215,6 +228,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
 
 	/**
 	 * Return a SavepointManager for the underlying transaction, if possible.
+	 * 获取保存点管理器方法，此处为模板方法具体交由子类实现
 	 * <p>Default implementation always throws a NestedTransactionNotSupportedException.
 	 * @throws org.springframework.transaction.NestedTransactionNotSupportedException
 	 * if the underlying transaction does not support savepoints

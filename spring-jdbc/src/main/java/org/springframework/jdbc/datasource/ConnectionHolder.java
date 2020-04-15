@@ -72,6 +72,8 @@ public class ConnectionHolder extends ResourceHolderSupport {
 
 	/**
 	 * Create a new ConnectionHolder for the given JDBC Connection,
+	 * 通过给定的JDBC连接对象创建一个新的ConnectionHolder对象，其中使用给定的连接对象执行了
+	 * ConnectionHandle的实例化
 	 * wrapping it with a {@link SimpleConnectionHandle},
 	 * assuming that there is no ongoing transaction.
 	 * @param connection the JDBC Connection to hold
@@ -106,6 +108,7 @@ public class ConnectionHolder extends ResourceHolderSupport {
 
 	/**
 	 * Return whether this holder currently has a Connection.
+	 * 通过判断当前连接处理器是否为空，来判断当前connectionHolder是否有连接
 	 */
 	protected boolean hasConnection() {
 		return (this.connectionHandle != null);
@@ -113,6 +116,7 @@ public class ConnectionHolder extends ResourceHolderSupport {
 
 	/**
 	 * Set whether this holder represents an active, JDBC-managed transaction.
+	 * 设置当前的连接持有人是否有一个活跃的JDBC管理的事务（即当前正有事务在执行）
 	 * @see DataSourceTransactionManager
 	 */
 	protected void setTransactionActive(boolean transactionActive) {
@@ -183,12 +187,15 @@ public class ConnectionHolder extends ResourceHolderSupport {
 	 * @throws SQLException if thrown by the JDBC driver
 	 */
 	public Savepoint createSavepoint() throws SQLException {
+		//当前上下文中保存点个数+1
 		this.savepointCounter++;
+		//使用当前线程持有的数据库连接来设置对应的保存点
 		return getConnection().setSavepoint(SAVEPOINT_NAME_PREFIX + this.savepointCounter);
 	}
 
 	/**
-	 * Releases the current Connection held by this ConnectionHolder.
+	 * Releases the current Connection held by this ConnectionHolder
+	 * 通过这个ConnectionHolder释放掉当前连接.
 	 * <p>This is necessary for ConnectionHandles that expect "Connection borrowing",
 	 * where each returned Connection is only temporarily leased and needs to be
 	 * returned once the data operation is done, to make the Connection available
@@ -196,7 +203,9 @@ public class ConnectionHolder extends ResourceHolderSupport {
 	 */
 	@Override
 	public void released() {
+		//将当前的连接引用计数器减一
 		super.released();
+		//从当前对象的connectionHandle中释放掉当前连接，并清空当前连接的缓存
 		if (!isOpen() && this.currentConnection != null) {
 			if (this.connectionHandle != null) {
 				this.connectionHandle.releaseConnection(this.currentConnection);

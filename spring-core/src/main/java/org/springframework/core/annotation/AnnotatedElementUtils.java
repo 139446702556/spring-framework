@@ -1081,6 +1081,7 @@ public abstract class AnnotatedElementUtils {
 	 * Perform the search algorithm for the {@link #searchWithFindSemantics}
 	 * method, avoiding endless recursion by tracking which annotated elements
 	 * have already been <em>visited</em>.
+	 * 执行searchWithFindSemantics方法的搜索算法，通过跟踪哪些带注释的元素已经被访问过来避免无休止的递归。
 	 * <p>The {@code metaDepth} parameter is explained in the
 	 * {@link Processor#process process()} method of the {@link Processor} API.
 	 * @param element the annotated element (never {@code null})
@@ -1104,11 +1105,13 @@ public abstract class AnnotatedElementUtils {
 		if (visited.add(element)) {
 			try {
 				// Locally declared annotations (ignoring @Inherited)
+				//获取给定的类、方法、字段或构造器上的全部注解对象
 				Annotation[] annotations = AnnotationUtils.getDeclaredAnnotations(element);
 				if (annotations.length > 0) {
 					List<T> aggregatedResults = (processor.aggregates() ? new ArrayList<>() : null);
 
 					// Search in local annotations
+					//查找给定的AnnotatedElement上的注解是否有包含在annotationTypes中的
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 						if (!AnnotationUtils.isInJavaLangAnnotationPackage(currentAnnotationType)) {
@@ -1140,6 +1143,7 @@ public abstract class AnnotatedElementUtils {
 					}
 
 					// Recursively search in meta-annotations
+					//通过递归的方式，查找当前注解上标注的注解（传递性）
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> currentAnnotationType = annotation.annotationType();
 						if (!AnnotationUtils.hasPlainJavaAnnotationsOnly(currentAnnotationType)) {
@@ -1178,6 +1182,7 @@ public abstract class AnnotatedElementUtils {
 					}
 
 					// Search on methods in interfaces declared locally
+					//查找此方法在声明类实现的接口们上存在的此注解
 					Class<?>[] ifcs = method.getDeclaringClass().getInterfaces();
 					if (ifcs.length > 0) {
 						result = searchOnInterfaces(method, annotationTypes, annotationName,

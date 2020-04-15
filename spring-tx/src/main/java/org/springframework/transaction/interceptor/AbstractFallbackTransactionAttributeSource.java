@@ -81,6 +81,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 
 	/**
 	 * Determine the transaction attribute for this method invocation.
+	 * 确定此调用方法的事务属性
 	 * <p>Defaults to the class's transaction attribute if no method attribute is found.
 	 * @param method the method for the current invocation (never {@code null})
 	 * @param targetClass the target class for this invocation (may be {@code null})
@@ -90,16 +91,22 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	@Override
 	@Nullable
 	public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
+		//如果当前调用的方法所声明的类为Object，则返回null
 		if (method.getDeclaringClass() == Object.class) {
 			return null;
 		}
 
 		// First, see if we have a cached value.
+		//首先，我们先看一下是否在缓存中有对应的事务属性对象
+		//通过调用的方法和所属类对象构建MethodClassKey实例化对象为缓存key
 		Object cacheKey = getCacheKey(method, targetClass);
+		//使用当前cacheKey去缓存中获取对应事务属性对象
 		TransactionAttribute cached = this.attributeCache.get(cacheKey);
+		//如果存在对应事务属性缓存
 		if (cached != null) {
 			// Value will either be canonical value indicating there is no transaction attribute,
 			// or an actual transaction attribute.
+			//如果缓存中的事务属性对象为NULL_TRANSACTION_ATTRIBUTE，则返回null，否则直接返回缓存中获取到的事务属性对象
 			if (cached == NULL_TRANSACTION_ATTRIBUTE) {
 				return null;
 			}
@@ -107,21 +114,27 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 				return cached;
 			}
 		}
+		//缓存中不存在
 		else {
 			// We need to work it out.
+			//从给定的调用方法上获取并解析获得到对应的事务属性对象
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
+			//如果未获取到给定调用方法上的事务属性信息，则将其与对应NULL_TRANSACTION_ATTRIBUTE占位符添加到缓存中
 			if (txAttr == null) {
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			}
 			else {
+				//获取当前调用方法的类到方法的全路径名称（类名.方法名）
 				String methodIdentification = ClassUtils.getQualifiedMethodName(method, targetClass);
+				//获取到的事务属性对象txAttr为DefaultTransactionAttribute实例对象，则将（类名.方法名）设置到txAttr对象的descriptor属性上
 				if (txAttr instanceof DefaultTransactionAttribute) {
 					((DefaultTransactionAttribute) txAttr).setDescriptor(methodIdentification);
 				}
 				if (logger.isTraceEnabled()) {
 					logger.trace("Adding transactional method '" + methodIdentification + "' with attribute: " + txAttr);
 				}
+				//加入缓存中
 				this.attributeCache.put(cacheKey, txAttr);
 			}
 			return txAttr;
@@ -150,33 +163,41 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 	@Nullable
 	protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
 		// Don't allow no-public methods as required.
+		//如果不允许访问非共有的方法，并且当前给定方法为非共有，则返回null
 		if (allowPublicMethodsOnly() && !Modifier.isPublic(method.getModifiers())) {
 			return null;
 		}
 
 		// The method may be on an interface, but we need attributes from the target class.
 		// If the target class is null, the method will be unchanged.
+		//方法可能在接口上，但是我们需要目标类的属性。
+		//如果目标类为空，则该方法将保持不变
 		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
 		// First try is the method in the target class.
+		//首先先从目标类中的当前执行方法上解析Transaction相关信息，得到事务属性对象
+		//spring中则是解析方法上面的Transactional注解中定义的相关属性
 		TransactionAttribute txAttr = findTransactionAttribute(specificMethod);
 		if (txAttr != null) {
 			return txAttr;
 		}
 
 		// Second try is the transaction attribute on the target class.
+		//其次，从当前调用方法的声明类上查找并解析Transactional注解中定义的属性信息
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 			return txAttr;
 		}
-
+		//如果目标方法和给定方法不同
 		if (specificMethod != method) {
 			// Fallback is to look at the original method.
+			//查找原始方法（给定的方法）上的Transactional注解对象，并解析其中的属性
 			txAttr = findTransactionAttribute(method);
 			if (txAttr != null) {
 				return txAttr;
 			}
 			// Last fallback is the class of the original method.
+			//最后，从原始方法所属的声明类上查找Transactional注解，并解析得到事务属性对象
 			txAttr = findTransactionAttribute(method.getDeclaringClass());
 			if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 				return txAttr;

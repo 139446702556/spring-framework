@@ -42,11 +42,17 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	@Override
 	@Nullable
 	public TransactionAttribute parseTransactionAnnotation(AnnotatedElement element) {
+		//查找给定AnnotatedElement对象上的Transactional注解，并对其进行解析得到注解属性
+		//此遍历查找方法内部使用了递归的方式（查找了给定的类、方法、字段或构造器上是否有此事务注解，并且查找了此注解元数据上全部的注解上标注的注解对象）
+		//实现了注解的传递关系，而且还查找了当前注解元数据所在的声明类实现的全部方法上面是否存在包含此事务注解
 		AnnotationAttributes attributes = AnnotatedElementUtils.findMergedAnnotationAttributes(
 				element, Transactional.class, false, false);
+		//如果给定的注解元数据上包含事务标签
 		if (attributes != null) {
+			//解析事务注解
 			return parseTransactionAnnotation(attributes);
 		}
+		//如果此元数据未使用事务，则返回null
 		else {
 			return null;
 		}
@@ -55,10 +61,14 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	public TransactionAttribute parseTransactionAnnotation(Transactional ann) {
 		return parseTransactionAnnotation(AnnotationUtils.getAnnotationAttributes(ann, false, false));
 	}
-
+	/**开始解释事务的各种标签属性*/
 	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
+		//创建RuleBasedTransactionAttribute实例对象，用于存储声明的各种事务信息
 		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
-
+		//AnnotationAttributes参数为通过解析@Transactional注解得到的注解属性信息对象
+		//其继承了LinkedHashMap，将解析到的事务属性以key：属性名  value：属性值  的形式存储在其中
+		//下面所有操作皆是从其中取出相应的注解配置事务属性信息，并构成一个TransactionAttribute实例对象
+		//从解析得到的注解属性对象中获取propagation属性值
 		Propagation propagation = attributes.getEnum("propagation");
 		rbta.setPropagationBehavior(propagation.value());
 		Isolation isolation = attributes.getEnum("isolation");

@@ -34,7 +34,8 @@ public class SimpleConnectionHandle implements ConnectionHandle {
 
 	/**
 	 * Create a new SimpleConnectionHandle for the given Connection.
-	 * @param connection the JDBC Connection
+	 * 使用给定的连接对象创建一个新的SimpleConnectionHandle实例对象
+	 * @param connection the JDBC Connection jdbc连接对象
 	 */
 	public SimpleConnectionHandle(Connection connection) {
 		Assert.notNull(connection, "Connection must not be null");

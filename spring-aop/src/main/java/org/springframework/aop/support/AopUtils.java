@@ -84,6 +84,7 @@ public abstract class AopUtils {
 
 	/**
 	 * Check whether the given object is a CGLIB proxy.
+	 * 检测给定的对象是否是一个cglib代理对象
 	 * <p>This method goes beyond the implementation of
 	 * {@link ClassUtils#isCglibProxy(Object)} by additionally checking if
 	 * the given object is an instance of {@link SpringProxy}.
@@ -91,6 +92,7 @@ public abstract class AopUtils {
 	 * @see ClassUtils#isCglibProxy(Object)
 	 */
 	public static boolean isCglibProxy(@Nullable Object object) {
+		//此对象为SpringProxy的实例对象并且满足cglib生成代理类的规则
 		return (object instanceof SpringProxy && ClassUtils.isCglibProxy(object));
 	}
 
@@ -104,12 +106,16 @@ public abstract class AopUtils {
 	 * @see org.springframework.aop.framework.AopProxyUtils#ultimateTargetClass(Object)
 	 */
 	public static Class<?> getTargetClass(Object candidate) {
+		//判断给定对象不能为空
 		Assert.notNull(candidate, "Candidate object must not be null");
 		Class<?> result = null;
+		//如果给定对象是TargetClassAware接口实现类的实例
 		if (candidate instanceof TargetClassAware) {
+			//直接获取目标类对象
 			result = ((TargetClassAware) candidate).getTargetClass();
 		}
 		if (result == null) {
+			//判断给定对象是否是cglib生成的代理类的对象，如果是，则其目标类为其父类，否则直接过去给定对象的类对象
 			result = (isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
 		}
 		return result;
@@ -190,6 +196,7 @@ public abstract class AopUtils {
 	 * @return the specific target method, or the original method if the
 	 * {@code targetClass} doesn't implement it or is {@code null}
 	 * @see org.springframework.util.ClassUtils#getMostSpecificMethod
+	 * 给定一个方法(可能来自接口)和当前AOP调用中使用的目标类，如果有相应的目标方法，则查找它。
 	 */
 	public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
 		Class<?> specificTargetClass = (targetClass != null ? ClassUtils.getUserClass(targetClass) : null);

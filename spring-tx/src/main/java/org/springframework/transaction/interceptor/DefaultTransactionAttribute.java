@@ -89,6 +89,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 
 	/**
 	 * Return a qualifier value associated with this transaction attribute.
+	 * 返回与此事务属性相关联的限定符值
 	 * @since 3.0
 	 */
 	@Override
@@ -117,6 +118,7 @@ public class DefaultTransactionAttribute extends DefaultTransactionDefinition im
 	}
 
 	/**
+	 * 判断当前抛出的异常是否为RuntimeException或者Error类型，如果是，则处理回调方法
 	 * The default behavior is as with EJB: rollback on unchecked exception
 	 * ({@link RuntimeException}), assuming an unexpected outcome outside of any
 	 * business rules. Additionally, we also attempt to rollback on {@link Error} which

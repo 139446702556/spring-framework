@@ -870,7 +870,8 @@ public abstract class ClassUtils {
 
 	/**
 	 * Check whether the given object is a CGLIB proxy.
-	 * @param object the object to check
+	 * 检测给定的对象是否是一个cglib代理对象
+	 * @param object the object to check 要检测的对象
 	 * @see #isCglibProxyClass(Class)
 	 * @see org.springframework.aop.support.AopUtils#isCglibProxy(Object)
 	 */
@@ -880,16 +881,19 @@ public abstract class ClassUtils {
 
 	/**
 	 * Check whether the specified class is a CGLIB-generated class.
+	 * 检测给定的类对象是否为cglib生成的代理类
 	 * @param clazz the class to check
 	 * @see #isCglibProxyClassName(String)
 	 */
 	public static boolean isCglibProxyClass(@Nullable Class<?> clazz) {
+		//检测给定类对象不为空，并且类名符合cglib生成的策略
 		return (clazz != null && isCglibProxyClassName(clazz.getName()));
 	}
 
 	/**
 	 * Check whether the specified class name is a CGLIB-generated class.
-	 * @param className the class name to check
+	 * 检测给定类名是否为cglib生成的代理类，即名字中包含$$符号
+	 * @param className the class name to check 要检测的类名
 	 */
 	public static boolean isCglibProxyClassName(@Nullable String className) {
 		return (className != null && className.contains(CGLIB_CLASS_SEPARATOR));
@@ -1075,7 +1079,9 @@ public abstract class ClassUtils {
 	 * @since 4.3.4
 	 */
 	public static String getQualifiedMethodName(Method method, @Nullable Class<?> clazz) {
+		//给定方法不能为空
 		Assert.notNull(method, "Method must not be null");
+		//返回当前类到当前调用方法的全路径名称（即类名.方法名）
 		return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
 	}
 
@@ -1360,6 +1366,7 @@ public abstract class ClassUtils {
 	/**
 	 * Determine whether the given method is declared by the user or at least pointing to
 	 * a user-declared method.
+	 * 确定给定的方法是由用户声明的，还是至少指向用户声明的方法
 	 * <p>Checks {@link Method#isSynthetic()} (for implementation methods) as well as the
 	 * {@code GroovyObject} interface (for interface methods; on an implementation class,
 	 * implementations of the {@code GroovyObject} methods will be marked as synthetic anyway).

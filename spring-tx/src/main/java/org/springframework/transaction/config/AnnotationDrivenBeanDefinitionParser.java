@@ -54,36 +54,53 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
 	/**
 	 * Parses the {@code <tx:annotation-driven/>} tag. Will
+	 * 解析以annotation-driven开头的标签，及<tx:annotation-driven/>标签
 	 * {@link AopNamespaceUtils#registerAutoProxyCreatorIfNecessary register an AutoProxyCreator}
 	 * with the container as necessary.
 	 */
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		//将事务事件监听器工厂组件注册到给定parserContext中
 		registerTransactionalEventListenerFactory(parserContext);
+		//获取此标签的mode属性值
 		String mode = element.getAttribute("mode");
+		//如果是aspectj模式
 		if ("aspectj".equals(mode)) {
 			// mode="aspectj"
+			//创建TransactionAspect的BeanDefinition对象和组件，并注册到容器中
 			registerTransactionAspect(element, parserContext);
+			//判断当前解析器是否可以加载到事务类（即事务类是否与当前解析器类在同一包中）
 			if (ClassUtils.isPresent("javax.transaction.Transactional", getClass().getClassLoader())) {
+				//创建JtaTransactionAspect类型的BeanDefinition和ComponentDefinition，并将其注册到容器中
 				registerJtaTransactionAspect(element, parserContext);
 			}
 		}
+		//如果是代理模式
 		else {
 			// mode="proxy"
+			//创建事务相关的类对应的BeanDefinition和ComponentDefinition，并注册到容器中
 			AopAutoProxyConfigurer.configureAutoProxyCreator(element, parserContext);
 		}
 		return null;
 	}
 
 	private void registerTransactionAspect(Element element, ParserContext parserContext) {
+		//获取事务切面beanName和className
 		String txAspectBeanName = TransactionManagementConfigUtils.TRANSACTION_ASPECT_BEAN_NAME;
 		String txAspectClassName = TransactionManagementConfigUtils.TRANSACTION_ASPECT_CLASS_NAME;
+		//如果在当前解析器容器中没有txAspectBeanName名称的beanDefinition，则创建并注册
 		if (!parserContext.getRegistry().containsBeanDefinition(txAspectBeanName)) {
+			//创建一个RootBeanDefinition对象
 			RootBeanDefinition def = new RootBeanDefinition();
+			//设置bean定义对象的类名称
 			def.setBeanClassName(txAspectClassName);
+			//设置工厂方法名
 			def.setFactoryMethodName("aspectOf");
+			//获取当前标签中的transaction-manager属性值（事务管理的bean名称），并将其加入到当前创建的beanDefinition的属性值对中
+			//如果此标签为设置transaction-manager属性，则存储的为设定的默认值
 			registerTransactionManager(element, def);
+			//向当前容器中注册事务切面所对应的BeanDefinition和ComponentDefinition对象
 			parserContext.registerBeanComponent(new BeanComponentDefinition(def, txAspectBeanName));
 		}
 	}
@@ -91,6 +108,8 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	private void registerJtaTransactionAspect(Element element, ParserContext parserContext) {
 		String txAspectBeanName = TransactionManagementConfigUtils.JTA_TRANSACTION_ASPECT_BEAN_NAME;
 		String txAspectClassName = TransactionManagementConfigUtils.JTA_TRANSACTION_ASPECT_CLASS_NAME;
+		//判断当前上下文中是否存在JtaTransactionAspect类型的bean对象，如果未存在，则创建相应的beanDefinition和ComponentDefinition
+		//并将其注册到容器中
 		if (!parserContext.getRegistry().containsBeanDefinition(txAspectBeanName)) {
 			RootBeanDefinition def = new RootBeanDefinition();
 			def.setBeanClassName(txAspectClassName);
@@ -104,7 +123,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		def.getPropertyValues().add("transactionManagerBeanName",
 				TxNamespaceHandler.getTransactionManagerName(element));
 	}
-
+	/**创建TransactionalEventListenerFactory类的beanDefinition，并在解析器上下文中注册bean组件*/
 	private void registerTransactionalEventListenerFactory(ParserContext parserContext) {
 		RootBeanDefinition def = new RootBeanDefinition();
 		def.setBeanClass(TransactionalEventListenerFactory.class);
@@ -115,6 +134,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 
 	/**
 	 * Inner class to just introduce an AOP framework dependency when actually in proxy mode.
+	 * 当实际处于代理模式时，只引入AOP框架依赖项的内部类
 	 */
 	private static class AopAutoProxyConfigurer {
 

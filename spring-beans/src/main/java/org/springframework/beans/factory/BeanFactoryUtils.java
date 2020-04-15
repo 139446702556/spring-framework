@@ -194,13 +194,20 @@ public abstract class BeanFactoryUtils {
 	 * @see ListableBeanFactory#getBeanNamesForType(Class)
 	 */
 	public static String[] beanNamesForTypeIncludingAncestors(ListableBeanFactory lbf, Class<?> type) {
+		//给定工厂不为空
 		Assert.notNull(lbf, "ListableBeanFactory must not be null");
+		//从当前上下文容器中获取与给定类型对应的所有beanName集合
 		String[] result = lbf.getBeanNamesForType(type);
+		//如果给定的beanFactory为HierarchicalBeanFactory实例，则其还有父类beanFactory，继续遍历
 		if (lbf instanceof HierarchicalBeanFactory) {
+			//如果当前beanFactory的父类beanFactory也是ListableBeanFactory类型实例
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
 			if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {
+				//递归调用beanNamesForTypeIncludingAncestors方法获取其父类容器中的指定类型的beanName集合
+				//并且继续遍历父工厂的父工厂
 				String[] parentResult = beanNamesForTypeIncludingAncestors(
 						(ListableBeanFactory) hbf.getParentBeanFactory(), type);
+				//合并子bean工厂和父bean工厂获取出的给定类型beanName集合
 				result = mergeNamesWithParent(result, parentResult, hbf);
 			}
 		}
@@ -492,6 +499,8 @@ public abstract class BeanFactoryUtils {
 
 	/**
 	 * Merge the given bean names result with the given parent result.
+	 * 合并给定的子类beanName集合和父类beanName集合
+	 * 合并逻辑子类全部保留，父类的beanName如果在result中不存在，并且不在子类beanFactory中存在，则添加到合并集合中
 	 * @param result the local bean name result
 	 * @param parentResult the parent bean name result (possibly empty)
 	 * @param hbf the local bean factory
