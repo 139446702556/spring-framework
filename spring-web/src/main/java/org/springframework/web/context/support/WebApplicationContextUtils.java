@@ -293,12 +293,16 @@ public abstract class WebApplicationContextUtils {
 	 */
 	public static void initServletPropertySources(MutablePropertySources sources,
 			@Nullable ServletContext servletContext, @Nullable ServletConfig servletConfig) {
-
+		//判断给定的属性源不为空
 		Assert.notNull(sources, "'propertySources' must not be null");
+		//如果当前上下文中包含名为servletContextInitParams的属性对象，并且对象为StubPropertySource类型的实例
+		//则使用给定信息新创建的ServletContextPropertySource对象将其替换
 		String name = StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME;
 		if (servletContext != null && sources.contains(name) && sources.get(name) instanceof StubPropertySource) {
 			sources.replace(name, new ServletContextPropertySource(name, servletContext));
 		}
+		//检测上下文容器中是否存在名为servletConfigInitParams的属性对象
+		//如存在，则使用新创建的ServletConfigPropertySource对象将其替换
 		name = StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME;
 		if (servletConfig != null && sources.contains(name) && sources.get(name) instanceof StubPropertySource) {
 			sources.replace(name, new ServletConfigPropertySource(name, servletConfig));

@@ -147,6 +147,7 @@ public class MutablePropertySources implements PropertySources {
 
 	/**
 	 * Replace the property source with the given name with the given property source object.
+	 * 用给定的属性源对象替换掉属性源集合中给定名的属性源对象
 	 * @param name the name of the property source to find and replace
 	 * @param propertySource the replacement property source
 	 * @throws IllegalArgumentException if no property source with the given name is present

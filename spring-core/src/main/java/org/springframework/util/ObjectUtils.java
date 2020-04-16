@@ -634,9 +634,11 @@ public abstract class ObjectUtils {
 	 * @see #nullSafeToString(Object)
 	 */
 	public static String getDisplayString(@Nullable Object obj) {
+		//如果给定obj对象为null，则返回空字符串
 		if (obj == null) {
 			return EMPTY_STRING;
 		}
+		//将给定obj对象转化为对应的字符串表示形式
 		return nullSafeToString(obj);
 	}
 
