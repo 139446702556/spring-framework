@@ -1355,6 +1355,7 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Return a {@link ResolvableType} for the specified {@link Type}.
+	 * 使用指定的类型创建一个ResolvableType对象
 	 * <p>Note: The resulting {@link ResolvableType} instance may not be {@link Serializable}.
 	 * @param type the source type (potentially {@code null})
 	 * @return a {@link ResolvableType} for the specified {@link Type}

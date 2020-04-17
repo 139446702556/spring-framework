@@ -158,6 +158,7 @@ import org.springframework.web.util.WebUtils;
  * @see org.springframework.web.HttpRequestHandler
  * @see org.springframework.web.servlet.mvc.Controller
  * @see org.springframework.web.context.ContextLoaderListener
+ * 负责初始化spring mvc的各个组件，以及处理客户端的请求
  */
 @SuppressWarnings("serial")
 public class DispatcherServlet extends FrameworkServlet {
@@ -497,17 +498,27 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/**
 	 * Initialize the strategy objects that this servlet uses.
+	 * 初始化这个servlet使用的策略对象
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		//初始化MultipartResolver
 		initMultipartResolver(context);
+		//初始化LocaleResolver
 		initLocaleResolver(context);
+		//初始化ThemeResolver
 		initThemeResolver(context);
+		//初始化HandlerMappings
 		initHandlerMappings(context);
+		//初始化HandlerAdapters
 		initHandlerAdapters(context);
+		//初始化HandlerExceptionResolvers
 		initHandlerExceptionResolvers(context);
+		//初始化RequestToViewNameTranslator
 		initRequestToViewNameTranslator(context);
+		//初始化ViewResolvers
 		initViewResolvers(context);
+		//初始化FlashMapManager
 		initFlashMapManager(context);
 	}
 
