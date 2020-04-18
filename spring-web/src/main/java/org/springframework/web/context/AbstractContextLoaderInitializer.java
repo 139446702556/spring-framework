@@ -47,6 +47,7 @@ public abstract class AbstractContextLoaderInitializer implements WebApplication
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		//注册ContextLoaderListener
 		registerContextLoaderListener(servletContext);
 	}
 
@@ -54,15 +55,22 @@ public abstract class AbstractContextLoaderInitializer implements WebApplication
 	 * Register a {@link ContextLoaderListener} against the given servlet context. The
 	 * {@code ContextLoaderListener} is initialized with the application context returned
 	 * from the {@link #createRootApplicationContext()} template method.
+	 * 针对给定的servletContext注册一个ContextLoaderListener对象
 	 * @param servletContext the servlet context to register the listener against
 	 */
 	protected void registerContextLoaderListener(ServletContext servletContext) {
+		//创建root WebApplicationContext对象（即从注册的ContextLoaderListener中创建）
 		WebApplicationContext rootAppContext = createRootApplicationContext();
+		//如果配置了
 		if (rootAppContext != null) {
+			//通过Root WebApplicationContext来创建一个ContextLoaderListener对象
 			ContextLoaderListener listener = new ContextLoaderListener(rootAppContext);
+			//给监听器设置上下文初始化器；getRootApplicationContextInitializers方法默认返回null，具体逻辑交由子类实现
 			listener.setContextInitializers(getRootApplicationContextInitializers());
+			//将创建的listener注册到servletContext中
 			servletContext.addListener(listener);
 		}
+		//如果未配置，则记录日志
 		else {
 			logger.debug("No ContextLoaderListener registered, as " +
 					"createRootApplicationContext() did not return an application context");

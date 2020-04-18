@@ -54,13 +54,16 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 	/**
 	 * The default servlet name. Can be customized by overriding {@link #getServletName}.
+	 * 默认的servlet名称
 	 */
 	public static final String DEFAULT_SERVLET_NAME = "dispatcher";
 
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		//调用父类的启动逻辑
 		super.onStartup(servletContext);
+		//注册DispatcherServlet
 		registerDispatcherServlet(servletContext);
 	}
 
@@ -76,33 +79,44 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * @param servletContext the context to register the servlet against
 	 */
 	protected void registerDispatcherServlet(ServletContext servletContext) {
+		//获取servlet名称（此处默认实现返回的为默认名称‘dispatcher’，子类可通过重写来进行更改）
 		String servletName = getServletName();
+		//断言servletName不为空
 		Assert.hasLength(servletName, "getServletName() must not return null or empty");
-
+		//创建Servlet WebApplicationContext对象
 		WebApplicationContext servletAppContext = createServletApplicationContext();
+		//断言创建的servlet webApplicationContext对象不为空
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
-
+		//创建FrameworkServlet对象
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
+		//断言创建的dispatcherServlet不为空
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
+		//将servletApplicationContext初始化器们注册到dispatcherServlet中
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
-
+		//将给定的dispatcherServlet注册到当前servletContext容器中，并返回当前servlet对象的操作对象
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
+		//如果已经有另一个servlet对象以与其相同的名字注册到了servletContext容器中，则抛出异常
 		if (registration == null) {
 			throw new IllegalStateException("Failed to register servlet with name '" + servletName + "'. " +
 					"Check if there is another servlet registered under the same name.");
 		}
-
+		//设置当前servlet的loadOnStartup属性（此处的属性皆是存储在servletInfo对象中）
 		registration.setLoadOnStartup(1);
+		//给当前servlet注册相应的映射关系
 		registration.addMapping(getServletMappings());
+		//设置servlet的asyncSupported属性
 		registration.setAsyncSupported(isAsyncSupported());
-
+		//获取给当前servlet容器配置的要注册的filter集合
 		Filter[] filters = getServletFilters();
+		//如果有要注册的过滤器
 		if (!ObjectUtils.isEmpty(filters)) {
+			//遍历过滤器集合
 			for (Filter filter : filters) {
+				//注册当前配置的过滤器到当前servletContext容器中
 				registerServletFilter(servletContext, filter);
 			}
 		}
-
+		//在注册完servlet之后，执行自定义的注册逻辑
 		customizeRegistration(registration);
 	}
 
@@ -128,6 +142,7 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	/**
 	 * Create a {@link DispatcherServlet} (or other kind of {@link FrameworkServlet}-derived
 	 * dispatcher) with the specified {@link WebApplicationContext}.
+	 * 使用给定的WebApplicationContext对象创建一个DispatcherServlet实例对象（也相当于是其子类FrameworkServlet实例对象）
 	 * <p>Note: This allows for any {@link FrameworkServlet} subclass as of 4.2.3.
 	 * Previously, it insisted on returning a {@link DispatcherServlet} or subclass thereof.
 	 */
@@ -138,6 +153,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	/**
 	 * Specify application context initializers to be applied to the servlet-specific
 	 * application context that the {@code DispatcherServlet} is being created with.
+	 * 指定应用程序上下文初始化器以应用于正在使用的DispatcherServlet创建的特定于servlet的应用程序上下文
+	 * 此处默认返回null，具体自定义实现交由子类实现
 	 * @since 4.2
 	 * @see #createServletApplicationContext()
 	 * @see DispatcherServlet#setContextInitializers
@@ -157,6 +174,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 	/**
 	 * Specify filters to add and map to the {@code DispatcherServlet}.
+	 * 指定要添加和映射到dispatcherServlet中的过滤器，此处默认实现为返回null
+	 * 具体自定义实现交由子类重写实现
 	 * @return an array of filters or {@code null}
 	 * @see #registerServletFilter(ServletContext, Filter)
 	 */
@@ -221,6 +240,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	/**
 	 * Optionally perform further registration customization once
 	 * {@link #registerDispatcherServlet(ServletContext)} has completed.
+	 * 一旦注册dispatcherServlet完成，则可以有选择的进一步执行对注册的servlet的自定义配置
+	 * 此抽象类此处为模板方法，即空方法；具体的实现逻辑交于其子类来实现（用户可以实现此类并自定义）
 	 * @param registration the {@code DispatcherServlet} registration to be customized
 	 * @see #registerDispatcherServlet(ServletContext)
 	 */

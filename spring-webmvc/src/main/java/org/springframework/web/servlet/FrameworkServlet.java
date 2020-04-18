@@ -206,6 +206,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private boolean threadContextInheritable = false;
 
 	/** Should we dispatch an HTTP OPTIONS request to {@link #doService}?. */
+	/** 我们是否应该向doService方法发送一个http option请求*/
 	private boolean dispatchOptionsRequest = false;
 
 	/** Should we dispatch an HTTP TRACE request to {@link #doService}?. */
