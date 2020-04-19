@@ -81,11 +81,13 @@ import javax.servlet.http.HttpServletRequest;
  * @see org.springframework.web.multipart.support.ByteArrayMultipartFileEditor
  * @see org.springframework.web.multipart.support.StringMultipartFileEditor
  * @see org.springframework.web.servlet.DispatcherServlet
+ * 用于处理请求的ContentType为multipart/*的请求，例如：文件上传
  */
 public interface MultipartResolver {
 
 	/**
 	 * Determine if the given request contains multipart content.
+	 * 给定的请求是否为multipart请求
 	 * <p>Will typically check for content type "multipart/form-data", but the actually
 	 * accepted requests might depend on the capabilities of the resolver implementation.
 	 * @param request the servlet request to be evaluated
@@ -99,6 +101,7 @@ public interface MultipartResolver {
 	 * {@link org.springframework.web.multipart.MultipartHttpServletRequest}
 	 * object that provides access to file descriptors and makes contained
 	 * parameters accessible via the standard ServletRequest methods.
+	 * 将给定的HttpServletRequest封装成一个MultipartHttpServletRequest对象
 	 * @param request the servlet request to wrap (must be of a multipart content type)
 	 * @return the wrapped servlet request
 	 * @throws MultipartException if the servlet request is not multipart, or if
@@ -115,6 +118,7 @@ public interface MultipartResolver {
 	/**
 	 * Cleanup any resources used for the multipart handling,
 	 * like a storage for the uploaded files.
+	 * 清理处理multipart产生的资源，例如：临时文件
 	 * @param request the request to cleanup resources for
 	 */
 	void cleanupMultipart(MultipartHttpServletRequest request);

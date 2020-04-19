@@ -41,7 +41,7 @@ import org.springframework.lang.Nullable;
  * org.springframework.core.Ordered} interface to be able to specify a sorting
  * order (and thus a priority) for getting applied by the {@code DispatcherServlet}.
  * Non-Ordered instances get treated as lowest priority.
- *
+ * 处理器适配器接口
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter
@@ -53,6 +53,7 @@ public interface HandlerAdapter {
 	 * Given a handler instance, return whether or not this {@code HandlerAdapter}
 	 * can support it. Typical HandlerAdapters will base the decision on the handler
 	 * type. HandlerAdapters will usually only support one handler type each.
+	 * 是否支持该处理器
 	 * <p>A typical implementation:
 	 * <p>{@code
 	 * return (handler instanceof MyHandler);
@@ -65,6 +66,7 @@ public interface HandlerAdapter {
 	/**
 	 * Use the given handler to handle this request.
 	 * The workflow that is required may vary widely.
+	 * 根据给定的请求来执行给定的处理器，并返回ModelAndView结果
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @param handler handler to use. This object must have previously been passed
@@ -80,6 +82,8 @@ public interface HandlerAdapter {
 	/**
 	 * Same contract as for HttpServlet's {@code getLastModified} method.
 	 * Can simply return -1 if there's no support in the handler class.
+	 * 返回请求的最新更新时间
+	 * 如果不支持该操作，则返回-1即可
 	 * @param request current HTTP request
 	 * @param handler handler to use
 	 * @return the lastModified value for the given handler

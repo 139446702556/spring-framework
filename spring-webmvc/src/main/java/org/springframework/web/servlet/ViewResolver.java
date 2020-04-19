@@ -28,7 +28,7 @@ import org.springframework.lang.Nullable;
  *
  * <p>Implementations are encouraged to support internationalization,
  * i.e. localized view resolution.
- *
+ * 实体解析器接口，根据视图名和国际化获得最终的试图View对象
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.web.servlet.view.InternalResourceViewResolver
@@ -39,6 +39,7 @@ public interface ViewResolver {
 
 	/**
 	 * Resolve the given view by name.
+	 * 根据给定的视图名和国际化，获得最终的View对象
 	 * <p>Note: To allow for ViewResolver chaining, a ViewResolver should
 	 * return {@code null} if a view with the given name is not defined in it.
 	 * However, this is not required: Some ViewResolvers will always attempt
