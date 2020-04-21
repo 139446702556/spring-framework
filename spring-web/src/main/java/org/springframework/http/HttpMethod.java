@@ -34,7 +34,7 @@ public enum HttpMethod {
 
 	GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS, TRACE;
 
-
+	/**存储了http方法字符串名称和HttpMethod枚举值的对应关系*/
 	private static final Map<String, HttpMethod> mappings = new HashMap<>(16);
 
 	static {
@@ -46,6 +46,7 @@ public enum HttpMethod {
 
 	/**
 	 * Resolve the given method value to an {@code HttpMethod}.
+	 * 通过给定的method值到mapping缓存中获取一个对应的HttpMethod枚举值
 	 * @param method the method value as a String
 	 * @return the corresponding {@code HttpMethod}, or {@code null} if not found
 	 * @since 4.2.4

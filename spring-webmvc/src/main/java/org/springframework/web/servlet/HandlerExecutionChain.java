@@ -125,19 +125,27 @@ public class HandlerExecutionChain {
 
 	/**
 	 * Apply preHandle methods of registered interceptors.
+	 * 应用已注册的拦截器的预处理方法
 	 * @return {@code true} if the execution chain should proceed with the
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
 	 * that this interceptor has already dealt with the response itself.
 	 */
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//获取应用在当前请求上的拦截器
 		HandlerInterceptor[] interceptors = getInterceptors();
+		//如果存在匹配的拦截器
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			//遍历所有匹配的拦截器
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+				//执行拦截器的前置方法preHandle方法，如果有一个此方法返回false
 				if (!interceptor.preHandle(request, response, this.handler)) {
+					//逆序遍历前面已经执行成功的拦截器的afterCompletion方法（返回true的拦截器）
 					triggerAfterCompletion(request, response, null);
+					//结束此请求的后续执行
 					return false;
 				}
+				//记录当前已经执行的拦截器链的索引
 				this.interceptorIndex = i;
 			}
 		}
@@ -146,6 +154,7 @@ public class HandlerExecutionChain {
 
 	/**
 	 * Apply postHandle methods of registered interceptors.
+	 * 调用与当前请求匹配的所有注册的拦截器的postHandle方法
 	 */
 	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv)
 			throws Exception {
@@ -166,12 +175,15 @@ public class HandlerExecutionChain {
 	 */
 	void triggerAfterCompletion(HttpServletRequest request, HttpServletResponse response, @Nullable Exception ex)
 			throws Exception {
-
+		//获取与当前请求匹配的拦截器
 		HandlerInterceptor[] interceptors = getInterceptors();
+		//有匹配的拦截器链
 		if (!ObjectUtils.isEmpty(interceptors)) {
+			//反向遍历已经执行过preHandle前置处理方法成功的拦截器（即和之前的执行逆序执行）
 			for (int i = this.interceptorIndex; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
 				try {
+					//执行其中的afterCompletion方法
 					interceptor.afterCompletion(request, response, this.handler, ex);
 				}
 				catch (Throwable ex2) {
@@ -183,6 +195,7 @@ public class HandlerExecutionChain {
 
 	/**
 	 * Apply afterConcurrentHandlerStarted callback on mapped AsyncHandlerInterceptors.
+	 * 调用注册到容器中和给定请求匹配的AsyncHandlerInterceptors拦截器们的afterConcurrentHandlingStarted方法
 	 */
 	void applyAfterConcurrentHandlingStarted(HttpServletRequest request, HttpServletResponse response) {
 		HandlerInterceptor[] interceptors = getInterceptors();

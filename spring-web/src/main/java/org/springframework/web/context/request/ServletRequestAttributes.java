@@ -68,7 +68,7 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 
 	@Nullable
 	private volatile HttpSession session;
-
+	/**要修改的session属性；key是session属性名，value为要修改为的session属性值*/
 	private final Map<String, Object> sessionAttributesToUpdate = new ConcurrentHashMap<>(1);
 
 
@@ -271,15 +271,20 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 	 */
 	@Override
 	protected void updateAccessedSessionAttributes() {
+		//要修改的session属性容器不为空
 		if (!this.sessionAttributesToUpdate.isEmpty()) {
 			// Update all affected session attributes.
+			//修改受影响的全部session属性
+			//获取当前请求的session会话对象
 			HttpSession session = getSession(false);
 			if (session != null) {
 				try {
+					//迭代修改session属性对象
 					for (Map.Entry<String, Object> entry : this.sessionAttributesToUpdate.entrySet()) {
 						String name = entry.getKey();
 						Object newValue = entry.getValue();
 						Object oldValue = session.getAttribute(name);
+						//如果给定的新的session属性值不是不可变的，则将其设置到session中
 						if (oldValue == newValue && !isImmutableSessionAttribute(name, newValue)) {
 							session.setAttribute(name, newValue);
 						}
@@ -289,6 +294,7 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 					// Session invalidated - shouldn't usually happen.
 				}
 			}
+			//清空容器
 			this.sessionAttributesToUpdate.clear();
 		}
 	}

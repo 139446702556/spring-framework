@@ -87,6 +87,7 @@ public final class LocaleContextHolder {
 
 	/**
 	 * Associate the given LocaleContext with the current thread.
+	 * 将给定的LocaleContext与当前线程关联
 	 * <p>The given LocaleContext may be a {@link TimeZoneAwareLocaleContext},
 	 * containing a locale with associated time zone information.
 	 * @param localeContext the current LocaleContext,
@@ -114,6 +115,7 @@ public final class LocaleContextHolder {
 
 	/**
 	 * Return the LocaleContext associated with the current thread, if any.
+	 * 返回与当前线程关联的LocaleContext
 	 * @return the current LocaleContext, or {@code null} if none
 	 */
 	@Nullable

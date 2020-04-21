@@ -200,16 +200,18 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private boolean publishContext = true;
 
 	/** Should we publish a ServletRequestHandledEvent at the end of each request?. */
+	/**我们是否应该在每个请求结束时发布一个ServletRequestHandledEvent事件*/
 	private boolean publishEvents = true;
 
 	/** Expose LocaleContext and RequestAttributes as inheritable for child threads?. */
 	private boolean threadContextInheritable = false;
 
 	/** Should we dispatch an HTTP OPTIONS request to {@link #doService}?. */
-	/** 我们是否应该向doService方法发送一个http option请求*/
+	/** 我们是否应该在doService方法中处理一个http option请求*/
 	private boolean dispatchOptionsRequest = false;
 
 	/** Should we dispatch an HTTP TRACE request to {@link #doService}?. */
+	/**我们是否应该在doService方法中处理一个http trace请求*/
 	private boolean dispatchTraceRequest = false;
 
 	/** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */
@@ -937,15 +939,18 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	/**
 	 * Override the parent class implementation in order to intercept PATCH requests.
+	 * 覆盖父类的实现方法，以拦截处理PATCH方式的请求
 	 */
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		//获得请求的方法
 		HttpMethod httpMethod = HttpMethod.resolve(request.getMethod());
+		//处理PATCH方式的请求
 		if (httpMethod == HttpMethod.PATCH || httpMethod == null) {
 			processRequest(request, response);
 		}
+		//调用父类，处理其它类型请求
 		else {
 			super.service(request, response);
 		}
@@ -1000,6 +1005,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	/**
 	 * Delegate OPTIONS requests to {@link #processRequest}, if desired.
+	 * 处理http options请求，如果需要的话，可以委托processRequest方法来处理
 	 * <p>Applies HttpServlet's standard OPTIONS processing otherwise,
 	 * and also if there is still no 'Allow' header set after dispatching.
 	 * @see #doService
@@ -1007,9 +1013,11 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected void doOptions(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		//如果dispatchOptionsRequest为true或者给定的请求是一个有效的CORS跨域请求，则处理该请求
 		if (this.dispatchOptionsRequest || CorsUtils.isPreFlightRequest(request)) {
+			//处理请求
 			processRequest(request, response);
+			//如果响应Header中包含"Allow"，则不需要交给父类处理
 			if (response.containsHeader("Allow")) {
 				// Proper OPTIONS response coming from a handler - we're done.
 				return;
@@ -1017,12 +1025,15 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 
 		// Use response wrapper in order to always add PATCH to the allowed methods
+		//调用父类的方法，并在相应的Header中的"Allow"增加PATCH的值
 		super.doOptions(request, new HttpServletResponseWrapper(response) {
 			@Override
 			public void setHeader(String name, String value) {
+				//如果要设置的请求头为Allow字段，则在其中的值中添加PATCH值
 				if ("Allow".equals(name)) {
 					value = (StringUtils.hasLength(value) ? value + ", " : "") + HttpMethod.PATCH.name();
 				}
+				//调用父类方法，将修改后的Header值重新设置会响应中
 				super.setHeader(name, value);
 			}
 		});
@@ -1036,57 +1047,72 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected void doTrace(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		//如果dispatchTraceRequest的值为true，则处理该请求
 		if (this.dispatchTraceRequest) {
+			//处理给定的请求
 			processRequest(request, response);
+			//如果给定的响应的内容类型（ContentType）为"message/http"，则不需要交给父类方法处理
 			if ("message/http".equals(response.getContentType())) {
 				// Proper TRACE response coming from a handler - we're done.
 				return;
 			}
 		}
+		//调用父类方法处理
 		super.doTrace(request, response);
 	}
 
 	/**
 	 * Process this request, publishing an event regardless of the outcome.
+	 * 处理给定的请求，无论结果如何，发布对应的事件
 	 * <p>The actual event handling is performed by the abstract
 	 * {@link #doService} template method.
 	 */
 	protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		//记录当前事件，用于计算一条web请求的处理事件
 		long startTime = System.currentTimeMillis();
+		//记录异常
 		Throwable failureCause = null;
-
+		//获取当前线程处理的上一个LocaleContext对象
 		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
+		//使用给定的请求构建一个LocalaContext对象
 		LocaleContext localeContext = buildLocaleContext(request);
-
+		//获取当前绑定到线程的RequestAttributes对象
 		RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
+		//使用给定的请求构建一个RequestAttributes对象
 		ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
-
+		//从给定请求中获取WebAsyncManager，如果获取不到，则新创建并与请求绑定
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+		//注册请求的回调拦截器
 		asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
-
+		//将给定的localeContext和requestAttributes与当前线程绑定，即将给定的属性对象添加到对应的ThreadLocal里面
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
+			//真正的处理请求得到响应的逻辑
 			doService(request, response);
 		}
 		catch (ServletException | IOException ex) {
+			//记录抛出的异常
 			failureCause = ex;
 			throw ex;
 		}
 		catch (Throwable ex) {
+			//记录抛出的异常
 			failureCause = ex;
 			throw new NestedServletException("Request processing failed", ex);
 		}
 
 		finally {
+			//重新设置LocaleContext和RequestAttributes到当前线程的ThreadLocal变量中
 			resetContextHolders(request, previousLocaleContext, previousAttributes);
+			//发出请求已经完成的信号
 			if (requestAttributes != null) {
 				requestAttributes.requestCompleted();
 			}
+			//打印请求日志，请求日志级别为debug
 			logResult(request, response, failureCause, asyncManager);
+			//发布RequestHandledEvent事件
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}
@@ -1146,14 +1172,15 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	private void logResult(HttpServletRequest request, HttpServletResponse response,
 			@Nullable Throwable failureCause, WebAsyncManager asyncManager) {
-
+		//判断是否开始debug日志开关
 		if (!logger.isDebugEnabled()) {
 			return;
 		}
-
+		//获取当前的调度类型
 		String dispatchType = request.getDispatcherType().name();
+		//检测当前请求的调度类型是否为REQUEST,即初始调度
 		boolean initialDispatch = request.getDispatcherType().equals(DispatcherType.REQUEST);
-
+		//记录请求异常相关日志
 		if (failureCause != null) {
 			if (!initialDispatch) {
 				// FORWARD/ERROR/ASYNC: minimal message (there should be enough context already)
@@ -1169,15 +1196,15 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			}
 			return;
 		}
-
+		//开启并发处理时记录日志
 		if (asyncManager.isConcurrentHandlingStarted()) {
 			logger.debug("Exiting but response remains open for further handling");
 			return;
 		}
-
+		//获取响应状态
 		int status = response.getStatus();
 		String headers = ""; // nothing below trace
-
+		//记录响应头相关信息
 		if (logger.isTraceEnabled()) {
 			Collection<String> names = response.getHeaderNames();
 			if (this.enableLoggingRequestDetails) {
@@ -1189,7 +1216,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			}
 			headers = ", headers={" + headers + "}";
 		}
-
+		//记录请求响应的相关状态信息
 		if (!initialDispatch) {
 			logger.debug("Exiting from \"" + dispatchType + "\" dispatch, status " + status + headers);
 		}
@@ -1201,10 +1228,13 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	private void publishRequestHandledEvent(HttpServletRequest request, HttpServletResponse response,
 			long startTime, @Nullable Throwable failureCause) {
-
+		//如果开启了发布事件（publishEvents为true），并且当前上下文容器不为空
 		if (this.publishEvents && this.webApplicationContext != null) {
 			// Whether or not we succeeded, publish an event.
+			//不管我们是否成功，都发送一个事件
+			//计算请求处理时间
 			long processingTime = System.currentTimeMillis() - startTime;
+			//在当前上下文中发送一个ServletRequestHandledEvent事件
 			this.webApplicationContext.publishEvent(
 					new ServletRequestHandledEvent(this,
 							request.getRequestURI(), request.getRemoteAddr(),

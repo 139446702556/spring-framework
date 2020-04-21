@@ -184,6 +184,7 @@ public final class WebAsyncManager {
 
 	/**
 	 * Register a {@link CallableProcessingInterceptor} under the given key.
+	 * 注册一个CallableProcessingInterceptor拦截器给给定的key对象
 	 * @param key the key
 	 * @param interceptor the interceptor to register
 	 */

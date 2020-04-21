@@ -448,6 +448,7 @@ public abstract class WebUtils {
 	/**
 	 * Return an appropriate request object of the specified type, if available,
 	 * unwrapping the given request as far as necessary.
+	 * 返回指定类型的适当请求对象(如果可用)，根据需要展开给定的请求。
 	 * @param request the servlet request to introspect
 	 * @param requiredType the desired type of request object
 	 * @return the matching request object, or {@code null} if none
@@ -456,6 +457,9 @@ public abstract class WebUtils {
 	@SuppressWarnings("unchecked")
 	@Nullable
 	public static <T> T getNativeRequest(ServletRequest request, @Nullable Class<T> requiredType) {
+		//判断给定的请求request对象是否为给定的requiredType类型，如果是直接强转返回
+		//不是，如果给定的请求为包装类，则获取其包装的请求对象，并递归调用getNativeRequest方法获取指定类型的请求对象
+		//如果以上都不满足，则直接返回null
 		if (requiredType != null) {
 			if (requiredType.isInstance(request)) {
 				return (T) request;
@@ -492,6 +496,7 @@ public abstract class WebUtils {
 	/**
 	 * Determine whether the given request is an include request,
 	 * that is, not a top-level HTTP request coming in from the outside.
+	 * 确定给定的请求是否包含请求，也就是说，不是来自外部的顶级http请求
 	 * <p>Checks the presence of the "javax.servlet.include.request_uri"
 	 * request attribute. Could check any request attribute that is only
 	 * present in an include request.

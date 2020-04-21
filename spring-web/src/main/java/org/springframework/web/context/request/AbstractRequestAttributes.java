@@ -40,12 +40,16 @@ public abstract class AbstractRequestAttributes implements RequestAttributes {
 
 	/**
 	 * Signal that the request has been completed.
+	 * 发出请求以及完成的信号
 	 * <p>Executes all request destruction callbacks and updates the
 	 * session attributes that have been accessed during request processing.
 	 */
 	public void requestCompleted() {
+		//执行注册的请求回调方法，在请求完成的时候
 		executeRequestDestructionCallbacks();
+		//更新以访问的会话属性
 		updateAccessedSessionAttributes();
+		//将请求活跃标识设为false
 		this.requestActive = false;
 	}
 
@@ -84,8 +88,10 @@ public abstract class AbstractRequestAttributes implements RequestAttributes {
 	/**
 	 * Execute all callbacks that have been registered for execution
 	 * after request completion.
+	 * 在执行请求完成后，执行已经注册的所有回调
 	 */
 	private void executeRequestDestructionCallbacks() {
+		//对已经注册的全部回调方法，加锁，迭代执行；执行完之后清空容器
 		synchronized (this.requestDestructionCallbacks) {
 			for (Runnable runnable : this.requestDestructionCallbacks.values()) {
 				runnable.run();

@@ -59,6 +59,7 @@ public class ModelAndView {
 	private HttpStatus status;
 
 	/** Indicates whether or not this instance has been cleared with a call to {@link #clear()}. */
+	/**指示是否调用了clear()方法来清除此实例*/
 	private boolean cleared = false;
 
 
@@ -218,6 +219,7 @@ public class ModelAndView {
 	/**
 	 * Indicate whether or not this {@code ModelAndView} has a view, either
 	 * as a view name or as a direct {@link View} instance.
+	 * 指示这个ModelAndView是否有一个视图，要么作为一个视图名，要么作为一个直接的view实例
 	 */
 	public boolean hasView() {
 		return (this.view != null);
@@ -329,6 +331,7 @@ public class ModelAndView {
 
 	/**
 	 * Return whether this ModelAndView object is empty,
+	 * 返回当前ModelAndView对象是否为空
 	 * i.e. whether it does not hold any view and does not contain a model.
 	 */
 	public boolean isEmpty() {

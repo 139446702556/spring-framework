@@ -119,7 +119,7 @@ public class CommonsMultipartResolver extends CommonsFileUploadSupport
 		}
 	}
 
-
+	/**判断给定请求是否为MultipartRequest请求，即请求类型为post，请求的contentType为"multipart/*"*/
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
 		return ServletFileUpload.isMultipartContent(request);
