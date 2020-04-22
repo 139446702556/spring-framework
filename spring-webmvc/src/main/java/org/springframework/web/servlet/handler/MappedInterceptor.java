@@ -131,6 +131,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * The actual {@link HandlerInterceptor} reference.
+	 * 实际的HandlerInterceptor引用
 	 */
 	public HandlerInterceptor getInterceptor() {
 		return this.interceptor;

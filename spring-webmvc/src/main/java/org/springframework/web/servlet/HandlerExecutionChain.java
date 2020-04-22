@@ -54,6 +54,7 @@ public class HandlerExecutionChain {
 
 	/**
 	 * Create a new HandlerExecutionChain.
+	 * 创建一个新的HandlerExecutionChain对象
 	 * @param handler the handler object to execute
 	 */
 	public HandlerExecutionChain(Object handler) {
@@ -62,19 +63,25 @@ public class HandlerExecutionChain {
 
 	/**
 	 * Create a new HandlerExecutionChain.
+	 * 创建一个新的HandlerExecutionChain对象
 	 * @param handler the handler object to execute
 	 * @param interceptors the array of interceptors to apply
 	 * (in the given order) before the handler itself executes
 	 */
 	public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor... interceptors) {
+		//如果给定的handler是HandlerExecutionChain类型的
 		if (handler instanceof HandlerExecutionChain) {
+			//强转
 			HandlerExecutionChain originalChain = (HandlerExecutionChain) handler;
+			//获取其包装的处理器，并赋值给当前对象
 			this.handler = originalChain.getHandler();
+			//设置HandlerInterceptor们到当前的处理器执行链中
 			this.interceptorList = new ArrayList<>();
 			CollectionUtils.mergeArrayIntoCollection(originalChain.getInterceptors(), this.interceptorList);
 			CollectionUtils.mergeArrayIntoCollection(interceptors, this.interceptorList);
 		}
 		else {
+			//直接赋值
 			this.handler = handler;
 			this.interceptors = interceptors;
 		}

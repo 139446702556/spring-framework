@@ -354,8 +354,12 @@ public abstract class BeanFactoryUtils {
 			throws BeansException {
 
 		Assert.notNull(lbf, "ListableBeanFactory must not be null");
+		//用于存储结果bean相关信息的
 		Map<String, T> result = new LinkedHashMap<>(4);
+		//从给定的beanFactory容器中获取给定type类型的bean对象信息，将其加入到result中
 		result.putAll(lbf.getBeansOfType(type, includeNonSingletons, allowEagerInit));
+		//利用递归调用beansOfTypeIncludingAncestors方法来从其众多父类工厂容器中获取给定类型的bean对象信息
+		//并将其全部添加到result中
 		if (lbf instanceof HierarchicalBeanFactory) {
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;
 			if (hbf.getParentBeanFactory() instanceof ListableBeanFactory) {

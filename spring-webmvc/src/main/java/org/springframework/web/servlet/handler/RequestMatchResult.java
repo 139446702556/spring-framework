@@ -30,16 +30,17 @@ import org.springframework.util.PathMatcher;
  * @since 4.3.1
  */
 public class RequestMatchResult {
-
+	/**匹配上的路径*/
 	private final String matchingPattern;
-
+	/**被匹配的路径*/
 	private final String lookupPath;
-
+	/**路径匹配器*/
 	private final PathMatcher pathMatcher;
 
 
 	/**
 	 * Create an instance with a matching pattern.
+	 * 使用匹配的模式创建一个实例
 	 * @param matchingPattern the matching pattern, possibly not the same as the
 	 * input pattern, e.g. inputPattern="/foo" and matchingPattern="/foo/".
 	 * @param lookupPath the lookup path extracted from the request
@@ -58,6 +59,7 @@ public class RequestMatchResult {
 	/**
 	 * Extract URI template variables from the matching pattern as defined in
 	 * {@link PathMatcher#extractUriTemplateVariables}.
+	 * 从定义的匹配模式中提取URI模板变量
 	 * @return a map with URI template variables
 	 */
 	public Map<String, String> extractUriTemplateVariables() {
