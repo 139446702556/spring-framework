@@ -41,17 +41,18 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @since 3.0
+ * 支持地址匹配的HandlerInterceptor的实现类
  */
 public final class MappedInterceptor implements HandlerInterceptor {
-
+	/**匹配的路径*/
 	@Nullable
 	private final String[] includePatterns;
-
+	/**不匹配的路径*/
 	@Nullable
 	private final String[] excludePatterns;
-
+	/**HandlerInterceptor 拦截器对象*/
 	private final HandlerInterceptor interceptor;
-
+	/**路径匹配器*/
 	@Nullable
 	private PathMatcher pathMatcher;
 
@@ -140,30 +141,40 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 	/**
 	 * Determine a match for the given lookup path.
+	 * 确定给定查找路径的匹配
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching
 	 * @return {@code true} if the interceptor applies to the given request path
 	 */
 	public boolean matches(String lookupPath, PathMatcher pathMatcher) {
+		//如果当前匹配拦截器中设置了路径匹配器，则使用，否则使用参数给定的路径匹配器
 		PathMatcher pathMatcherToUse = (this.pathMatcher != null ? this.pathMatcher : pathMatcher);
+		//先排重，即不匹配的路径集合不为空
 		if (!ObjectUtils.isEmpty(this.excludePatterns)) {
+			//遍历excludePatterns数组
 			for (String pattern : this.excludePatterns) {
+				//如果给定的路径与其匹配，则返回false（不匹配）
 				if (pathMatcherToUse.match(pattern, lookupPath)) {
 					return false;
 				}
 			}
 		}
+		//如果includePatterns为空，即包含为空，则默认是包含（特殊情况），则返回true
 		if (ObjectUtils.isEmpty(this.includePatterns)) {
 			return true;
 		}
+		//后包含
+		//遍历includePatterns数组
 		for (String pattern : this.includePatterns) {
+			//匹配，则返回true
 			if (pathMatcherToUse.match(pattern, lookupPath)) {
 				return true;
 			}
 		}
+		//如果都未匹配，则视为未匹配，返回false
 		return false;
 	}
-
+	/**以下拦截器接口三个方法的实现为直接调用构造函数参数注册进来的拦截器对象方法调用*/
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {

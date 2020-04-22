@@ -72,6 +72,7 @@ import org.springframework.web.method.HandlerMethod;
  * @see org.springframework.web.servlet.i18n.LocaleChangeInterceptor
  * @see org.springframework.web.servlet.theme.ThemeChangeInterceptor
  * @see javax.servlet.Filter
+ * 处理器拦截器接口
  */
 public interface HandlerInterceptor {
 
@@ -93,6 +94,7 @@ public interface HandlerInterceptor {
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
 	 * that this interceptor has already dealt with the response itself.
 	 * @throws Exception in case of errors
+	 * 拦截器方法，在HandlerAdapter的handle方法执行之前执行
 	 */
 	default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
@@ -119,6 +121,7 @@ public interface HandlerInterceptor {
 	 * @param modelAndView the {@code ModelAndView} that the handler returned
 	 * (can also be {@code null})
 	 * @throws Exception in case of errors
+	 * 拦截器方法，在HandlerAdapter的handle方法执行成功之后执行
 	 */
 	default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
 			@Nullable ModelAndView modelAndView) throws Exception {
@@ -143,6 +146,8 @@ public interface HandlerInterceptor {
 	 * execution, for type and/or instance examination
 	 * @param ex exception thrown on handler execution, if any
 	 * @throws Exception in case of errors
+	 * 拦截器方法，在HandlerAdapter的handle方法执行之后执行，无论此方法执行成功还是失败
+	 * 并且此方法只有在当前接口的preHandle方法执行成功之后，才会执行
 	 */
 	default void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
 			@Nullable Exception ex) throws Exception {

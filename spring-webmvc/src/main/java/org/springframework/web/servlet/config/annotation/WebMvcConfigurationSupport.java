@@ -325,13 +325,19 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 	 * <p>This method cannot be overridden; use {@link #addInterceptors} instead.
 	 */
 	protected final Object[] getInterceptors() {
+		//如果interceptors未初始化，则进行初始化
 		if (this.interceptors == null) {
+			//创建InterceptorRegistry对象
 			InterceptorRegistry registry = new InterceptorRegistry();
+			//添加拦截器到拦截器注册表中，此处方法为一个空方法，交由子类实现
 			addInterceptors(registry);
+			//添加内置的拦截器到注册表中
 			registry.addInterceptor(new ConversionServiceExposingInterceptor(mvcConversionService()));
 			registry.addInterceptor(new ResourceUrlProviderExposingInterceptor(mvcResourceUrlProvider()));
+			//将注册表中的拦截器集合对象注册到interceptors中
 			this.interceptors = registry.getInterceptors();
 		}
+		//返回interceptors数组
 		return this.interceptors.toArray();
 	}
 

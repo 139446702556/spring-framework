@@ -1011,6 +1011,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	/**
 	 * Set the role hint for this {@code BeanDefinition}.
+	 * 为当前的beanDefinition设置角色提示
 	 */
 	@Override
 	public void setRole(int role) {
