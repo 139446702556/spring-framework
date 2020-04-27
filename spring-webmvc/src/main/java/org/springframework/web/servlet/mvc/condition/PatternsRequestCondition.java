@@ -160,6 +160,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 	@Override
 	public PatternsRequestCondition combine(PatternsRequestCondition other) {
 		Set<String> result = new LinkedHashSet<>();
+		//如果要合并的两个PatternRequestCondition的patterns均不为空，则使用antPathMatcher对其进行合并
 		if (!this.patterns.isEmpty() && !other.patterns.isEmpty()) {
 			for (String pattern1 : this.patterns) {
 				for (String pattern2 : other.patterns) {
@@ -167,6 +168,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 				}
 			}
 		}
+		//如果只有一个patterns不为空，则直接添加
 		else if (!this.patterns.isEmpty()) {
 			result.addAll(this.patterns);
 		}
@@ -176,6 +178,7 @@ public final class PatternsRequestCondition extends AbstractRequestCondition<Pat
 		else {
 			result.add("");
 		}
+		//创建新的PatternsRequestCondition对象，并返回
 		return new PatternsRequestCondition(result, this.pathHelper, this.pathMatcher,
 				this.useSuffixPatternMatch, this.useTrailingSlashMatch, this.fileExtensions);
 	}

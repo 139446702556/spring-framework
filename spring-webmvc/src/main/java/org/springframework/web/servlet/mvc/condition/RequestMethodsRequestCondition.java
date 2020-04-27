@@ -43,7 +43,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 
 	private static final RequestMethodsRequestCondition GET_CONDITION =
 			new RequestMethodsRequestCondition(RequestMethod.GET);
-
+	/**RequestMethod的集合*/
 	private final Set<RequestMethod> methods;
 
 
@@ -101,19 +101,22 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	@Override
 	@Nullable
 	public RequestMethodsRequestCondition getMatchingCondition(HttpServletRequest request) {
+		//cors请求处理
 		if (CorsUtils.isPreFlightRequest(request)) {
 			return matchPreFlight(request);
 		}
-
+		//如果未设置请求方法的匹配条件，则直接返回自身
 		if (getMethods().isEmpty()) {
+			//如果请求方法为options方法，并且此请求的调度程序类型不是error，则返回null
 			if (RequestMethod.OPTIONS.name().equals(request.getMethod()) &&
 					!DispatcherType.ERROR.equals(request.getDispatcherType())) {
 
 				return null; // No implicit match for OPTIONS (we handle it)
 			}
+			//否则返回当前调用对象本身
 			return this;
 		}
-
+		//如果设置了请求方法的匹配条件，则进行逐个匹配
 		return matchRequestMethod(request.getMethod());
 	}
 
@@ -133,17 +136,24 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 
 	@Nullable
 	private RequestMethodsRequestCondition matchRequestMethod(String httpMethodValue) {
+		//解析给定的http方法值，得到对应的HttpMethod对象
 		HttpMethod httpMethod = HttpMethod.resolve(httpMethodValue);
+		//如果解析成功
 		if (httpMethod != null) {
+			//遍历设置的请求方法集合
 			for (RequestMethod method : getMethods()) {
+				//匹配当前请求方法与给定方法是否匹配
 				if (httpMethod.matches(method.name())) {
+					//如果匹配，则创建RequestMethodsRequestCondition对象并返回
 					return new RequestMethodsRequestCondition(method);
 				}
 			}
+			//如果给定的方法为head方法，并且配置方法条件中允许http的get方法，则返回get方法对应的RequestMethodsRequestCondition对象
 			if (httpMethod == HttpMethod.HEAD && getMethods().contains(RequestMethod.GET)) {
 				return GET_CONDITION;
 			}
 		}
+		//如果解析未成功，或者请求方法与设置的方法条件不匹配，则返回null
 		return null;
 	}
 
@@ -160,13 +170,18 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
 	 */
 	@Override
 	public int compareTo(RequestMethodsRequestCondition other, HttpServletRequest request) {
+		//如果比较的两个RequestMethodsRequestCondition对象设置的支持method个数是否相等
 		if (other.methods.size() != this.methods.size()) {
+			//如果不相等，则返回其methods个数的差值
 			return other.methods.size() - this.methods.size();
 		}
+		//如果两个对象设置的方法个数为1
 		else if (this.methods.size() == 1) {
+			//如果this的methods中包含head方法，并且给定的other的methods中包含get方法，则返回-1
 			if (this.methods.contains(RequestMethod.HEAD) && other.methods.contains(RequestMethod.GET)) {
 				return -1;
 			}
+			//如果this.methods中包含get方法，并且other.methods中包含head方法，则返回1
 			else if (this.methods.contains(RequestMethod.GET) && other.methods.contains(RequestMethod.HEAD)) {
 				return 1;
 			}

@@ -134,10 +134,13 @@ public abstract class AopUtils {
 	 * @see MethodIntrospector#selectInvocableMethod(Method, Class)
 	 */
 	public static Method selectInvocableMethod(Method method, @Nullable Class<?> targetType) {
+		//如果给定的目标类型对象为空，则直接返回给定的method对象
 		if (targetType == null) {
 			return method;
 		}
+		//从给定的targetType中获取与method信息匹配的真正使用的方法对象
 		Method methodToUse = MethodIntrospector.selectInvocableMethod(method, targetType);
+		//如果当前给定方法是private，并且不是static的且使用的targetType是SpringProxy类型的子类，则抛出异常
 		if (Modifier.isPrivate(methodToUse.getModifiers()) && !Modifier.isStatic(methodToUse.getModifiers()) &&
 				SpringProxy.class.isAssignableFrom(targetType)) {
 			throw new IllegalStateException(String.format(

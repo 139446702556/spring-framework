@@ -124,6 +124,7 @@ public class UrlPathHelper {
 
 	/**
 	 * Whether configured to remove ";" (semicolon) content from the request URI.
+	 * 是否配置为删除分号请求URI中的内容
 	 */
 	public boolean shouldRemoveSemicolonContent() {
 		return this.removeSemicolonContent;

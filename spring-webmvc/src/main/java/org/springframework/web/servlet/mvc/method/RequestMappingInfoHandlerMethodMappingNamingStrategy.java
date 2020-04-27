@@ -36,22 +36,29 @@ public class RequestMappingInfoHandlerMethodMappingNamingStrategy
 		implements HandlerMethodMappingNamingStrategy<RequestMappingInfo> {
 
 	/** Separator between the type and method-level parts of a HandlerMethod mapping name. */
+	/**HandlerMethod映射名称的类型和方法级部分之间的分隔符；例如a类的b方法表示为A#b*/
 	public static final String SEPARATOR = "#";
 
 
 	@Override
 	public String getName(HandlerMethod handlerMethod, RequestMappingInfo mapping) {
+		//情况一，如果mapping的name名称属性不为空，则使用mapping的名字（即@RequestMapping注解设置的name属性值）
 		if (mapping.getName() != null) {
 			return mapping.getName();
 		}
+		//情况二，使用类名大写+"#"+方法名
 		StringBuilder sb = new StringBuilder();
+		//获取handlerMethod所属的bean的简单类型名称
 		String simpleTypeName = handlerMethod.getBeanType().getSimpleName();
+		//将简单类名称转换为大写，并添加到sb中
 		for (int i = 0; i < simpleTypeName.length(); i++) {
 			if (Character.isUpperCase(simpleTypeName.charAt(i))) {
 				sb.append(simpleTypeName.charAt(i));
 			}
 		}
+		//添加#号+handlerMethod的方法名称到sb中
 		sb.append(SEPARATOR).append(handlerMethod.getMethod().getName());
+		//返回
 		return sb.toString();
 	}
 

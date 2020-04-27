@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @since 3.1
  * @param <T> the type of objects that this RequestCondition can be combined
  * with and compared to
+ * 请求条件接口
  */
 public interface RequestCondition<T> {
 
@@ -42,6 +43,7 @@ public interface RequestCondition<T> {
 	 * @param other the condition to combine with.
 	 * @return a request condition instance that is the result of combining
 	 * the two condition instances.
+	 * 合并方法
 	 */
 	T combine(T other);
 
@@ -56,6 +58,7 @@ public interface RequestCondition<T> {
 	 * be matched to a pre-flight request it should return an instance with
 	 * empty content thus not causing a failure to match.
 	 * @return a condition instance in case of a match or {@code null} otherwise.
+	 * 获取匹配条件方法
 	 */
 	@Nullable
 	T getMatchingCondition(HttpServletRequest request);
@@ -65,6 +68,7 @@ public interface RequestCondition<T> {
 	 * a specific request. This method assumes both instances have
 	 * been obtained via {@link #getMatchingCondition(HttpServletRequest)}
 	 * to ensure they have content relevant to current request only.
+	 * 比较方法
 	 */
 	int compareTo(T other, HttpServletRequest request);
 

@@ -916,6 +916,7 @@ public abstract class ClassUtils {
 	 * class, but the original class in case of a CGLIB-generated subclass.
 	 * @param clazz the class to check
 	 * @return the user-defined class
+	 * 判断给定的类型是否为代理类，如果是，则返回真实的类
 	 */
 	public static Class<?> getUserClass(Class<?> clazz) {
 		//如果此类是cglib生成的子类，则返回原始类（即此类的父类（超类））

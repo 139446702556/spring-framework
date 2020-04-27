@@ -77,6 +77,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 	/**
 	 * Get the URL path patterns associated with this {@link RequestMappingInfo}.
+	 * 获取mapping对应的请求路径集合
 	 */
 	@Override
 	protected Set<String> getMappingPathPatterns(RequestMappingInfo info) {
@@ -88,6 +89,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	 * return a (potentially new) instance with conditions that match the
 	 * current request -- for example with a subset of URL patterns.
 	 * @return an info in case of a match; or {@code null} otherwise.
+	 * 获取请求对应的RequestMappingInfo对象
 	 */
 	@Override
 	protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpServletRequest request) {
@@ -96,6 +98,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 	/**
 	 * Provide a Comparator to sort RequestMappingInfos matched to a request.
+	 * 通过比较器来排序与请求匹配的requestMappingInfo对象们
 	 */
 	@Override
 	protected Comparator<RequestMappingInfo> getMappingComparator(final HttpServletRequest request) {
@@ -110,31 +113,38 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	 */
 	@Override
 	protected void handleMatch(RequestMappingInfo info, String lookupPath, HttpServletRequest request) {
+		//调用父类的handleMatch方法
 		super.handleMatch(info, lookupPath, request);
-
+		//最佳路径
 		String bestPattern;
+		//路径上的变量集合
 		Map<String, String> uriVariables;
-
+		//从给定requestMappingInfo对象中获取匹配路径集合
 		Set<String> patterns = info.getPatternsCondition().getPatterns();
+		//如果info的匹配路径集合为空，则将给定的lookupPath设置为最佳路径，参数集合为空
 		if (patterns.isEmpty()) {
 			bestPattern = lookupPath;
 			uriVariables = Collections.emptyMap();
 		}
+		//如果patterns不为空
 		else {
+			//获取patterns迭代器中的第一条数据
 			bestPattern = patterns.iterator().next();
+			//使用当前RequestMappingInfo对象中设置的路径匹配模式来与当前给定的请求路径进行匹配
+			//将获取到的请求路径上的参数容器返回
 			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
 		}
-
+		//将应用于当前请求的最佳路径存储到request的属性中
 		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern);
-
+		//设置MATRIX_VARIABLES_ATTRIBUTE属性到request请求中
 		if (isMatrixVariableContentAvailable()) {
 			Map<String, MultiValueMap<String, String>> matrixVars = extractMatrixVariables(request, uriVariables);
 			request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, matrixVars);
 		}
-
+		//设置URI_TEMPLATE_VARIABLES_ATTRIBUTE属性到request请求中
 		Map<String, String> decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
 		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, decodedUriVariables);
-
+		//设置PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE属性到request请求中
 		if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) {
 			Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
 			request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
@@ -186,21 +196,27 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	@Override
 	protected HandlerMethod handleNoMatch(
 			Set<RequestMappingInfo> infos, String lookupPath, HttpServletRequest request) throws ServletException {
-
+		//创建一个PartiaalMatchHelper对象，解析可能的错误（此对象表示当前给定请求与RequestMappingInfo对象的部分匹配情况）
 		PartialMatchHelper helper = new PartialMatchHelper(infos, request);
+		//如果没有部分匹配的对象，则直接返回null
 		if (helper.isEmpty()) {
 			return null;
 		}
-
+		//给定请求与部分匹配的RequestMappingInfo对象的请求方法设置存在相同
 		if (helper.hasMethodsMismatch()) {
+			//获取所有允许接收的请求方法
 			Set<String> methods = helper.getAllowedMethods();
+			//如果当前请求是options请求
 			if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+				//则通过先支持的请求方法集合创建HttpOptionsHandler对象
 				HttpOptionsHandler handler = new HttpOptionsHandler(methods);
+				//则返回此options请求对应的信息创建的HandlerMethod对象
 				return new HandlerMethod(handler, HTTP_OPTIONS_HANDLE_METHOD);
 			}
+			//如果不是options请求，则抛出异常
 			throw new HttpRequestMethodNotSupportedException(request.getMethod(), methods);
 		}
-
+		//可消费的Content-Type错误
 		if (helper.hasConsumesMismatch()) {
 			Set<MediaType> mediaTypes = helper.getConsumableMediaTypes();
 			MediaType contentType = null;
@@ -214,12 +230,12 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 			}
 			throw new HttpMediaTypeNotSupportedException(contentType, new ArrayList<>(mediaTypes));
 		}
-
+		//可生产的Content-Type错误
 		if (helper.hasProducesMismatch()) {
 			Set<MediaType> mediaTypes = helper.getProducibleMediaTypes();
 			throw new HttpMediaTypeNotAcceptableException(new ArrayList<>(mediaTypes));
 		}
-
+		//参数错误
 		if (helper.hasParamsMismatch()) {
 			List<String[]> conditions = helper.getParamConditions();
 			throw new UnsatisfiedServletRequestParameterException(conditions, request.getParameterMap());
@@ -237,6 +253,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		private final List<PartialMatch> partialMatches = new ArrayList<>();
 
 		public PartialMatchHelper(Set<RequestMappingInfo> infos, HttpServletRequest request) {
+			//遍历infos集合，如果指定info的请求路径条件有与给定请求request匹配的，则利用此信息创建PartialMatch对象
+			//并将其添加到partialMatches中
 			for (RequestMappingInfo info : infos) {
 				if (info.getPatternsCondition().getMatchingCondition(request) != null) {
 					this.partialMatches.add(new PartialMatch(info, request));
@@ -246,6 +264,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 		/**
 		 * Whether there any partial matches.
+		 * 是否有部分匹配
 		 */
 		public boolean isEmpty() {
 			return this.partialMatches.isEmpty();
@@ -253,18 +272,23 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 		/**
 		 * Any partial matches for "methods"?
+		 * 是否有部分匹配的请求方法与给定请求匹配
 		 */
 		public boolean hasMethodsMismatch() {
+			//遍历partialMatches集合
 			for (PartialMatch match : this.partialMatches) {
+				//如果当前部分匹配中，请求方法与给定请求匹配，则返回false
 				if (match.hasMethodsMatch()) {
 					return false;
 				}
 			}
+			//所有部分匹配的RequestMappingInfo的请求方法都不与当前请求方法匹配，则返回true
 			return true;
 		}
 
 		/**
 		 * Any partial matches for "methods" and "consumes"?
+		 * methods和consumes没有一个匹配的，则返回true，否则false
 		 */
 		public boolean hasConsumesMismatch() {
 			for (PartialMatch match : this.partialMatches) {
@@ -315,6 +339,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		/**
 		 * Return declared "consumable" types but only among those that also
 		 * match the "methods" condition.
+		 * 在所有匹配了设置的“方法”条件的类型之间，返回声明的“可消费”类型
 		 */
 		public Set<MediaType> getConsumableMediaTypes() {
 			Set<MediaType> result = new LinkedHashSet<>();

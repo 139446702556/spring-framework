@@ -198,7 +198,7 @@ public class AntPathMatcher implements PathMatcher {
 
 	/**
 	 * Actually match the given {@code path} against the given {@code pattern}.
-	 * @param pattern the pattern to match against
+	 * @param pattern the pattern to match against 要匹配的模式
 	 * @param path the path String to test
 	 * @param fullMatch whether a full pattern match is required (else a pattern match
 	 * as far as the given base path goes is sufficient)
@@ -206,23 +206,27 @@ public class AntPathMatcher implements PathMatcher {
 	 */
 	protected boolean doMatch(String pattern, String path, boolean fullMatch,
 			@Nullable Map<String, String> uriTemplateVariables) {
-
+		//如果给定的模式和路径一个使用设置的路径分隔符开头，另一个开头符号不是设置的路径分隔符，则匹配失败
 		if (path.startsWith(this.pathSeparator) != pattern.startsWith(this.pathSeparator)) {
 			return false;
 		}
-
+		//根据设置的路径匹配器将给定的模式拆分成各部分数组
 		String[] pattDirs = tokenizePattern(pattern);
+		//如果要求模式与路径全部匹配，并且要求区分大小写，且path与给定的模式不完全匹配，则直接匹配失败
+		//isPotentialMatch方法为模式与路径的完全匹配方法
 		if (fullMatch && this.caseSensitive && !isPotentialMatch(path, pattDirs)) {
 			return false;
 		}
-
+		//根据设置的路径分隔符，将给定的路径分割成多个部分
 		String[] pathDirs = tokenizePath(path);
 
 		int pattIdxStart = 0;
 		int pattIdxEnd = pattDirs.length - 1;
 		int pathIdxStart = 0;
 		int pathIdxEnd = pathDirs.length - 1;
-
+		//以下为两种匹配模式：
+		//1、处理匹配模式中有多个占位符**的匹配方法来匹配路径
+		//2、从后向前匹配，当匹配到**占位符时结束
 		// Match all elements up to the first **
 		while (pattIdxStart <= pattIdxEnd && pathIdxStart <= pathIdxEnd) {
 			String pattDir = pattDirs[pattIdxStart];
@@ -508,11 +512,15 @@ public class AntPathMatcher implements PathMatcher {
 
 	@Override
 	public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
+		//存储路径上变量的容器
 		Map<String, String> variables = new LinkedHashMap<>();
+		//使用给定的匹配模式来对当前给定的path路径来进行匹配，将其参数解析设置到variables中，并且返回匹配结果
 		boolean result = doMatch(pattern, path, true, variables);
+		//如果模式匹配路径失败，则抛出异常
 		if (!result) {
 			throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
 		}
+		//匹配成功，则返回路径上设置的所有参数集合
 		return variables;
 	}
 

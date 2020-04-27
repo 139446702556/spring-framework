@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -58,50 +59,61 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Juergen Hoeller
  * @author Sam Brannen
  * @since 3.1
+ * 处理器的方法的封装对象
  */
 public class HandlerMethod {
 
 	/** Logger that is available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	/**bean对象*/
 	private final Object bean;
-
+	/**bean工厂容器*/
 	@Nullable
 	private final BeanFactory beanFactory;
-
+	/**bean的类型*/
 	private final Class<?> beanType;
-
+	/**方法*/
 	private final Method method;
-
+	/**method的桥接方法*/
 	private final Method bridgedMethod;
-
+	/**方法参数数组*/
 	private final MethodParameter[] parameters;
-
+	/**响应的状态码*/
 	@Nullable
 	private HttpStatus responseStatus;
-
+	/**响应的状态码原因*/
 	@Nullable
 	private String responseStatusReason;
-
+	/**
+	 * 解析自哪个HandlerMethod对象
+	 * 仅构造方法传入HandlerMethod类型的参数适用，例如HandlerMethod(HandlerMethod)
+	 */
 	@Nullable
 	private HandlerMethod resolvedFromHandlerMethod;
-
+	/**父接口的方法的参数注解数组*/
 	@Nullable
 	private volatile List<Annotation[][]> interfaceParameterAnnotations;
 
 
 	/**
 	 * Create an instance from a bean instance and a method.
+	 * 使用给定的bean实例对象和method对象创建一个新的HandlerMethod对象
 	 */
 	public HandlerMethod(Object bean, Method method) {
 		Assert.notNull(bean, "Bean is required");
 		Assert.notNull(method, "Method is required");
+		//初始化bean属性
 		this.bean = bean;
+		//因为传入的即为handler对象，所以不需要工厂容器，所以为空
 		this.beanFactory = null;
+		//初始化beanType属性
 		this.beanType = ClassUtils.getUserClass(bean);
+		//初始化method、bridgedMethod属性
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		//初始化parameters属性
 		this.parameters = initMethodParameters();
+		//初始化responseStatus、responseStatusReason属性
 		evaluateResponseStatus();
 	}
 
@@ -123,23 +135,33 @@ public class HandlerMethod {
 
 	/**
 	 * Create an instance from a bean name, a method, and a {@code BeanFactory}.
+	 * 通过给定参数创建一个HandlerMethod对象
 	 * The method {@link #createWithResolvedBean()} may be used later to
 	 * re-create the {@code HandlerMethod} with an initialized bean.
 	 */
 	public HandlerMethod(String beanName, BeanFactory beanFactory, Method method) {
+		//校验参数有效性
 		Assert.hasText(beanName, "Bean name is required");
 		Assert.notNull(beanFactory, "BeanFactory is required");
 		Assert.notNull(method, "Method is required");
+		//将beanName赋值给bean属性，说明需要使用beanName+beanFactory的方式来获取handler对象
 		this.bean = beanName;
 		this.beanFactory = beanFactory;
+		//初始化beanType属性
 		Class<?> beanType = beanFactory.getType(beanName);
+		//如果未在当前给定的beanFactory容器中找到给定beanName对应类型对象（即说明此容器中未存在beanName对应的bean对象）
+		//则抛出异常
 		if (beanType == null) {
 			throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
 		}
 		this.beanType = ClassUtils.getUserClass(beanType);
+		//初始化method、bridgedMethod属性
 		this.method = method;
 		this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
+		//初始化parameters属性
 		this.parameters = initMethodParameters();
+		//从给定的方法对象上（优先）或者beanType类对象上获取设置的ResponseStatus注解的信息
+		//将其设置到responseStatus和responseStatusReason属性
 		evaluateResponseStatus();
 	}
 
@@ -177,10 +199,15 @@ public class HandlerMethod {
 	}
 
 	private MethodParameter[] initMethodParameters() {
+		//获取方法的参数个数
 		int count = this.bridgedMethod.getParameterCount();
+		//创建MethodParameter数组，用于存放方法参数对象
 		MethodParameter[] result = new MethodParameter[count];
+		//遍历bridgedMethod的参数，并且逐个进行解析参数类型，然后设置
 		for (int i = 0; i < count; i++) {
+			//根据当前桥接方法以及参数索引值创建HandlerMethodParameter对象
 			HandlerMethodParameter parameter = new HandlerMethodParameter(i);
+			//解析参数类型，并设置到result中
 			GenericTypeResolver.resolveParameterType(parameter, this.beanType);
 			result[i] = parameter;
 		}
@@ -314,14 +341,23 @@ public class HandlerMethod {
 	/**
 	 * If the provided instance contains a bean name rather than an object instance,
 	 * the bean name is resolved before a {@link HandlerMethod} is created and returned.
+	 * 创建并解析Bean对象，得到HandlerMethod对象
+	 * 如果当前HandlerMethod对象中的beam存储的是对象，则直接创建
+	 * 如果存储的是beanName，则从当前上下文容器中解析其对应的bean实例对象，再创建
 	 */
 	public HandlerMethod createWithResolvedBean() {
+		//获取存储的handler bean对象
 		Object handler = this.bean;
+		//如果当前bean中存储的为字符串，则说明其存储的为容器中beanName
 		if (this.bean instanceof String) {
+			//断言当前HandlerMethod中存储的bean工厂容器不为空
 			Assert.state(this.beanFactory != null, "Cannot resolve bean name without BeanFactory");
+			//强转类型
 			String beanName = (String) this.bean;
+			//通过beanName在beanFactory容器中获取对应的handler对象
 			handler = this.beanFactory.getBean(beanName);
 		}
+		//使用当前HandlerMethod和解析得到的handler创建一个新的HandlerMethod对象
 		return new HandlerMethod(this, handler);
 	}
 
