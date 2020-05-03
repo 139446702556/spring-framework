@@ -465,11 +465,14 @@ public class UrlPathHelper {
 
 	@SuppressWarnings("deprecation")
 	private String decodeInternal(HttpServletRequest request, String source) {
+		//获取当前请求的编码格式
 		String enc = determineEncoding(request);
 		try {
+			//解码当前给定的数据，并返回
 			return UriUtils.decode(source, enc);
 		}
 		catch (UnsupportedCharsetException ex) {
+			//解码失败，则记录日志，并且使用默认的URL解码方式来对给定数据进行解码
 			if (logger.isWarnEnabled()) {
 				logger.warn("Could not decode request string [" + source + "] with encoding '" + enc +
 						"': falling back to platform default encoding; exception message: " + ex.getMessage());
@@ -539,9 +542,11 @@ public class UrlPathHelper {
 	 * @return the same Map or a new Map instance
 	 */
 	public Map<String, String> decodePathVariables(HttpServletRequest request, Map<String, String> vars) {
+		//如果当前已经进行了url解码，则直接返回给定的参数集合
 		if (this.urlDecode) {
 			return vars;
 		}
+		//否则，将参数集合中的所有参数进行url解码并返回解码后得到的集合
 		else {
 			Map<String, String> decodedVars = new LinkedHashMap<>(vars.size());
 			vars.forEach((key, value) -> decodedVars.put(key, decodeInternal(request, value)));

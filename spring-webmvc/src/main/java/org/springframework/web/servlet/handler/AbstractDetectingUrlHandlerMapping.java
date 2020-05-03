@@ -32,7 +32,7 @@ import org.springframework.util.ObjectUtils;
  * @see #determineUrlsForHandler
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
-
+	/**是否只对可访问的Handler们进行扫描*/
 	private boolean detectHandlersInAncestorContexts = false;
 
 
@@ -55,12 +55,15 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 */
 	@Override
 	public void initApplicationContext() throws ApplicationContextException {
+		//调用父类方法进行相应的初始化
 		super.initApplicationContext();
+		//自动探测处理器们（即自动在当前上下文ioc容器中查找注册的处理器们）
 		detectHandlers();
 	}
 
 	/**
 	 * Register all handlers found in the current ApplicationContext.
+	 * 注册全部在当前应用程序上下文容器中找到的处理器bean对象们
 	 * <p>The actual URL determination for a handler is up to the concrete
 	 * {@link #determineUrlsForHandler(String)} implementation. A bean for
 	 * which no such URLs could be determined is simply not considered a handler.
@@ -68,20 +71,27 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 * @see #determineUrlsForHandler(String)
 	 */
 	protected void detectHandlers() throws BeansException {
+		//获取当前应用程序上下文对象
 		ApplicationContext applicationContext = obtainApplicationContext();
+		//获取bean的名字数组（当前detectHandlersInAncestorContexts为true时，获取的为当前上下文容器即其全部的父类容器中的beanName，
+		//而为false时，则获取的为当前上下文容器中的全部beanName集合）
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class) :
 				applicationContext.getBeanNamesForType(Object.class));
 
 		// Take any bean name that we can determine URLs for.
+		//遍历beanNames，逐个进行注册
 		for (String beanName : beanNames) {
+			//获取当前bean对应的url们
 			String[] urls = determineUrlsForHandler(beanName);
+			//如果urls非空，则执行注册处理器
 			if (!ObjectUtils.isEmpty(urls)) {
 				// URL paths found: Let's consider it a handler.
+				//注册指定urls与其对应handler处理器
 				registerHandler(urls, beanName);
 			}
 		}
-
+		//记录相应日志
 		if ((logger.isDebugEnabled() && !getHandlerMap().isEmpty()) || logger.isTraceEnabled()) {
 			logger.debug("Detected " + getHandlerMap().size() + " mappings in " + formatMappingName());
 		}

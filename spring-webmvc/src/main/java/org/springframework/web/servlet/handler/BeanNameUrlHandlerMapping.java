@@ -52,19 +52,27 @@ public class BeanNameUrlHandlerMapping extends AbstractDetectingUrlHandlerMappin
 
 	/**
 	 * Checks name and aliases of the given bean for URLs, starting with "/".
+	 * 此方法用于处理将bean对象的name直接设置为其对应的url路径的形式
+	 * 用于确定handler bean对应的url们（即声明定义的beanName或者alias们）
 	 */
 	@Override
 	protected String[] determineUrlsForHandler(String beanName) {
+		//存储所有与给定beanName匹配的url
 		List<String> urls = new ArrayList<>();
+		//给定beanName以斜杠开头，则直接添加到urls中
 		if (beanName.startsWith("/")) {
 			urls.add(beanName);
 		}
+		//获取当前beanName对应的所有别名
 		String[] aliases = obtainApplicationContext().getAliases(beanName);
+		//遍历给定beanName对应的全部别名
 		for (String alias : aliases) {
+			//如果当前别名以斜杠开头，则将其添加到urls中
 			if (alias.startsWith("/")) {
 				urls.add(alias);
 			}
 		}
+		//将urls转化为字符串数组，返回
 		return StringUtils.toStringArray(urls);
 	}
 

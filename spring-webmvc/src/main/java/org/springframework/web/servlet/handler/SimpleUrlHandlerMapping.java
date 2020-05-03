@@ -53,9 +53,13 @@ import org.springframework.util.CollectionUtils;
  * @see #setMappings
  * @see #setUrlMap
  * @see BeanNameUrlHandlerMapping
+ * 此类用于解析基于xml方式定义请求映射路径的形式
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
-
+	/**
+	 * 配置的URL和处理器之间的映射
+	 * 最终这个映射容器中的关系会通过调用registerHandlers方法来将其注册到AbstractUrlHandlerMapping中的handlerMap中
+	 */
 	private final Map<String, Object> urlMap = new LinkedHashMap<>();
 
 
@@ -101,32 +105,42 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 */
 	@Override
 	public void initApplicationContext() throws BeansException {
+		//调用父类的方法，进行初始化
 		super.initApplicationContext();
+		//将urlMap中定义的映射关系注册到处理器映射（handlerMap）中
 		registerHandlers(this.urlMap);
 	}
 
 	/**
 	 * Register all handlers specified in the URL map for the corresponding paths.
+	 * 为相应的路径注册URL映射中指定的所有处理程序
 	 * @param urlMap a Map with URL paths as keys and handler beans or bean names as values
 	 * @throws BeansException if a handler couldn't be registered
 	 * @throws IllegalStateException if there is a conflicting handler registered
 	 */
 	protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
+		//为空，记录日志
 		if (urlMap.isEmpty()) {
 			logger.trace("No patterns in " + formatMappingName());
 		}
+		//非空，进行开始注册
 		else {
+			//遍历urlMap数组来逐个注册处理器
 			urlMap.forEach((url, handler) -> {
 				// Prepend with slash if not already present.
+				//如果当前的url不是以斜杠开头，则在其首位加上斜杠
 				if (!url.startsWith("/")) {
 					url = "/" + url;
 				}
 				// Remove whitespace from handler bean name.
+				//如果当前要注册的handler为字符串类型，即上下文容器中的beanName，则去掉其首尾的空格
 				if (handler instanceof String) {
 					handler = ((String) handler).trim();
 				}
+				//注册处理器
 				registerHandler(url, handler);
 			});
+			//如果开启了debug日志，则记录相应日志
 			if (logger.isDebugEnabled()) {
 				List<String> patterns = new ArrayList<>();
 				if (getRootHandler() != null) {
