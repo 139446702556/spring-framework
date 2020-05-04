@@ -73,6 +73,7 @@ public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgu
 
 	/**
 	 * Add the given {@link HandlerMethodArgumentResolver HandlerMethodArgumentResolvers}.
+	 * 添加给定的处理器方法参数解析器到argumentResolvers中
 	 */
 	public HandlerMethodArgumentResolverComposite addResolvers(
 			@Nullable List<? extends HandlerMethodArgumentResolver> resolvers) {

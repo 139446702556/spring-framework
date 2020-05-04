@@ -32,6 +32,7 @@ import org.springframework.web.servlet.support.WebContentGenerator;
  *
  * @author Arjen Poutsma
  * @since 3.1
+ * 基于HandlerMethod接口的HandlerAdapter抽象类
  */
 public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator implements HandlerAdapter, Ordered {
 
@@ -40,6 +41,8 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 
 	public AbstractHandlerMethodAdapter() {
 		// no restriction of HTTP methods by default
+		//调用父类WebContentGenerator的构造函数
+		//参数restrictDefaultSupportedMethods为false，表示为不需要严格校验HttpMethod
 		super(false);
 	}
 
@@ -66,6 +69,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	 */
 	@Override
 	public final boolean supports(Object handler) {
+		//支持给定handler对象为HandlerMethod类型，并且supportsInternal方法返回true，此方法交由子类实现
 		return (handler instanceof HandlerMethod && supportsInternal((HandlerMethod) handler));
 	}
 
@@ -78,12 +82,13 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 
 	/**
 	 * This implementation expects the handler to be an {@link HandlerMethod}.
+	 * 执行给定的处理器，具体交由子类实现
 	 */
 	@Override
 	@Nullable
 	public final ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		//处理HandlerMethod类型的处理器对象，此方法为抽象方法，具体实现交由子类；详细见RequestMappingHandlerAdapter类
 		return handleInternal(request, response, (HandlerMethod) handler);
 	}
 
@@ -103,6 +108,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 
 	/**
 	 * This implementation expects the handler to be an {@link HandlerMethod}.
+	 * 获取最后的更新时间，具体实现交由子类实现getLastModifiedInternal抽象方法
 	 */
 	@Override
 	public final long getLastModified(HttpServletRequest request, Object handler) {

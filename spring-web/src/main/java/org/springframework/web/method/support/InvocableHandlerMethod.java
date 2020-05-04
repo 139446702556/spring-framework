@@ -110,6 +110,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 	/**
 	 * Invoke the method after resolving its argument values in the context of the given request.
+	 * 调用给定请求对应的方法，并获得其结果对象
 	 * <p>Argument values are commonly resolved through
 	 * {@link HandlerMethodArgumentResolver HandlerMethodArgumentResolvers}.
 	 * The {@code providedArgs} parameter however may supply argument values to be used directly,
@@ -130,11 +131,13 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//解析请求对应的方法的参数对象集合
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
+		//记录日志
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		//执行请求对应的方法调用
 		return doInvoke(args);
 	}
 
@@ -182,11 +185,14 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
 	/**
 	 * Invoke the handler method with the given argument values.
+	 * 使用给定的参数值们来调用请求对应的处理器方法
 	 */
 	@Nullable
 	protected Object doInvoke(Object... args) throws Exception {
+		//使用反射设置要调用的方法为可访问
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
+			//使用给定参数们来反射调用请求对应的标有@RequestMapping注解的方法
 			return getBridgedMethod().invoke(getBean(), args);
 		}
 		catch (IllegalArgumentException ex) {

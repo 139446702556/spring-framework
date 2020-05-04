@@ -95,31 +95,42 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	/**
 	 * Invoke the method and handle the return value through one of the
 	 * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
-	 * @param webRequest the current request
-	 * @param mavContainer the ModelAndViewContainer for this request
-	 * @param providedArgs "given" arguments matched by type (not resolved)
+	 * 调用该方法，并通过设置的HandlerMethodReturnValueHandler来处理返回值
+	 * @param webRequest the current request 当前请求
+	 * @param mavContainer the ModelAndViewContainer for this request 该请求的ModelAndView容器
+	 * @param providedArgs "given" arguments matched by type (not resolved)  类型匹配的给定参数（未解析）
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//执行调用，获取请求对应的返回值
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
+		//设置相应状态码
 		setResponseStatus(webRequest);
-
+		//如果执行当前请求对应的方法获取到的返回值为null时
 		if (returnValue == null) {
+			//如果给定的请求没有被修改过或者存在相应状态码或者给定的ModelAndViewContainer对象是指定请求完全处理得到的
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
+				//禁用当前请求使用内容缓存
 				disableContentCachingIfNecessary(webRequest);
+				//设置ModelAndViewContainer结果对象的标识为请求已处理完成
 				mavContainer.setRequestHandled(true);
+				//返回
 				return;
 			}
 		}
+		//如果得到了请求执行结果，并且响应状态原因中有内容
 		else if (StringUtils.hasText(getResponseStatusReason())) {
+			//设置ModelAndViewContainer对象的请求已处理完标识为true
 			mavContainer.setRequestHandled(true);
+			//返回
 			return;
 		}
-
+		//如果不满足以上条件，则证明当前请求对应的方法未完全处理完成
+		//则将结果ModelAndViewContainer对象的标识设置为请求未完成
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
 		try {
+			//处理请求执行返回的值
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
@@ -157,6 +168,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 	/**
 	 * Does the given request qualify as "not modified"?
+	 * 给定的请求是否没有被修改过
 	 * @see ServletWebRequest#checkNotModified(long)
 	 * @see ServletWebRequest#checkNotModified(String)
 	 */

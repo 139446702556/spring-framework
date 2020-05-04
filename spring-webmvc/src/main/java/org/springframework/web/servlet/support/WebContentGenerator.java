@@ -171,23 +171,31 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	}
 
 	private void initAllowHeader() {
+		//表示当前请求支持的方法类型集合
 		Collection<String> allowedMethods;
+		//如果没有设置支持的方法，即无限制
 		if (this.supportedMethods == null) {
+			//初始化allowedMethods集合
 			allowedMethods = new ArrayList<>(HttpMethod.values().length - 1);
+			//遍历所有的http方法类型
 			for (HttpMethod method : HttpMethod.values()) {
+				//如果不为trace请求类型，则将其添加到allowedMethods中
 				if (method != HttpMethod.TRACE) {
 					allowedMethods.add(method.name());
 				}
 			}
 		}
+		//如果设置了支持的方法，并且其中包含options方法，则直接将其设置给allowedMethods对象
 		else if (this.supportedMethods.contains(HttpMethod.OPTIONS.name())) {
 			allowedMethods = this.supportedMethods;
 		}
+		//否则，将支持请求类型设置给allowedMethods对象中后，在向其添加options请求类型
 		else {
 			allowedMethods = new ArrayList<>(this.supportedMethods);
 			allowedMethods.add(HttpMethod.OPTIONS.name());
 
 		}
+		//将allowedMethods数组转化为逗号隔开的字符串，并设置到header中
 		this.allowHeader = StringUtils.collectionToCommaDelimitedString(allowedMethods);
 	}
 
@@ -376,12 +384,14 @@ public abstract class WebContentGenerator extends WebApplicationObjectSupport {
 	 */
 	protected final void checkRequest(HttpServletRequest request) throws ServletException {
 		// Check whether we should support the request method.
+		//检查当前请求的方法是否支持，不支持抛出异常
 		String method = request.getMethod();
 		if (this.supportedMethods != null && !this.supportedMethods.contains(method)) {
 			throw new HttpRequestMethodNotSupportedException(method, this.supportedMethods);
 		}
 
 		// Check whether a session is required.
+		//检查是否必须设置请求session，如果是，但是没设置则抛出异常
 		if (this.requireSession && request.getSession(false) == null) {
 			throw new HttpSessionRequiredException("Pre-existing session required but none found");
 		}

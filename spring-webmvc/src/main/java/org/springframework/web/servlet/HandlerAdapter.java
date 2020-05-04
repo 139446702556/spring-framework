@@ -42,6 +42,8 @@ import org.springframework.lang.Nullable;
  * order (and thus a priority) for getting applied by the {@code DispatcherServlet}.
  * Non-Ordered instances get treated as lowest priority.
  * 处理器适配器接口
+ * 因为给定的hanler处理器对象是object类型的，所有需要有一个调用者来实现其是如何使用和执行的
+ * 此接口的实现类就是来完成这些任务的
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter

@@ -436,11 +436,15 @@ public abstract class WebUtils {
 	 * @see HttpSessionMutexListener
 	 */
 	public static Object getSessionMutex(HttpSession session) {
+		//断言给定的session对象不为空
 		Assert.notNull(session, "Session must not be null");
+		//获取session对象中的mutex属性，用来作为session同步的锁
 		Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
+		//如果mutex为空，则使用当前给定session对象
 		if (mutex == null) {
 			mutex = session;
 		}
+		//返回
 		return mutex;
 	}
 

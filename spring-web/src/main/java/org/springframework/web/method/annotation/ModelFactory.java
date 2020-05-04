@@ -184,9 +184,10 @@ public final class ModelFactory {
 	/**
 	 * Promote model attributes listed as {@code @SessionAttributes} to the session.
 	 * Add {@link BindingResult} attributes where necessary.
-	 * @param request the current request
-	 * @param container contains the model to update
-	 * @throws Exception if creating BindingResult attributes fails
+	 * 将被标注了@SessionAttributes注解的模型属性存储到会话中的缓存中去，在必要时添加bindingResult属性
+	 * @param request the current request 当前请求
+	 * @param container contains the model to update  包含了要修改的模型的容器
+	 * @throws Exception if creating BindingResult attributes fails  如果创建BindingResult属性时失败，则会抛出异常
 	 */
 	public void updateModel(NativeWebRequest request, ModelAndViewContainer container) throws Exception {
 		ModelMap defaultModel = container.getDefaultModel();
