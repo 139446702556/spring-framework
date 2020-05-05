@@ -40,6 +40,7 @@ import org.springframework.web.method.HandlerMethod;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ * 此类为可调用的HandlerMethod的实现类（其父类只提供了handler的method的基本信息，而具体调用逻辑有其提供）
  */
 public class InvocableHandlerMethod extends HandlerMethod {
 
@@ -144,33 +145,43 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	/**
 	 * Get the method argument values for the current request, checking the provided
 	 * argument values and falling back to the configured argument resolvers.
+	 * 解析请求对应的方法的参数们
 	 * <p>The resulting array will be passed into {@link #doInvoke}.
 	 * @since 5.1.2
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//获取方法的参数信息的数组
 		MethodParameter[] parameters = getMethodParameters();
+		//如果请求对应的方法无参数，则返回默认的参数集合EMPTY_ARGS空集合
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
 		}
-
+		//用于存储解析后得到的参数数组结果
 		Object[] args = new Object[parameters.length];
+		//开始遍历方法参数，进行解析
 		for (int i = 0; i < parameters.length; i++) {
+			//获取当前遍历的MethodParameter对象
 			MethodParameter parameter = parameters[i];
+			//将parameterNameDisconverer设置到当前的MethodParameter对象中
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			//从provideArgs中获取当前方法参数信息匹配的参数对象
 			args[i] = findProvidedArgument(parameter, providedArgs);
+			//如果获取到了，则直接进行下一个参数的解析
 			if (args[i] != null) {
 				continue;
 			}
+			//判断当前上下文中注册的ArgumentResolvers是否支持对当前参数的解析，如果不支持，则抛出异常
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				//支持，则使用注册的参数解析器对当前方法参数进行解析，解析成功，则继续进行下一个参数的解析
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {
 				// Leave stack trace for later, exception may actually be resolved and handled...
+				//解析失败，则记录日志信息，并抛出对应的异常
 				if (logger.isDebugEnabled()) {
 					String exMsg = ex.getMessage();
 					if (exMsg != null && !exMsg.contains(parameter.getExecutable().toGenericString())) {
@@ -180,6 +191,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 				throw ex;
 			}
 		}
+		//返回解析后得到的参数结果
 		return args;
 	}
 

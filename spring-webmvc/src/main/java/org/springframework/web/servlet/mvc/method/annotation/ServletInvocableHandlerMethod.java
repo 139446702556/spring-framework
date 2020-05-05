@@ -63,7 +63,7 @@ import org.springframework.web.util.NestedServletException;
 public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 	private static final Method CALLABLE_METHOD = ClassUtils.getMethod(Callable.class, "call");
-
+	/**返回结果的处理器，此字段的值是通过setting方法进行设置的*/
 	@Nullable
 	private HandlerMethodReturnValueHandlerComposite returnValueHandlers;
 
@@ -96,15 +96,16 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * Invoke the method and handle the return value through one of the
 	 * configured {@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}.
 	 * 调用该方法，并通过设置的HandlerMethodReturnValueHandler来处理返回值
+	 * 请求调用，并处理返回结果
 	 * @param webRequest the current request 当前请求
 	 * @param mavContainer the ModelAndViewContainer for this request 该请求的ModelAndView容器
 	 * @param providedArgs "given" arguments matched by type (not resolved)  类型匹配的给定参数（未解析）
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-		//执行调用，获取请求对应的返回值
+		//执行调用，获取请求对应方法执行得到的返回值
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
-		//设置相应状态码
+		//设置响应状态码
 		setResponseStatus(webRequest);
 		//如果执行当前请求对应的方法获取到的返回值为null时
 		if (returnValue == null) {
@@ -130,7 +131,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		mavContainer.setRequestHandled(false);
 		Assert.state(this.returnValueHandlers != null, "No return value handlers");
 		try {
-			//处理请求执行返回的值
+			//处理请求执行得到的返回值
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
 		}
@@ -144,25 +145,34 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
 	/**
 	 * Set the response status according to the {@link ResponseStatus} annotation.
+	 * 根据ResponseStatus注解的设置来设置当前请求对应的响应的状态码
 	 */
 	private void setResponseStatus(ServletWebRequest webRequest) throws IOException {
+		//获得响应状态码
+		//此处如果想要非空的话，需要使用@ResponseStatus注解方法来设置
 		HttpStatus status = getResponseStatus();
+		//若状态码为空，则直接返回
 		if (status == null) {
 			return;
 		}
-
+		//获取当前请求对应的响应对象
 		HttpServletResponse response = webRequest.getResponse();
+		//response不为空
 		if (response != null) {
+			//获取设置的响应状态码原因
 			String reason = getResponseStatusReason();
+			//如果reason不为空，则在响应的错误信息中设置status+reason
 			if (StringUtils.hasText(reason)) {
 				response.sendError(status.value(), reason);
 			}
 			else {
+				//如果reason为空，则只设置status
 				response.setStatus(status.value());
 			}
 		}
 
 		// To be picked up by RedirectView
+		//为了后续的RedirectView使用，这里将响应状态设置到request对象的属性当中
 		webRequest.getRequest().setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
 	}
 

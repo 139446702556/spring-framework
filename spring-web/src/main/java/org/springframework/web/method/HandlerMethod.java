@@ -60,6 +60,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author Sam Brannen
  * @since 3.1
  * 处理器的方法的封装对象
+ * 此类只提供了处理器的方法的基本信息，不提供调用逻辑，其逻辑有子类提供
  */
 public class HandlerMethod {
 
