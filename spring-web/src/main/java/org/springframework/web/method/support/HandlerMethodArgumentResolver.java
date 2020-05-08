@@ -29,12 +29,14 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Arjen Poutsma
  * @since 3.1
  * @see HandlerMethodReturnValueHandler
+ * HandlerMethod的参数解析器接口
  */
 public interface HandlerMethodArgumentResolver {
 
 	/**
 	 * Whether the given {@linkplain MethodParameter method parameter} is
 	 * supported by this resolver.
+	 * 是否支持解析该方法参数
 	 * @param parameter the method parameter to check
 	 * @return {@code true} if this resolver supports the supplied parameter;
 	 * {@code false} otherwise
@@ -47,6 +49,7 @@ public interface HandlerMethodArgumentResolver {
 	 * request. A {@link WebDataBinderFactory} provides a way to create
 	 * a {@link WebDataBinder} instance when needed for data binding and
 	 * type conversion purposes.
+	 * 解析给定方法参数
 	 * @param parameter the method parameter to resolve. This parameter must
 	 * have previously been passed to {@link #supportsParameter} which must
 	 * have returned {@code true}.

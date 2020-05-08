@@ -78,9 +78,11 @@ public abstract class MultipartResolutionDelegate {
 		return new StandardMultipartHttpServletRequest(request);
 	}
 
-
+	/**如果是multipart参数，则返回true，表示支持*/
 	public static boolean isMultipartArgument(MethodParameter parameter) {
+		//获取参数的类型
 		Class<?> paramType = parameter.getNestedParameterType();
+		//对参数类型进行MultipartFile类型相关和Part类型相关检查
 		return (MultipartFile.class == paramType ||
 				isMultipartFileCollection(parameter) || isMultipartFileArray(parameter) ||
 				(Part.class == paramType || isPartCollection(parameter) || isPartArray(parameter)));

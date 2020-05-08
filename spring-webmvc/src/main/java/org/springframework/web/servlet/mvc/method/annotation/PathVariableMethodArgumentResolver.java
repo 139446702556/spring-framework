@@ -61,6 +61,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @since 3.1
+ * 用于处理路径参数
  */
 public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
 		implements UriComponentsContributor {
@@ -70,20 +71,26 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
+		//如果无@PathVariable注解，则不支持
 		if (!parameter.hasParameterAnnotation(PathVariable.class)) {
 			return false;
 		}
+		//如果参数是Map类型，并且存在@PathVariable注解，注解设置了value属性，则支持
 		if (Map.class.isAssignableFrom(parameter.nestedIfOptional().getNestedParameterType())) {
 			PathVariable pathVariable = parameter.getParameterAnnotation(PathVariable.class);
 			return (pathVariable != null && StringUtils.hasText(pathVariable.value()));
 		}
+		//普通参数类型，并且设置了@PathVariable注解
 		return true;
 	}
 
 	@Override
 	protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
+		//获取当前参数上的@PathVariable注解对象
 		PathVariable ann = parameter.getParameterAnnotation(PathVariable.class);
+		//判断PathVariable对象不为空
 		Assert.state(ann != null, "No PathVariable annotation");
+		//使用参数上的PathVariable注解属性的设置来创建一个PathVariableNamedValueInfo对象，并返回
 		return new PathVariableNamedValueInfo(ann);
 	}
 
@@ -91,13 +98,16 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
+		//获取路径参数
 		Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(
 				HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
+		//获取参数值
 		return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
 	}
 
 	@Override
 	protected void handleMissingValue(String name, MethodParameter parameter) throws ServletRequestBindingException {
+		//抛出MissingPathVariableException异常
 		throw new MissingPathVariableException(name, parameter);
 	}
 
@@ -105,14 +115,16 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 	@SuppressWarnings("unchecked")
 	protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
 			@Nullable ModelAndViewContainer mavContainer, NativeWebRequest request) {
-
+		//从当前请求中获取View.PATH_VARIABLES对应的属性
 		String key = View.PATH_VARIABLES;
 		int scope = RequestAttributes.SCOPE_REQUEST;
 		Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(key, scope);
+		//如果View.PATH_VARIABLES;属性值为空，则初始化，并将其添加到请求中
 		if (pathVars == null) {
 			pathVars = new HashMap<>();
 			request.setAttribute(key, pathVars, scope);
 		}
+		//将给定的属性名和值添加到请求的View.PATH_VARIABLES属性中
 		pathVars.put(name, arg);
 	}
 

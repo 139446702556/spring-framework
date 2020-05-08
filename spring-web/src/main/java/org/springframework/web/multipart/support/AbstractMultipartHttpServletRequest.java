@@ -90,10 +90,13 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 
 	@Override
 	public List<MultipartFile> getFiles(String name) {
+		//从当前上下文中的multipartFiles容器中获取给定name对应的MultipartFile集合
 		List<MultipartFile> multipartFiles = getMultipartFiles().get(name);
+		//如果获取到了，则返回
 		if (multipartFiles != null) {
 			return multipartFiles;
 		}
+		//如果未获取到对应的参数，则返回空集合
 		else {
 			return Collections.emptyList();
 		}
@@ -134,12 +137,15 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	/**
 	 * Obtain the MultipartFile Map for retrieval,
 	 * lazily initializing it if necessary.
+	 * 获取用于检索的MultipartFile映射对象，必要的时候延迟初始化此映射容器
 	 * @see #initializeMultipart()
 	 */
 	protected MultiValueMap<String, MultipartFile> getMultipartFiles() {
+		//如果当前multipartFiles映射容器为空，则对其进行初始化（此处为延迟初始化）
 		if (this.multipartFiles == null) {
 			initializeMultipart();
 		}
+		//返回multipartFiles对象
 		return this.multipartFiles;
 	}
 

@@ -440,7 +440,7 @@ public class ResolvableType implements Serializable {
 	 * @see #getInterfaces()
 	 */
 	public ResolvableType as(Class<?> type) {
-		//如果当前的ResolvableType对象为空对象，则直接返回
+		//如果当前的ResolvableType对象为空对象，则直接返回NONE
 		if (this == NONE) {
 			return NONE;
 		}
@@ -450,13 +450,14 @@ public class ResolvableType implements Serializable {
 		if (resolved == null || resolved == type) {
 			return this;
 		}
-		//
+		//遍历当前ResolvableType类型实现的接口集合，递归调用，找到type类型对应的ResolvableType对象
 		for (ResolvableType interfaceType : getInterfaces()) {
 			ResolvableType interfaceAsType = interfaceType.as(type);
 			if (interfaceAsType != NONE) {
 				return interfaceAsType;
 			}
 		}
+		//父类查找
 		return getSuperType().as(type);
 	}
 
