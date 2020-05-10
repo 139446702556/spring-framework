@@ -250,6 +250,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 	/**
 	 * Validate the binding target if applicable.
+	 * 如果使用，则验证绑定目标
 	 * <p>The default implementation checks for {@code @javax.validation.Valid},
 	 * Spring's {@link org.springframework.validation.annotation.Validated},
 	 * and custom annotations whose name starts with "Valid".
@@ -287,6 +288,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 	/**
 	 * Adapt the given argument against the method parameter, if necessary.
+	 * 如果需要的话根据方法参数调整给定的参数
 	 * @param arg the resolved argument
 	 * @param parameter the method parameter descriptor
 	 * @return the adapted argument, or the original resolved argument as-is
@@ -294,11 +296,14 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 	 */
 	@Nullable
 	protected Object adaptArgumentIfNecessary(@Nullable Object arg, MethodParameter parameter) {
+		//方法参数类型是否为Optional类型
 		if (parameter.getParameterType() == Optional.class) {
+			//如果当前解析得到的输入参数为空，则返回空的Optional对象
 			if (arg == null || (arg instanceof Collection && ((Collection<?>) arg).isEmpty()) ||
 					(arg instanceof Object[] && ((Object[]) arg).length == 0)) {
 				return Optional.empty();
 			}
+			//非空，返回使用Optional包装的参数对象
 			else {
 				return Optional.of(arg);
 			}

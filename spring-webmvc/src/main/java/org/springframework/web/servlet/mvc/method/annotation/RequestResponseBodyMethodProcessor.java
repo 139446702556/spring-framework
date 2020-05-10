@@ -112,7 +112,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 		super(converters, manager, requestResponseBodyAdvice);
 	}
 
-
+	/**检查当前给定方法参数是否有@RequestBody注解标识*/
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(RequestBody.class);
@@ -133,24 +133,31 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	@Override
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		//如果当前参数类型为嵌套类，如Optional类型，则获取其包装的类，否则返回自身
 		parameter = parameter.nestedIfOptional();
+		//获取参数，并将其解析为指定的形式
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
+		//获取当前参数的变量名
 		String name = Conventions.getVariableNameForParameter(parameter);
-
+		//如果binderFactory非空
 		if (binderFactory != null) {
+			//创建WebDataBinder对象
 			WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
+			//获取到了参数
 			if (arg != null) {
+				//验证参数的绑定目标
 				validateIfApplicable(binder, parameter);
+				//如果绑定时发生异常，则抛出
 				if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
 					throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
 				}
 			}
+			//向mavContainer中添加相应属性值
 			if (mavContainer != null) {
 				mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
 			}
 		}
-
+		//根据方法参数调整给定的参数
 		return adaptArgumentIfNecessary(arg, parameter);
 	}
 
