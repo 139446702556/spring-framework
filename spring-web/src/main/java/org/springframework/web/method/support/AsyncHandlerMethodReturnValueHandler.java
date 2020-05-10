@@ -38,6 +38,7 @@ public interface AsyncHandlerMethodReturnValueHandler extends HandlerMethodRetur
 
 	/**
 	 * Whether the given return value represents asynchronous computation.
+	 * 给定的返回值是否代表异步计算的返回值
 	 * @param returnValue the value returned from the handler method
 	 * @param returnType the return type
 	 * @return {@code true} if the return value type represents an async value

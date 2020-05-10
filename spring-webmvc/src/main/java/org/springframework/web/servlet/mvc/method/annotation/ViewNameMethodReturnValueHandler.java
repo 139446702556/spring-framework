@@ -41,9 +41,11 @@ import org.springframework.web.servlet.RequestToViewNameTranslator;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ * 此类用于处理返回值为视图名的ReturnValueHandler实现类
+ * 主要用于前后端未分离的情况，Controller返回的为视图名称的场景，主要用于jsp、freemarker等
  */
 public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
-
+	/**重定向的表达式数组*/
 	@Nullable
 	private String[] redirectPatterns;
 
@@ -70,21 +72,27 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		//获取返回值类型
 		Class<?> paramType = returnType.getParameterType();
+		//判断返回值类型是否为void类型或者是字符串
 		return (void.class == paramType || CharSequence.class.isAssignableFrom(paramType));
 	}
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		//如果返回值类型为string类型
 		if (returnValue instanceof CharSequence) {
+			//获取视图名称
 			String viewName = returnValue.toString();
+			//将视图名称设置到mavContainer中
 			mavContainer.setViewName(viewName);
+			//如果是重定向，则在mavContainer中进行标记
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		//返回值如果不是String类型，并且也不是void类型，则抛出相应异常
 		else if (returnValue != null) {
 			// should not happen
 			throw new UnsupportedOperationException("Unexpected return type: " +
@@ -96,11 +104,14 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	 * Whether the given view name is a redirect view reference.
 	 * The default implementation checks the configured redirect patterns and
 	 * also if the view name starts with the "redirect:" prefix.
+	 * 判断给定字符串是否为重定向的视图名称
 	 * @param viewName the view name to check, never {@code null}
 	 * @return "true" if the given view name is recognized as a redirect view
 	 * reference; "false" otherwise.
 	 */
 	protected boolean isRedirectViewName(String viewName) {
+		//判断当前给定的视图名是否符合redirectPatterns中的某一重定向表达式
+		//或者视图名称以redirect:开头（此处表示了为什么使用redirect:开头的字符串名称就为重定向视图名）
 		return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));
 	}
 

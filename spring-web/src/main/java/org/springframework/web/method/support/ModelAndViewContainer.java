@@ -46,30 +46,31 @@ import org.springframework.web.bind.support.SimpleSessionStatus;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ * Model和View的存储容器以及一些其它设置的属性
  */
 public class ModelAndViewContainer {
-
+	/**是否在redirect重定向时，忽略redirectModel*/
 	private boolean ignoreDefaultModelOnRedirect = false;
-
+	/**object类型的view对象，实际上也可以是String类型的逻辑视图*/
 	@Nullable
 	private Object view;
-
+	/**默认使用的Model，其是一个map类型*/
 	private final ModelMap defaultModel = new BindingAwareModelMap();
-
+	/**redirect重定向时使用的model，在重定向时进行使用*/
 	@Nullable
 	private ModelMap redirectModel;
-
+	/**处理器返回redirect视图的标识*/
 	private boolean redirectModelScenario = false;
-
+	/**http响应的状态*/
 	@Nullable
 	private HttpStatus status;
 
 	private final Set<String> noBinding = new HashSet<>(4);
 
 	private final Set<String> bindingDisabled = new HashSet<>(4);
-
+	/**用于设置SessionAttribute的标识*/
 	private final SessionStatus sessionStatus = new SimpleSessionStatus();
-
+	/**请求是否处理完成的标识*/
 	private boolean requestHandled = false;
 
 
@@ -136,12 +137,16 @@ public class ModelAndViewContainer {
 	 * The default model is used if {@code redirectModelScenario=false} or
 	 * there is no redirect model (i.e. RedirectAttributes was not declared as
 	 * a method argument) and {@code ignoreDefaultModelOnRedirect=false}.
+	 * 获取Model对象
 	 */
 	public ModelMap getModel() {
+		//是否使用默认模型，如果是，则直接返回defaultModel对象
 		if (useDefaultModel()) {
 			return this.defaultModel;
 		}
+		//如果不是，则返回redirectModel对象
 		else {
+			//如果redirectModel对象为空，则进行初始化
 			if (this.redirectModel == null) {
 				this.redirectModel = new ModelMap();
 			}
@@ -151,8 +156,11 @@ public class ModelAndViewContainer {
 
 	/**
 	 * Whether to use the default model or the redirect model.
+	 * 是使用默认模型还是重定义模型
 	 */
 	private boolean useDefaultModel() {
+		//当redirectModelScenario为false时，及不重定向
+		//或者重定向model为空时，并且ignoreDefaultModelOnRedirect为false，表示不忽略defaultModel对象
 		return (!this.redirectModelScenario || (this.redirectModel == null && !this.ignoreDefaultModelOnRedirect));
 	}
 

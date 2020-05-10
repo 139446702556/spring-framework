@@ -59,6 +59,9 @@ import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolv
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ * 此类可以处理返回值和参数两种类型的数据，实现了HandlerMethodReturnValueHandler接口和HandlerMethodArgumentResolver接口
+ * 用于处理参数被@RequestBody注解标注的或者返回值被@ResponseBody注解标注的请求处理
+ * 主要用于前后端分离的场景，来实现restful api接口给前端返回数据
  */
 public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
@@ -88,6 +91,10 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * For handling {@code @ResponseBody} consider also providing a
 	 * {@code ContentNegotiationManager}.
 	 * @since 4.2
+	 * converters参数：它是HttpMessageConverter转换器的集合，用于把请求方法处理得到的数据转化为
+	 * 其它需要的某种格式的数据
+	 * requestResponseBodyAdvice参数：其中注册的通知器用于拦截请求的返回值，实现对返回结果的修改
+	 * 它一般为ResponseBodyAdvice类型
 	 */
 	public RequestResponseBodyMethodProcessor(List<HttpMessageConverter<?>> converters,
 			@Nullable List<Object> requestResponseBodyAdvice) {
@@ -110,7 +117,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(RequestBody.class);
 	}
-
+	/**判断当前给定的MethodParameter对象所对应的方法或者所属类上是否标有@ResponseBody注解，有则支持*/
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
 		return (AnnotatedElementUtils.hasAnnotation(returnType.getContainingClass(), ResponseBody.class) ||
@@ -172,12 +179,14 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
+		//设置标识状态为已处理（true）
 		mavContainer.setRequestHandled(true);
+		//创建请求和响应对象
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
 
 		// Try even with null return value. ResponseBodyAdvice could get involved.
+		//使用HttpMessageConverter对对象进行转换，并将其写入响应中（此过程中可以使用注册的ResponseBodyAdvice对象对返回值进行修改）
 		writeWithMessageConverters(returnValue, returnType, inputMessage, outputMessage);
 	}
 

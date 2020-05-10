@@ -77,11 +77,11 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	/**注册的HttpMessageConverter集合*/
 	protected final List<HttpMessageConverter<?>> messageConverters;
 
 	protected final List<MediaType> allSupportedMediaTypes;
-
+	/**用于存储注册到当前值解析器的RequestResponseBodyAdvice集合组成的链*/
 	private final RequestResponseBodyAdviceChain advice;
 
 
@@ -102,6 +102,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
 		Assert.notEmpty(converters, "'messageConverters' must not be empty");
 		this.messageConverters = converters;
 		this.allSupportedMediaTypes = getAllSupportedMediaTypes(converters);
+		//使用RequestResponseBodyAdviceChain的构造方法，参数为注册进行来的RequestResponseBodyAdvice集合，构建用来修改请求参数
+		//或者响应值的通知器链表
 		this.advice = new RequestResponseBodyAdviceChain(requestResponseBodyAdvice);
 	}
 
