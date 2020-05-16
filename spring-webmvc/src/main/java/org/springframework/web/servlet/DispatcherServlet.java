@@ -306,7 +306,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	/** Detect all HandlerAdapters or just expect "handlerAdapter" bean?. */
 	private boolean detectAllHandlerAdapters = true;
 
-	/** Detect all HandlerExceptionResolvers or just expect "handlerExceptionResolver" bean?. */
+	/** Detect all HandlerExceptionResolvers or just expect "handlerExceptionResolver" bean?. 是否检查所有的HandlerExceptionResolvers类型的bean对象 */
 	private boolean detectAllHandlerExceptionResolvers = true;
 
 	/** Detect all ViewResolvers or just expect "viewResolver" bean?. */
@@ -340,7 +340,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	private List<HandlerAdapter> handlerAdapters;
 
-	/** List of HandlerExceptionResolvers used by this servlet. */
+	/** List of HandlerExceptionResolvers used by this servlet. 当前servlet使用的HandlerExceptionResolvers的容器*/
 	@Nullable
 	private List<HandlerExceptionResolver> handlerExceptionResolvers;
 
@@ -696,26 +696,35 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/**
 	 * Initialize the HandlerExceptionResolver used by this class.
+	 * 初始化该类使用的HandlerExceptionResolver对象们
 	 * <p>If no bean is defined with the given name in the BeanFactory for this namespace,
 	 * we default to no exception resolver.
 	 */
 	private void initHandlerExceptionResolvers(ApplicationContext context) {
+		//置空handlerExceptionResolvers处理
 		this.handlerExceptionResolvers = null;
-
+		//情况一，自动扫描类型为HandlerExceptionResolver类型的bean对象们
 		if (this.detectAllHandlerExceptionResolvers) {
 			// Find all HandlerExceptionResolvers in the ApplicationContext, including ancestor contexts.
+			//从当前的上下文容器以及其父类们的上下文容器中获取类型为HandlerExceptionResolver类型的bean对象们
 			Map<String, HandlerExceptionResolver> matchingBeans = BeanFactoryUtils
 					.beansOfTypeIncludingAncestors(context, HandlerExceptionResolver.class, true, false);
+			//如果获取到了
 			if (!matchingBeans.isEmpty()) {
+				//将从容器中获取到的HandlerExceptionResolver类型的bean集合赋值给handlerExceptionResolvers中
 				this.handlerExceptionResolvers = new ArrayList<>(matchingBeans.values());
 				// We keep HandlerExceptionResolvers in sorted order.
+				//排序
 				AnnotationAwareOrderComparator.sort(this.handlerExceptionResolvers);
 			}
 		}
+		//情况二，直接获取名字为HANDLER_EXCEPTION_RESOLVER_BEAN_NAME的bean对象
 		else {
 			try {
+				//从当前上下文容器中获取名称为HANDLER_EXCEPTION_RESOLVER_BEAN_NAME的bean对象（类型为HandlerExceptionResolver类型）
 				HandlerExceptionResolver her =
 						context.getBean(HANDLER_EXCEPTION_RESOLVER_BEAN_NAME, HandlerExceptionResolver.class);
+				//将获取到的HandlerExceptionResolver对象转换为数组赋值给handlerExceptionResolvers变量
 				this.handlerExceptionResolvers = Collections.singletonList(her);
 			}
 			catch (NoSuchBeanDefinitionException ex) {
@@ -725,8 +734,11 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least some HandlerExceptionResolvers, by registering
 		// default HandlerExceptionResolvers if no other resolvers are found.
+		//如果没有从当前上下文容器中解析得到注册的handlerExceptionResolver们
 		if (this.handlerExceptionResolvers == null) {
+			//从DispatcherServlet.properties文件中获取我们设置的默认的HandlerExceptionResolver对象们（通过类加载器加载设置的类全路径得到）
 			this.handlerExceptionResolvers = getDefaultStrategies(context, HandlerExceptionResolver.class);
+			//记录日志
 			if (logger.isTraceEnabled()) {
 				logger.trace("No HandlerExceptionResolvers declared in servlet '" + getServletName() +
 						"': using default strategies from DispatcherServlet.properties");

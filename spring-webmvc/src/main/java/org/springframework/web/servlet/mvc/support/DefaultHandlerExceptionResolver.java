@@ -139,6 +139,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @author Juergen Hoeller
  * @since 3.0
  * @see org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+ * HandlerExceptionResolver接口的默认实现类，针对各种异常，设置不同的错误响应
  */
 public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
 
@@ -163,12 +164,12 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 		setWarnLogCategory(getClass().getName());
 	}
 
-
+	/**此方法根据产生不同的异常，来对响应中的header设置不同的信息，并对响应设置不同的状态码和错误信息*/
 	@Override
 	@Nullable
 	protected ModelAndView doResolveException(
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
-
+		//对不同类型的异常处理，即对响应设置不同的信息
 		try {
 			if (ex instanceof HttpRequestMethodNotSupportedException) {
 				return handleHttpRequestMethodNotSupported(
@@ -231,10 +232,12 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 			}
 		}
 		catch (Exception handlerEx) {
+			//记录异常日志
 			if (logger.isWarnEnabled()) {
 				logger.warn("Failure while trying to resolve exception [" + ex.getClass().getName() + "]", handlerEx);
 			}
 		}
+		//如发生异常不为上述情况，则无法解析直接返回null
 		return null;
 	}
 

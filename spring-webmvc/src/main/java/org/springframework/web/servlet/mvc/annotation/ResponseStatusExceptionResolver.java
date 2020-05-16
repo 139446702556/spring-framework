@@ -53,6 +53,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @since 3.0
  * @see ResponseStatus
  * @see ResponseStatusException
+ * 此类是基于@ResponseStauts注解提供错误响应的HandlerExceptionResolver实现类
  */
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 
@@ -65,31 +66,34 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 		this.messageSource = messageSource;
 	}
 
-
+	/**解析当前请求执行发生的异常，并返回得到的ModelAndView结果对象*/
 	@Override
 	@Nullable
 	protected ModelAndView doResolveException(
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
 		try {
+			//情况一，如果异常为ResponseStatusException类型，则进行解析并设置到响应中
 			if (ex instanceof ResponseStatusException) {
 				return resolveResponseStatusException((ResponseStatusException) ex, request, response, handler);
 			}
-
+			//情况二，如果设置了@ResponseStatus注解，则进行解析此注解，并将相应设置设置到响应中
 			ResponseStatus status = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 			if (status != null) {
 				return resolveResponseStatus(status, request, response, handler, ex);
 			}
-
+			//情况三，使用异常的cause属性再重新执行一遍情况一和情况二的逻辑，此处为递归调用
 			if (ex.getCause() instanceof Exception) {
 				return doResolveException(request, response, handler, (Exception) ex.getCause());
 			}
 		}
 		catch (Exception resolveEx) {
+			//记录解析异常
 			if (logger.isWarnEnabled()) {
 				logger.warn("Failure while trying to resolve exception [" + ex.getClass().getName() + "]", resolveEx);
 			}
 		}
+		//如果解析失败，则返回null
 		return null;
 	}
 
@@ -107,9 +111,11 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	 */
 	protected ModelAndView resolveResponseStatus(ResponseStatus responseStatus, HttpServletRequest request,
 			HttpServletResponse response, @Nullable Object handler, Exception ex) throws Exception {
-
+		//从给定的ResponseStatus注解对象中获取设置的状态码
 		int statusCode = responseStatus.code().value();
+		//获取原因提示信息
 		String reason = responseStatus.reason();
+		//将ResponseStatus注解对象设置的状态码和提示原因信息设置到响应中
 		return applyStatusAndReason(statusCode, reason, response);
 	}
 
@@ -127,14 +133,17 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	 */
 	protected ModelAndView resolveResponseStatusException(ResponseStatusException ex,
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler) throws Exception {
-
+		//获取异常状态码
 		int statusCode = ex.getStatus().value();
+		//获取异常原因
 		String reason = ex.getReason();
+		//将当前异常解析得到的状态码和异常原因提示设置到响应中
 		return applyStatusAndReason(statusCode, reason, response);
 	}
 
 	/**
 	 * Apply the resolved status code and reason to the response.
+	 * 将给定的错误状态和原因信息设置到当前响应中
 	 * <p>The default implementation sends a response error using
 	 * {@link HttpServletResponse#sendError(int)} or
 	 * {@link HttpServletResponse#sendError(int, String)} if there is a reason
@@ -146,16 +155,20 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 	 */
 	protected ModelAndView applyStatusAndReason(int statusCode, @Nullable String reason, HttpServletResponse response)
 			throws IOException {
-
+		//情况一，如果无错误原因提示，则响应只设置状态码
 		if (!StringUtils.hasLength(reason)) {
 			response.sendError(statusCode);
 		}
+		//情况二，如果有错误原因提示，则向响应中设置错误原因提示和状态码
 		else {
+			//如果有messageSource的情况下，进一步来解析错误提示信息
 			String resolvedReason = (this.messageSource != null ?
 					this.messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale()) :
 					reason);
+			//向响应中设置错误状态和提示信息
 			response.sendError(statusCode, resolvedReason);
 		}
+		//创建一个空的ModelAndView对象，并返回
 		return new ModelAndView();
 	}
 
