@@ -53,24 +53,25 @@ import org.springframework.web.util.UrlPathHelper;
  * @since 2.0
  * @see org.springframework.web.servlet.RequestToViewNameTranslator
  * @see org.springframework.web.servlet.ViewResolver
+ * 此类为RequestToViewNameTranslator接口的唯一实现类（默认实现类）
  */
 public class DefaultRequestToViewNameTranslator implements RequestToViewNameTranslator {
 
 	private static final String SLASH = "/";
 
-
+	/**前缀*/
 	private String prefix = "";
-
+	/**后缀*/
 	private String suffix = "";
-
+	/**分隔符*/
 	private String separator = SLASH;
-
+	/**是否移除开头的Slash*/
 	private boolean stripLeadingSlash = true;
-
+	/**是否移除结尾的Slash*/
 	private boolean stripTrailingSlash = true;
-
+	/**是否移除扩展名*/
 	private boolean stripExtension = true;
-
+	/**URL路径工具*/
 	private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 
@@ -167,7 +168,9 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	 */
 	@Override
 	public String getViewName(HttpServletRequest request) {
+		//获取请求路径
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
+		//获得视图名
 		return (this.prefix + transformPath(lookupPath) + this.suffix);
 	}
 
@@ -178,19 +181,25 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	 * as determined by the UrlPathHelper
 	 * @return the transformed path, with slashes and extensions stripped
 	 * if desired
+	 * 转换给定的请求路径
 	 */
 	@Nullable
 	protected String transformPath(String lookupPath) {
+		//请求路径
 		String path = lookupPath;
+		//移除开头的SLASH
 		if (this.stripLeadingSlash && path.startsWith(SLASH)) {
 			path = path.substring(1);
 		}
+		//移除结尾的SLASH
 		if (this.stripTrailingSlash && path.endsWith(SLASH)) {
 			path = path.substring(0, path.length() - 1);
 		}
+		//移除扩展符
 		if (this.stripExtension) {
 			path = StringUtils.stripFilenameExtension(path);
 		}
+		//替换分隔符
 		if (!SLASH.equals(this.separator)) {
 			path = StringUtils.replace(path, SLASH, this.separator);
 		}

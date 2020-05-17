@@ -605,6 +605,7 @@ public abstract class StringUtils {
 
 	/**
 	 * Strip the filename extension from the given Java resource path,
+	 * 从给定的资源文件路径中删除对应的扩展符号
 	 * e.g. "mypath/myfile.txt" -> "mypath/myfile".
 	 * @param path the file path
 	 * @return the path with stripped filename extension
