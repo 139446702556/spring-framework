@@ -33,14 +33,15 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see #setDefaultThemeName
+ * 此类没有具体的实现细节
  */
 public class FixedThemeResolver extends AbstractThemeResolver {
-
+	/**直接返回默认的themeName值*/
 	@Override
 	public String resolveThemeName(HttpServletRequest request) {
 		return getDefaultThemeName();
 	}
-
+	/**直接抛出异常，未有具体实现*/
 	@Override
 	public void setThemeName(
 			HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable String themeName) {

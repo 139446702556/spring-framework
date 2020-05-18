@@ -210,8 +210,11 @@ public class CookieGenerator {
 	 * @see #setCookiePath
 	 */
 	public void removeCookie(HttpServletResponse response) {
+		//断言response不为空
 		Assert.notNull(response, "HttpServletResponse must not be null");
+		//创建一个空的Cookie对象
 		Cookie cookie = createCookie("");
+		//设置cookie对象的相关属性
 		cookie.setMaxAge(0);
 		if (isCookieSecure()) {
 			cookie.setSecure(true);
@@ -219,7 +222,9 @@ public class CookieGenerator {
 		if (isCookieHttpOnly()) {
 			cookie.setHttpOnly(true);
 		}
+		//将此cookie对象添加到给定的repsonse中，已覆盖掉原response中有的cookie对象
 		response.addCookie(cookie);
+		//记录日志
 		if (logger.isTraceEnabled()) {
 			logger.trace("Removed cookie '" + getCookieName() + "'");
 		}

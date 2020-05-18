@@ -36,11 +36,13 @@ import org.springframework.web.util.WebUtils;
  * @author Juergen Hoeller
  * @since 17.06.2003
  * @see #setThemeName
+ * 此类也是ThemeResolver的简单实现类，主要就是将ThemeName保存到session中就可以了
  */
 public class SessionThemeResolver extends AbstractThemeResolver {
 
 	/**
 	 * Name of the session attribute that holds the theme name.
+	 * 保存主题名称的会话属性的名称
 	 * Only used internally by this implementation.
 	 * Use {@code RequestContext(Utils).getTheme()}
 	 * to retrieve the current theme in controllers or views.
@@ -52,15 +54,17 @@ public class SessionThemeResolver extends AbstractThemeResolver {
 
 	@Override
 	public String resolveThemeName(HttpServletRequest request) {
+		//从当前请求的session会话中获得对应的themeName值
 		String themeName = (String) WebUtils.getSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME);
 		// A specific theme indicated, or do we need to fallback to the default?
+		//如果获得成功，则直接返回，否者返回默认的themeName值
 		return (themeName != null ? themeName : getDefaultThemeName());
 	}
 
 	@Override
 	public void setThemeName(
 			HttpServletRequest request, @Nullable HttpServletResponse response, @Nullable String themeName) {
-
+		//将当前要设置的themeName值设置到当前请求的session会话中
 		WebUtils.setSessionAttribute(request, THEME_SESSION_ATTRIBUTE_NAME,
 				(StringUtils.hasText(themeName) ? themeName : null));
 	}
