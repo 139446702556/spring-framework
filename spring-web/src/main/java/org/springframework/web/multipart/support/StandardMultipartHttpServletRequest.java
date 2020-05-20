@@ -55,9 +55,10 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Rossen Stoyanchev
  * @since 3.1
  * @see StandardServletMultipartResolver
+ * 此类为基于servlet 3.0的Multipart HttpServletRequest的实现类
  */
 public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpServletRequest {
-
+	/**普通参数名称的集合 指的是非上传文件的参数名*/
 	@Nullable
 	private Set<String> multipartParameterNames;
 
@@ -82,56 +83,77 @@ public class StandardMultipartHttpServletRequest extends AbstractMultipartHttpSe
 	 */
 	public StandardMultipartHttpServletRequest(HttpServletRequest request, boolean lazyParsing)
 			throws MultipartException {
-
+		//调用父类的构造函数
 		super(request);
+		//如果不是延迟加载，则解析当前给定的请求
 		if (!lazyParsing) {
 			parseRequest(request);
 		}
 	}
 
-
+	/**解析给定的请求对象*/
 	private void parseRequest(HttpServletRequest request) {
 		try {
+			//获取当前请求中的Part数组对象
 			Collection<Part> parts = request.getParts();
+			//初始化multipartParameterNames字段
 			this.multipartParameterNames = new LinkedHashSet<>(parts.size());
+			//用于存储解析当前请求得到的MultipartFile对象
 			MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<>(parts.size());
+			//遍历请求中的Part数组
 			for (Part part : parts) {
+				//获取CONTENT_DISPOSITION头的值
 				String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
+				//解析CONTENT_DISPOSITION头的值，获取到其对应的ContentDisposition对象
 				ContentDisposition disposition = ContentDisposition.parse(headerValue);
+				//获取文件名称
 				String filename = disposition.getFilename();
+				//情况一，文件名非空，说明当前是文件参数，则创建StandardMultipartFile对象，并将其添加到files中
 				if (filename != null) {
+					//如果文件名是以=？开头的并且以？=结尾的
 					if (filename.startsWith("=?") && filename.endsWith("?=")) {
+						//则对当前文件名进行解码
 						filename = MimeDelegate.decode(filename);
 					}
+					//将part.name与当前part和filename创建的StandardMultipartFile对象的关系添加到files中
 					files.add(part.getName(), new StandardMultipartFile(part, filename));
 				}
+				//情况二，文件名为空，说明当前是普通参数，则将part.name添加到multipartParameterNames中
 				else {
 					this.multipartParameterNames.add(part.getName());
 				}
 			}
+			//将files设置到multipartFiles的属性中
 			setMultipartFiles(files);
 		}
 		catch (Throwable ex) {
+			//处理解析失败产生的异常
 			handleParseFailure(ex);
 		}
 	}
-
+	/**根据给定异常的信息，抛出相应的异常*/
 	protected void handleParseFailure(Throwable ex) {
+		//获取异常信息
 		String msg = ex.getMessage();
+		//如果异常信息不为空，并且信息内容包含size和exced，则抛出MaxUploadSizeExceededException异常
 		if (msg != null && msg.contains("size") && msg.contains("exceed")) {
 			throw new MaxUploadSizeExceededException(-1, ex);
 		}
+		//其它情况，则抛出MultipartException异常
 		throw new MultipartException("Failed to parse multipart servlet request", ex);
 	}
 
 	@Override
 	protected void initializeMultipart() {
+		//解析当前请求
 		parseRequest(getRequest());
 	}
 
 	@Override
 	public Enumeration<String> getParameterNames() {
+		//通过判断multipartParameterNames属性是否为空，来判断是否已经初始化
 		if (this.multipartParameterNames == null) {
+			//初始化Multipart属性，实则为解析当前请求
 			initializeMultipart();
 		}
 		if (this.multipartParameterNames.isEmpty()) {

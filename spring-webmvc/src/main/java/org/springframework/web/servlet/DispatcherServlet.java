@@ -532,12 +532,17 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/**
 	 * Initialize the MultipartResolver used by this class.
+	 * 初始化multipartResolver变量
+	 * 默认情况下，multipartResolver对应的是StandardServletMultipartResolver类型的bean对象
 	 * <p>If no bean is defined with the given name in the BeanFactory for this namespace,
 	 * no multipart handling is provided.
 	 */
 	private void initMultipartResolver(ApplicationContext context) {
 		try {
+			//从当前给定的上下文容器中获取bean名称为MULTIPART_RESOLVER_BEAN_NAME的MultipartResolver bean对象
+			//来初始化multipartResolver属性变量
 			this.multipartResolver = context.getBean(MULTIPART_RESOLVER_BEAN_NAME, MultipartResolver.class);
+			//记录初始化过程日志
 			if (logger.isTraceEnabled()) {
 				logger.trace("Detected " + this.multipartResolver);
 			}
@@ -547,6 +552,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 			// Default is no multipart resolver.
+			//如果抛出异常，则将multipartResolver变量设置为null，并记录日志
 			this.multipartResolver = null;
 			if (logger.isTraceEnabled()) {
 				logger.trace("No MultipartResolver '" + MULTIPART_RESOLVER_BEAN_NAME + "' declared");

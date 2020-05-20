@@ -57,9 +57,10 @@ import org.springframework.web.multipart.MultipartResolver;
  * @see #setResolveLazily
  * @see HttpServletRequest#getParts()
  * @see org.springframework.web.multipart.commons.CommonsMultipartResolver
+ * 此类为使用了Servlet 3.0的标准上传API的MultipartResolver的实现类
  */
 public class StandardServletMultipartResolver implements MultipartResolver {
-
+	/**是否延迟解析   是否在需要获得对应文件时，再进行文件的解析*/
 	private boolean resolveLazily = false;
 
 
@@ -76,31 +77,38 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 		this.resolveLazily = resolveLazily;
 	}
 
-
+	/**判断当前请求是否为Multipart类型请求*/
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
+		//判断当前请求的Content-Type属性的值是否是以multipart/开头的
 		return StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/");
 	}
 
 	@Override
 	public MultipartHttpServletRequest resolveMultipart(HttpServletRequest request) throws MultipartException {
+		//通过给定的请求创建一个StandardMultipartHttpServletRequest对象，并返回（其中resolveLazily字段控制了是否直接解析）
 		return new StandardMultipartHttpServletRequest(request, this.resolveLazily);
 	}
-
+	/**删除在处理Multipart请求时产生的临时Part们*/
 	@Override
 	public void cleanupMultipart(MultipartHttpServletRequest request) {
+		//如果当前给定的request请求不是AbstractMultipartHttpServletRequest类型的
+		//或者它是此类型，并且是已经被解析了的
 		if (!(request instanceof AbstractMultipartHttpServletRequest) ||
 				((AbstractMultipartHttpServletRequest) request).isResolved()) {
 			// To be on the safe side: explicitly delete the parts,
 			// but only actual file parts (for Resin compatibility)
 			try {
+				//遍历当前request请求中的Part数组
 				for (Part part : request.getParts()) {
+					//如果当前part部分的名称在给定request请求中有对应的MultipartFile对象，则删除当前临时的part对象
 					if (request.getFile(part.getName()) != null) {
 						part.delete();
 					}
 				}
 			}
 			catch (Throwable ex) {
+				//记录错误日志
 				LogFactory.getLog(getClass()).warn("Failed to perform cleanup of multipart items", ex);
 			}
 		}

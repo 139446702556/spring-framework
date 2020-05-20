@@ -254,6 +254,7 @@ public final class ContentDisposition {
 
 	/**
 	 * Parse a {@literal Content-Disposition} header value as defined in RFC 2183.
+	 * 解析给定的Content-Disposition头的值，得到一个对应的ContentDisposition对象
 	 * @param contentDisposition the {@literal Content-Disposition} header value
 	 * @return the parsed content disposition
 	 * @see #toString()

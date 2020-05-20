@@ -128,6 +128,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	/**
 	 * Set a Map with parameter names as keys and list of MultipartFile objects as values.
 	 * To be invoked by subclasses on initialization.
+	 * 使用给定的参数设置multipartFiles属性值
 	 */
 	protected final void setMultipartFiles(MultiValueMap<String, MultipartFile> multipartFiles) {
 		this.multipartFiles =
@@ -141,7 +142,7 @@ public abstract class AbstractMultipartHttpServletRequest extends HttpServletReq
 	 * @see #initializeMultipart()
 	 */
 	protected MultiValueMap<String, MultipartFile> getMultipartFiles() {
-		//如果当前multipartFiles映射容器为空，则对其进行初始化（此处为延迟初始化）
+		//如果当前multipartFiles映射容器为空（未初始化），则对其进行初始化（此处为延迟初始化）
 		if (this.multipartFiles == null) {
 			initializeMultipart();
 		}
