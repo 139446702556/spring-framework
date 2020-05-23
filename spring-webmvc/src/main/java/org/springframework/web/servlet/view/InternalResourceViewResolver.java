@@ -45,9 +45,10 @@ import org.springframework.util.ClassUtils;
  * @see #setRequestContextAttribute
  * @see InternalResourceView
  * @see JstlView
+ * 解析出jsp的ViewResolver的实现类
  */
 public class InternalResourceViewResolver extends UrlBasedViewResolver {
-
+	/**判断javax.servlet.jsp.jstl.core.Config是否存在*/
 	private static final boolean jstlPresent = ClassUtils.isPresent(
 			"javax.servlet.jsp.jstl.core.Config", InternalResourceViewResolver.class.getClassLoader());
 
@@ -61,10 +62,14 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 	 * is present.
 	 */
 	public InternalResourceViewResolver() {
+		//获得viewClass对象
 		Class<?> viewClass = requiredViewClass();
+		//如果viewClass为InternalResourceView类型，并且存在javax.servlet.jsp.jstl.core.Config类
+		//则将viewClass设置为JstlView类型
 		if (InternalResourceView.class == viewClass && jstlPresent) {
 			viewClass = JstlView.class;
 		}
+		//设置viewClass属性
 		setViewClass(viewClass);
 	}
 
@@ -76,14 +81,18 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 	 * @since 4.3
 	 */
 	public InternalResourceViewResolver(String prefix, String suffix) {
+		//调用当前类的无参构造函数
 		this();
+		//设置prefix属性值
 		setPrefix(prefix);
+		//设置suffix属性值
 		setSuffix(suffix);
 	}
 
 
 	/**
 	 * This resolver requires {@link InternalResourceView}.
+	 * 当前解析器需要的视图类型为InternalResourceView类型
 	 */
 	@Override
 	protected Class<?> requiredViewClass() {
@@ -100,10 +109,12 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 		this.alwaysInclude = alwaysInclude;
 	}
 
-
+	/**创建viewName对应的View对象，此类为重写了父类的方法，在父类方法上新增了两个属性的设置*/
 	@Override
 	protected AbstractUrlBasedView buildView(String viewName) throws Exception {
+		//调用父类的buildView方法来创建viewName对应的View对象
 		InternalResourceView view = (InternalResourceView) super.buildView(viewName);
+		//设置view对象的相关属性
 		if (this.alwaysInclude != null) {
 			view.setAlwaysInclude(this.alwaysInclude);
 		}

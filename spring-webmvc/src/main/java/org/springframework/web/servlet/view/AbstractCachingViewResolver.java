@@ -41,13 +41,15 @@ import org.springframework.web.servlet.ViewResolver;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #loadView
+ * 提供通用缓存的ViewResolver实现类，此类解析的相同的viewName，返回的是相同的View对象，此处是通过缓存实现了这一点
  */
 public abstract class AbstractCachingViewResolver extends WebApplicationObjectSupport implements ViewResolver {
 
-	/** Default maximum number of entries for the view cache: 1024. */
+	/** Default maximum number of entries for the view cache: 1024. 视图缓存的默认最大条目数 */
 	public static final int DEFAULT_CACHE_LIMIT = 1024;
 
 	/** Dummy marker object for unresolved views in the cache Maps. */
+	/**缓存映射中未解析到的视图的哑标记对象*/
 	private static final View UNRESOLVED_VIEW = new View() {
 		@Override
 		@Nullable
@@ -60,21 +62,32 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	};
 
 
-	/** The maximum number of entries in the cache. */
+	/**
+	 * The maximum number of entries in the cache.
+	 * 缓存上线，如果cacheLimit设置为0，则表示不使用缓存
+	 */
 	private volatile int cacheLimit = DEFAULT_CACHE_LIMIT;
 
-	/** Whether we should refrain from resolving views again if unresolved once. */
+	/** Whether we should refrain from resolving views again if unresolved once. 是否缓存空View对象 */
 	private boolean cacheUnresolved = true;
 
-	/** Fast access cache for Views, returning already cached instances without a global lock. */
+	/** Fast access cache for Views, returning already cached instances without a global lock. View缓存的映射 */
 	private final Map<Object, View> viewAccessCache = new ConcurrentHashMap<>(DEFAULT_CACHE_LIMIT);
 
-	/** Map from view key to View instance, synchronized for View creation. */
+	/**
+	 * Map from view key to View instance, synchronized for View creation.
+	 * View的缓存的映射，相比viewAccessCache来说，其增加了synchronized锁
+	 * 此LinkedHashMap结构通过重写模板方法removeEldestEntry来实现了LRU算法
+	 * 此方法返回true时，则表示要删除最老的数据
+	 * LinkedHashMap的参数accessOrder为true时，数据会按照访问顺序排列
+	 * 如果为false，则数据按照插入顺序排列
+	 */
 	@SuppressWarnings("serial")
 	private final Map<Object, View> viewCreationCache =
 			new LinkedHashMap<Object, View>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
 				@Override
 				protected boolean removeEldestEntry(Map.Entry<Object, View> eldest) {
+					//如果超过上线，则将其也从viewAccessCache中移除
 					if (size() > getCacheLimit()) {
 						viewAccessCache.remove(eldest.getKey());
 						return true;
@@ -114,6 +127,8 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 
 	/**
 	 * Return if caching is enabled.
+	 * 通过判断cacheLimit是否为0，来判断是否禁用了缓存
+	 * 0  则表示禁用了缓存
 	 */
 	public boolean isCache() {
 		return (this.cacheLimit > 0);
@@ -142,25 +157,36 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 		return this.cacheUnresolved;
 	}
 
-
+	/**通过解析给定的viewName得到对应的View对象，并返回*/
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		//如果禁用了缓存（即cacheLimit等于0），则创建viewName对应的View对象
 		if (!isCache()) {
 			return createView(viewName, locale);
 		}
+		//如果开启了缓存
 		else {
+			//获取缓存的Key
 			Object cacheKey = getCacheKey(viewName, locale);
+			//从viewAccessCache缓存中获取key对应的View对象
 			View view = this.viewAccessCache.get(cacheKey);
+			//如果未从viewAccessCache缓存中获取到key对应的View对象，则从viewCreationCache缓存中获取key对应的View对象
 			if (view == null) {
+				//锁住viewCreationCache对象
 				synchronized (this.viewCreationCache) {
+					//从viewCreationCache缓存中获取key对应的View对象
 					view = this.viewCreationCache.get(cacheKey);
+					//如果从缓存中没有获取到
 					if (view == null) {
 						// Ask the subclass to create the View object.
+						//则通过给定的viewName创建对应的View对象
 						view = createView(viewName, locale);
+						//如果创建失败，并且cacheUnresolved为true，则将其设置为UNRESOLVED_VIEW
 						if (view == null && this.cacheUnresolved) {
 							view = UNRESOLVED_VIEW;
 						}
+						//如果view非空，则将其添加到viewAccessCache和viewCreationCache缓存中
 						if (view != null) {
 							this.viewAccessCache.put(cacheKey, view);
 							this.viewCreationCache.put(cacheKey, view);
@@ -168,11 +194,13 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 					}
 				}
 			}
+			//如果从viewAccessCache缓存中获取View对象成功，则记录日志
 			else {
 				if (logger.isTraceEnabled()) {
 					logger.trace(formatKey(cacheKey) + "served from cache");
 				}
 			}
+			//返回view对象
 			return (view != UNRESOLVED_VIEW ? view : null);
 		}
 	}
@@ -235,6 +263,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 
 	/**
 	 * Create the actual View object.
+	 * 创建给定的viewName对应的View对象
 	 * <p>The default implementation delegates to {@link #loadView}.
 	 * This can be overridden to resolve certain view names in a special fashion,
 	 * before delegating to the actual {@code loadView} implementation
@@ -263,6 +292,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	 * (optional, to allow for ViewResolver chaining)
 	 * @throws Exception if the view couldn't be resolved
 	 * @see #resolveViewName
+	 * 加载viewName对应的View对象
 	 */
 	@Nullable
 	protected abstract View loadView(String viewName, Locale locale) throws Exception;

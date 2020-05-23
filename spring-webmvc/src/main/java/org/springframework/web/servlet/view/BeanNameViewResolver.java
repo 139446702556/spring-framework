@@ -51,9 +51,10 @@ import org.springframework.web.servlet.ViewResolver;
  * @see XmlViewResolver
  * @see ResourceBundleViewResolver
  * @see UrlBasedViewResolver
+ * 此类是基于bean的名称获得对应的View对象的ViewResolver实现类
  */
 public class BeanNameViewResolver extends WebApplicationObjectSupport implements ViewResolver, Ordered {
-
+	/**顺序，优先级最低*/
 	private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
 
 
@@ -71,15 +72,18 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 		return this.order;
 	}
 
-
+	/**使用给定的Bean的名称获得其对应的View对象*/
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws BeansException {
+		//获取上下文对象
 		ApplicationContext context = obtainApplicationContext();
+		//如果当前上下文容器中不包含给定的viewName对应的bean对象，则直接返回null
 		if (!context.containsBean(viewName)) {
 			// Allow for ViewResolver chaining...
 			return null;
 		}
+		//判断当前上下文容器中包含的viewName对应的bean对象的类型是否为View类型，如果不是，则记录日志，然后返回null
 		if (!context.isTypeMatch(viewName, View.class)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Found bean named '" + viewName + "' but it does not implement View");
@@ -88,6 +92,7 @@ public class BeanNameViewResolver extends WebApplicationObjectSupport implements
 			// let's accept this as a non-match and allow for chaining as well...
 			return null;
 		}
+		//从当前上下文容器中获取bean名称对应的View对象，并返回
 		return context.getBean(viewName, View.class);
 	}
 

@@ -40,12 +40,13 @@ import org.springframework.web.servlet.ViewResolver;
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
  * @since 4.1
+ * 复合的ViewResolver实现类
  */
 public class ViewResolverComposite implements ViewResolver, Ordered, InitializingBean,
 		ApplicationContextAware, ServletContextAware {
-
+	/**ViewResolver数组*/
 	private final List<ViewResolver> viewResolvers = new ArrayList<>();
-
+	/**顺序，优先级最低*/
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 
@@ -95,7 +96,9 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		//遍历viewResolvers数组
 		for (ViewResolver viewResolver : this.viewResolvers) {
+			//如果当前ViewResolver是InitializingBean类型的实例，则调用其的初始化方法
 			if (viewResolver instanceof InitializingBean) {
 				((InitializingBean) viewResolver).afterPropertiesSet();
 			}
@@ -105,12 +108,16 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		//遍历viewResolvers数组
 		for (ViewResolver viewResolver : this.viewResolvers) {
+			//解析给定的viewName获得其对应的View对象
 			View view = viewResolver.resolveViewName(viewName, locale);
+			//如果解析成功，则直接返回该View对象
 			if (view != null) {
 				return view;
 			}
 		}
+		//如果全部未解析成功，则返回null
 		return null;
 	}
 

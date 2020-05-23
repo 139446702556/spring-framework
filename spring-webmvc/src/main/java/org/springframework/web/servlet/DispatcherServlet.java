@@ -310,6 +310,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	private boolean detectAllHandlerExceptionResolvers = true;
 
 	/** Detect all ViewResolvers or just expect "viewResolver" bean?. */
+	/**是从当前上下文容器中查询所有的ViewResolver bean对象，还是只是查找beanName为viewResolver的bean对象  true时查找所有的*/
 	private boolean detectAllViewResolvers = true;
 
 	/** Throw a NoHandlerFoundException if no Handler was found to process this request? *.*/
@@ -352,7 +353,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	@Nullable
 	private FlashMapManager flashMapManager;
 
-	/** List of ViewResolvers used by this servlet. */
+	/** List of ViewResolvers used by this servlet. 存储当前servlet的视图解析器的集合容器 */
 	@Nullable
 	private List<ViewResolver> viewResolvers;
 
@@ -779,24 +780,32 @@ public class DispatcherServlet extends FrameworkServlet {
 
 	/**
 	 * Initialize the ViewResolvers used by this class.
+	 * 使用当前给定的上下文对象来初始化viewResolvers变量
 	 * <p>If no ViewResolver beans are defined in the BeanFactory for this
 	 * namespace, we default to InternalResourceViewResolver.
 	 */
 	private void initViewResolvers(ApplicationContext context) {
+		//置空viewResolvers字段处理
 		this.viewResolvers = null;
-
+		//情况一，自动扫描当前上下文容器中的所有ViewResolver类型的bean对象
 		if (this.detectAllViewResolvers) {
 			// Find all ViewResolvers in the ApplicationContext, including ancestor contexts.
+			//从当前上下文容器以及父类容器中获取类型为ViewResolver类型的bean对象们
 			Map<String, ViewResolver> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, ViewResolver.class, true, false);
+			//如果获取到了
 			if (!matchingBeans.isEmpty()) {
+				//将获得到的解析器们转化为集合赋值给viewResolvers字段
 				this.viewResolvers = new ArrayList<>(matchingBeans.values());
 				// We keep ViewResolvers in sorted order.
+				//排序
 				AnnotationAwareOrderComparator.sort(this.viewResolvers);
 			}
 		}
+		//情况二，从当前上下文容器中获得名字为viewResolver的bean对象
 		else {
 			try {
+				//从当前上下文容器中获取名字为viewResolver的bean对象，并将其转换为单体集合赋值给viewResolvers字段
 				ViewResolver vr = context.getBean(VIEW_RESOLVER_BEAN_NAME, ViewResolver.class);
 				this.viewResolvers = Collections.singletonList(vr);
 			}
@@ -807,6 +816,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
 		// Ensure we have at least one ViewResolver, by registering
 		// a default ViewResolver if no other resolvers are found.
+		//情况三，如果未获得到解析器，则使用默认配置的viewResolver类
 		if (this.viewResolvers == null) {
 			this.viewResolvers = getDefaultStrategies(context, ViewResolver.class);
 			if (logger.isTraceEnabled()) {

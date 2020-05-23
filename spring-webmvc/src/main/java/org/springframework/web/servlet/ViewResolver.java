@@ -28,7 +28,7 @@ import org.springframework.lang.Nullable;
  *
  * <p>Implementations are encouraged to support internationalization,
  * i.e. localized view resolution.
- * 实体解析器接口，根据视图名和国际化获得最终的试图View对象
+ * 实体(视图)解析器接口，根据视图名和国际化获得最终的试图View对象
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see org.springframework.web.servlet.view.InternalResourceViewResolver
